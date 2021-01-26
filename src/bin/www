@@ -1,0 +1,157 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('zebra:server');
+var http = require('http');
+var Zconfig = require("../config/Zconfig");
+var httpsparm = Zconfig["https"];
+var pfx = "undefined" //Zconfig["pfx"];
+var pass = "None" //Zconfig["passhrase"];
+var config;
+var port = normalizePort(process.env.PORT || 3090 );
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+ //Configure HTTPS For Zebra
+const https = require('https');
+const fs = require('fs');
+
+
+function buildConfig(port, key, cert, pfx, pass) {
+
+  const config = {
+    'port': port /*|| port*/,
+    'https': {
+      'key': key /*|| key*/,
+      'cert': cert /*|| cert*/,
+      'pfx': pfx,
+      'passphrase': pass,
+    }
+  };
+  return config;
+}
+
+function loadCertificateFiles(config) {
+  // load https certs file content
+  if (config && config.https) {
+    ['key', 'cert', 'pfx'].forEach(key => {
+      if (config.https[key]) {
+        let file = config.https[key];
+        config.https[key] = fs.readFileSync(file);
+      }
+    });
+  }
+  return config;
+};
+
+if (httpsparm === "true"){
+  var certificate = "./sslcert/server.cert";
+  var privatekey = "./sslcert/server.key";
+
+  if(pfx === "undefined" && pass === "None"){
+    config = buildConfig(port, privatekey, certificate, undefined, undefined );
+  }else if(pfx === "undefined"){
+    config = buildConfig(port, privatekey, certificate, undefined, pass );
+  }else if (pass === "None"){
+    config = buildConfig(port, privatekey, certificate, pfx, undefined );
+  }else{
+    config = buildConfig(port, privatekey, certificate, pfx, pass );
+  }
+  
+  config = loadCertificateFiles(config);
+  const {https:{key, cert}} = config;
+  const credentials = { key, cert };
+
+  var options = {
+    explorer: false
+  };
+  
+  const httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(config.port+1);
+  console.log(`https server listening at port ${config.port + 1}`);
+
+}else{
+  app.set('port', port);
+  console.log(`http server listening at port ${port}`);
+}
+
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

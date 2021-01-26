@@ -1,8 +1,4 @@
 
-
-# ZEBRA(Zowe Embedded Browser for RMF/SMF and APIs)
-
-
 # License Information 
 
 This program and the accompanying materials are made available under the terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
@@ -12,30 +8,25 @@ SPDX-License-Identifier: EPL-2.0
 Copyright Contributors to the Zowe Project.
 
   
-# About ZEBRA and System Requirements
+# Source Code Folder
+To be structured as needed by project team.
 
-   Zebra is an open source SW project under Linux Foundation's Open Mainframe Project's ZOWE Project.  It intends to provide re-usable and industry compliant JSON formatted RMF/SMF data records, so that many other ISV SW and users can exploit them using Open-Source SW for many ways.
-   
-   As an example and use-case, it shows real-time data and historical data in JSON format with time stamps. It can also store realtime data into MongoDB and Plot realtime Workload and CPU Utilization chart using Grafana. Zebra can be used to Parse static RMF Monotor I XML file into JSON. 
-   
-   * Required SW:
-   
-   - Current version of Zebra requires RMF DDS Service(GPMSERV) running on IBM z/OS as source of the data
-   - NodeJS for runtime (This version tested with nodejs v8.11.2)
-   
-   * Optional SW in case you like to test examples included in here:
-   
-   - Grafana
-   - Prometheus
-   - MongoDB
-   
-   
-# Running Zebra
+Please document here
+| Subdirectory Name | Description |
+|---|---|
+| App_server | Directory For Project Controller Functions, Parser and Routes |
+| sslcert | Directory for Server certificate and private key |
+| config | Directory for configuration file |
+| bin | Directory for startup file |
 
+# RMF Parsing Engine (ZEBRA)
+   Zebra is a Performance Monitoring tool that converts RMF monitor I and III data into JSON Format. As an example and use-case, it shows it can also store realtime data into MongoDB and Plot realtime Workload and CPU Utilization chart using Grafana. Zebra can be used to Parse static RMF Monotor I XML file into JSON. This version works with nodejs v8.11.2
+
+# Run Zebra
   To Run Zebra, You'll need to:
   -  Set Up your Environment: You'll need to install nodejs (most prefered{v 8.11.x}), git and optional programs like Prometheus, MongoDB and Grafana. Optional programs will require proper licenses per their terms and conditions.
   
-  - Clone Zebra src code
+  - Clone Zebra
   
   - Install App packages using npm install from root directory, change set up using config files
   
@@ -44,16 +35,13 @@ Copyright Contributors to the Zowe Project.
    (e.g. node bin/www)
 
 # Use Zebra
-
   To Use Zebra, You'll need to configure the application parameters. These parameters can be configured by simply editing the Zconfig.json file in the root directory or using Zebra's /addsetting function while Zebra instance is running.
  
  ## Configure Zebra Using Endpoint
- 
    Zebra’s configuration gives users the flexibility to run the app according to their needs.  Zebra provides “/addsettings” endpoint for editing config values. This endpoint can take one or more parameters recognized by zebra at once. E.g.  
   http://localhost:3090/addsettings?appurl=127.0.0.1
 
 ## Recognized Zebra Config Parameters
-
    -  ddsbaseurl: (Distributed Data Server base URL)   
       This is the IP address of the DDS from which the App can retrieve RMF Data. E.g.   
        http://localhost:3090/addsettings?ddsurl=127.0.0.1
@@ -155,14 +143,3 @@ g.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&dura
 h.	http://localhost:3090/rmfpp?report=CPU&date=20200731,20200731  
 3.	Static  
 a.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU  
-
-
-| Folder | Description |
-|---|---|
-| Documentation |  all documentation the project team has created to describe the architecture, design, installation and configuratin of the peoject |
-| src | Source code - create as many subdirectories as needed |
-
-## Project Team
-- Yongkook (Alex) Kim - Vicom Infinity 
-- Salisu Ali - Bayero University Kano, Nigeria 
-

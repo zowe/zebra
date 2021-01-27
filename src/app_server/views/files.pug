@@ -1,0 +1,50 @@
+extends layout
+
+block content
+   h5(style={"margin-left":"20px","margin-top":"10px"}) New File
+   .apis
+      hr(style={"margin":"0"})
+      .row
+         .col-md-5
+               p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Convert RMF Static XML file to JSON
+         .col-md-7
+               form(class="form-inline float-right" action="/upload" method="post" enctype="multipart/form-data")
+                  .form-group
+                     p(style={"margin-top":"10px", "margin-right": "10px"}) Report File
+                     input(type="file" class="form-control" name="avatar_file" style={"margin-right": "10px"})
+                     p(style={"margin-top":"10px", "margin-right": "10px"}) Report Type
+                     input(type="text" class="form-control" name="type" style={"margin-right": "10px"} value="CPU")
+                     button(type='submit' class='btn btn-primary' id="rmf3b") Parse
+         
+      hr(style={"margin":"0"})
+
+   h5(style={"margin-left":"20px", "margin-top":"10px"}) Recent Files
+      hr(style={"margin":"0"})
+      if(msg)
+         div(class="alert alert-primary" role="alert") File deleted Successfully
+      if (resfiles.length) 
+         // array exists and is not empty
+         - for(file of resfiles)
+            .apis
+               .row
+                  .col-md-5
+                     p(style={"margin-top":"10px", "margin-right": "10px"})= file
+                  .col-md-6
+                     form(class="form-inline float-right" action=`/upload/parse?file=${file}` method="post")
+                        .form-group
+                           p(style={"margin-top":"10px", "margin-right": "10px"}) Report Type
+                           input(type="text" class="form-control" name="type" style={"margin-right": "10px"} value="CPU")
+                           button(type='submit' class='btn btn-primary' id="rmf3b") Parse
+                  .col-md-1
+                     form(class="form-inline float-right" action=`/upload/delete?file=${file}` method="post")
+                        .form-group
+                           button(type='submit' class='btn btn-primary float-right' id="delbutton" style={"margin-top":"7px"}) Delete
+
+            hr(style={"margin":"0"})
+      else
+         .apis
+            p(style={"margin-top":"10px", "text-align": "center"}) No Recent files
+
+   
+      
+      

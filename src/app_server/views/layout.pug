@@ -1,0 +1,42 @@
+doctype html
+
+html
+  head
+    block header
+    title= title
+    link(rel='stylesheet', href='/stylesheets/bootstrap/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-primary(style={"color":"teal"})
+      a.navbar-brand(href='#') 
+        img(src="/images/Zebralogo.png", height="30", width="60")
+        a.navbar-brand(href='/') ZEBRA
+
+      button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarButton', aria-controls='navbarButton', aria-expanded='false', aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+    
+      .collapse.navbar-collapse(id='navbarButton')
+        ul.navbar-nav.mr-auto
+          li.nav-item.active
+            a.nav-link(href='/apis') All API's
+          li.nav-item.active
+            a.nav-link(href='https://github.com/openmainframeproject-internship/Zowe-Parsing-Engine-for-SMF-or-RMF-PP-Reports/tree/master/Documentation') Documentation
+          li.nav-item.active
+            a.nav-link(href='/files') Manage File
+          li.nav-item.active
+            a.nav-link(href='/setting') Settings
+          li.nav-item.active
+            a.nav-link(href='/about') About
+      if(msg)
+        ul.navbar-nav.float-right
+          li.nav-item.active
+            a.nav-link(href='/log_out') Log out
+
+    
+body
+  block content
+
+  .page-footer.font-small.blue.fixed-bottom
+    a(style={"font-size":"18px", "font-weight":"bold"},href="#") This project was part of Open Mainframe Project Mentorship Program
+  
+  block scripts
+  script(src='https://code.jquery.com/jquery-3.5.1.min.js')

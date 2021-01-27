@@ -1,0 +1,29 @@
+extends layout
+
+block content
+    h5(style={"margin-left":"20px","margin-top":"10px"}) Retrieve data from MongoDB 
+    hr(style={"margin":"0"})
+    .apis
+        .row(style={"margin-left":"10px"})
+            form(class="form-inline float-right" action="/mongo" method="post")
+                .form-group
+                    p(style={"margin-top":"10px", "margin-right": "10px"}) Report Type
+                    select.custom-select(style={"width":"250px", "margin-right": "10px"}, name="rtype")
+                        option(selected='') Select One
+                        option(value='CPC') CPC
+                        option(value='PROC') PROC
+                        option(value='USAGE') USAGE
+                        option(value='Workload') Workload
+                    p(style={"margin-top":"10px", "margin-right": "10px"}) Report Date
+                    input(type="text" class="form-control" name="date" style={"margin-right": "10px"} value="CPU")
+                    p(style={"margin-top":"10px", "margin-right": "10px"}) Report Duration
+                    input(type="text" class="form-control" name="duration" style={"margin-right": "10px"} value="CPU")
+                    p(style={"margin-top":"10px", "margin-right": "10px"}) Report Time
+                    input(type="text" class="form-control" name="time" style={"margin-right": "10px"} value="CPU")
+                    button(type='submit' class='btn btn-primary' id="rmf3b") Get Data
+               
+        hr(style={"margin":"0"})
+
+    .salis(style={"width":"100%","max-height": "75vh","overflow" : "auto", "margin-top":"10px"})
+        if (cpcdata)
+            p(style={"text-align":"center"})= cpcdata.length

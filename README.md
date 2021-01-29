@@ -23,7 +23,7 @@ Copyright Contributors to the Zowe Project.
    - Current version of Zebra requires RMF DDS Service(GPMSERV) running on IBM z/OS as source of the data
    - NodeJS for runtime (This version tested with nodejs v8.11.2)
    
-   ** Optional SW in case you like to test examples included in here:
+   ** Optional SW (you will need to install them from their sites) in case you like to test examples shown here:
    
    - Grafana
    - Prometheus
@@ -51,10 +51,19 @@ Copyright Contributors to the Zowe Project.
    ```
    node bin/www
    ```
-   
-# Use Zebra
+  
+  and you will see it prints: 
+    
+    
+    http server listening at port 3090
+    Admin Saved Successfuly
+    
+    
+ If you didn't make any changes, you can proceed to change config from the browser by accessing http://localhost:3090 OR proceed to below instruction to change `Zconfig.json` file appropriately per your need.
+    
+# Open Zebra using web browser 
 
-  To Use Zebra, You'll need to configure the application parameters. These parameters can be configured by simply editing the Zconfig.json file in the root directory or using Zebra's /addsetting function while Zebra instance is running.
+  To Use Zebra, you'll need to configure the application parameters. These parameters can be configured by simply editing the `Zconfig.json` file in the root directory or using Zebra's `/addsetting` function from the browser while Zebra instance is running.
  
  ## Configure Zebra Using Endpoint
  

@@ -18,12 +18,12 @@ Copyright Contributors to the Zowe Project.
    
    As an example and use-case, it shows real-time data and historical data in JSON format with time stamps. It can also store realtime data into MongoDB and Plot realtime Workload and CPU Utilization chart using Grafana. Zebra can be used to Parse static RMF Monotor I XML file into JSON. 
    
-   * Required SW:
+   ** Required SW:
    
    - Current version of Zebra requires RMF DDS Service(GPMSERV) running on IBM z/OS as source of the data
    - NodeJS for runtime (This version tested with nodejs v8.11.2)
    
-   * Optional SW in case you like to test examples included in here:
+   ** Optional SW in case you like to test examples included in here:
    
    - Grafana
    - Prometheus
@@ -36,13 +36,22 @@ Copyright Contributors to the Zowe Project.
   -  Set Up your Environment: You'll need to install nodejs (most prefered{v 8.11.x}), git and optional programs like Prometheus, MongoDB and Grafana. Optional programs will require proper licenses per their terms and conditions.
   
   - Clone Zebra src code
+  ```
+  git clone git@github.com:zowe/zebra.git
+  
+  ```
   
   - Install App packages using npm install from root directory, change set up using config files
-  
+  ```
+  npm install
+  ```
+   
   - Run Zebra using npm, pm2, nodemon or any other nodejs process manager
   
-   (e.g. node bin/www)
-
+   ```
+   node bin/www
+   ```
+   
 # Use Zebra
 
   To Use Zebra, You'll need to configure the application parameters. These parameters can be configured by simply editing the Zconfig.json file in the root directory or using Zebra's /addsetting function while Zebra instance is running.
@@ -162,7 +171,4 @@ a.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU
 | Documentation |  all documentation the project team has created to describe the architecture, design, installation and configuratin of the peoject |
 | src | Source code - create as many subdirectories as needed |
 
-## Project Team
-- Yongkook (Alex) Kim - Vicom Infinity 
-- Salisu Ali - Bayero University Kano, Nigeria 
 

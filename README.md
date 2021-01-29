@@ -61,17 +61,68 @@ Copyright Contributors to the Zowe Project.
     
  If you didn't make any changes, you can proceed to change config from the browser by accessing http://localhost:3090 OR proceed to below instruction to change `Zconfig.json` file appropriately per your need.
     
-# Open Zebra using web browser 
+# Use Zebra with web browser 
 
   To Use Zebra, you'll need to configure the application parameters. These parameters can be configured by simply editing the `Zconfig.json` file in the root directory or using Zebra's `/addsetting` function from the browser while Zebra instance is running.
  
- ## Configure Zebra Using Endpoint
+ ## Configuring Zebra 
  
-   Zebra’s configuration gives users the flexibility to run the app according to their needs.  Zebra provides “/addsettings” endpoint for editing config values. This endpoint can take one or more parameters recognized by zebra at once. E.g.  
-  http://localhost:3090/addsettings?appurl=127.0.0.1
+ ### Zebra Configuration parameters for Zconfig.json file
+ 
+ * ddsbaseurl : IP address or domain name of z/OS RMF DDS Server. It currently does not have function to provide id/pw if GPMSERV requires one. If GPMSERV needs access id/pw, please create issue and we will try to support it
+ 
+ * ddsbaseport:   port number used when accessing above DDS Server. The typical default DDS port number if 8803.
+ 
+ * rmf3filename:  filename/extension used when DDS RMF service sends RMF 3 data to its Web API. The default value is 'rmfm3.xml'.
+ 
+ * rmfppfilename: filename/extension used when DDS RMF service sends RMF I Post Processor data to its Web API. The default value is 'rmfpp.xml'.
+ 
+ * mvsResource:   Parameter value for RMF DDS Monitor III resource identifier.
+ 
+ * mongourl:      IP or URL of MongoDB server location which RMF data will be saved.
+ 
+ * dbinterval:    The data capture/recording interval into MongoDB, the default value is 100 (secodns).
+ 
+ * dbname:        MongoDB database name where RMF III monitor data will be saved.
+ 
+ * appurl:        IP address / URL of running Zebra instance (after hosting). This value is needed for MongoDB, Prometheus and Grafana to work with Zebra
+ 
+ * appport:       Port of a running Zebra Server Instance
+ 
+ * mongoport:     MongoDB service port
+ 
+ * ppminutesInterval: Interval for which DDS Produce RMF I data. Its unit is in minutes E.g. Every 30 Minutes or 15 Minutes.
+ 
+ * rmf3interval: Interval set on how often DDS Produce RMF III data. E.g. Every 100 seconds 
+ 
+ * httptype: http|https - Setting Zebra service type either HTTP or HTTPS.
+ 
+ * useDbAuth: true|false - Set if MongoDB would require authentication to access its database writing RMF data into MongoDB.
+ 
+ * dbUser: MongoDB's User ID used by Zebra when writing RMF data into JSON(BSON) format to MongoDB.
+ 
+ * dbPassword: MongoDB's User Password used by Zebra.
+ 
+ * authSource: MongoDB's authentication DB source. Default is 'admin'.
+ 
+ * useMongo: true|fasle - option to send data to MongoDB
+ 
+ * usePrometheus: true|false - option to send data to Prometheus
+ 
+ * https: true|false - parameter to set enabling TLS for servicing Zebra APIs.
+ 
+ * grafanaurl: IP address or URL to Prometheus/Grafana service.
+ 
+ * grafanaport: Port used to access Grafana service.
+ 
+ 
+ 
+ ### Zebra Configuration using Web API endpoint
+ 
+   Zebra’s configuration gives users the flexibility to run the app according to their needs.  Zebra provides “/addsettings” endpoint for editing config values. This endpoint can take one or more parameters recognized by zebra at once. E.g. http://localhost:3090/addsettings?appurl=127.0.0.1
+  
 
-## Recognized Zebra Config Parameters
-
+ 
    -  ddsbaseurl: (Distributed Data Server base URL)   
       This is the IP address of the DDS from which the App can retrieve RMF Data. E.g.   
        http://localhost:3090/addsettings?ddsurl=127.0.0.1
@@ -160,7 +211,7 @@ j.	http://localhost:3090/rmfm3?report=PROC&job=SDSFAUX
 k.	http://localhost:3090/rmfm3?report=PROC&job=ALL_JOBS  
 l.	http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL  
   
-2.	Post Processor  
+2.	Post Processor Report
 -	Workload  
 a.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731  
 b.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH  
@@ -177,7 +228,7 @@ a.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU
 
 | Folder | Description |
 |---|---|
-| Documentation |  all documentation the project team has created to describe the architecture, design, installation and configuratin of the peoject |
+| Documentation | Contains all documentation from the OMP Mentorship project periods. It has description of the architecture, design, installation and configuration of Zebra's intinial design |
 | src | Source code - create as many subdirectories as needed |
 
 

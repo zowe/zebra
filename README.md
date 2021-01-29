@@ -63,7 +63,7 @@ Copyright Contributors to the Zowe Project.
     
 # Use Zebra with web browser 
 
-  To Use Zebra, you'll need to configure the application parameters. These parameters can be configured by simply editing the `Zconfig.json` file in the root directory or using Zebra's `/addsetting` function from the browser while Zebra instance is running.
+  To Use Zebra, you'll need to configure the application parameters. These parameters can be configured by simply editing the `Zconfig.json` file in the `src/config` directory or using Zebra's `/addsetting` function from the browser (or Web API) while Zebra instance is running.
  
  ## Configuring Zebra 
  

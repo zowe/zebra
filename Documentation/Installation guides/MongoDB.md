@@ -1,3 +1,4 @@
+## Note: MongoDB install is optional and make sure to read MongoDB’s terms and conditions!
 # Install MongoDB on Windows
 ## Procedure
 Follow these steps to install MongoDB Community Edition using the MongoDB Installer wizard. The installation process installs both the MongoDB binaries as well as the default configuration file <install directory>\bin\mongod.cfg.

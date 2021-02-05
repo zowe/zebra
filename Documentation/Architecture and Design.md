@@ -1,6 +1,6 @@
 # Zowe RMF/SMF parsing Engine Architecture and Design
 ## Architecture
-![](https://github.com/openmainframeproject-internship/Zowe-Parsing-Engine-for-SMF-or-RMF-PP-Reports/blob/master/Documentation/ZebraArchitecture.png)
+![](/Documentation/Images/ZebraArchitecture.png)
 
 ## Details
 1.	**User (request):** User send a request to the zebra App using any of its recognized URL(s).

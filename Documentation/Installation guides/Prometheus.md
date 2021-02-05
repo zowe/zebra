@@ -13,7 +13,7 @@
         # metrics_path defaults to '/metrics'
         # scheme defaults to 'http'.
         static_configs:
-        - targets: ['localhost:3090']
+        - targets: ['localhost:3090']  
     ```
   4. Run Prometheus
     - Open command line and navigate to the directory for prometheus files

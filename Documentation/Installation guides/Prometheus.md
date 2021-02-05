@@ -7,13 +7,13 @@
     ```
     scrape_configs:
     # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-    - job_name: 'zebra'
+     job_name: 'zebra'
         metrics_path: "/prommetric"
         scrape_interval: 60s
         # metrics_path defaults to '/metrics'
         # scheme defaults to 'http'.
         static_configs:
-        - targets: ['localhost:3090']  
+         targets: ['localhost:3090']  
     ```
   4. Run Prometheus
     - Open command line and navigate to the directory for prometheus files

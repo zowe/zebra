@@ -3,7 +3,7 @@
   2. Unzip the files in a location of your choice.
   3. Configure Prometeheus
     - locate Prometheus.yml
-    - edit the scrape config to point to app/server you want to monitor/scrape. e.g
+    - edit the scrape config to point to app/server you want to monitor/scrape. e.g  
     ```
     scrape_configs:
     # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.

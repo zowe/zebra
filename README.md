@@ -40,6 +40,10 @@ Copyright Contributors to the Zowe Project.
   git clone git@github.com:zowe/zebra.git
   
   ```
+  - navigate to the source code folder
+  ```
+  cd src
+  ```
   
   - Install App packages using npm install from root directory, change set up using config files
   ```

@@ -1,0 +1,14 @@
+Zebra projec meeting minutes for 1/14/2021 
+
+Attendees: Bruce Armstrong, Rocky McMahan, Len Santalucia, Vinnie Terrone, Salisu Ali, Jack Jia, Frank Kyne, Joe Winchester (pls let me know if I missed anyone)
+
+-	Bruce continues helping socializing Zebra with ISVs and partners
+-	Frank Kyne joined from Watson&Walker/IBM
+-	Shared survey results(see PDF), one survey question added to ZOWE Webcast for 1/20
+-	Need to recruit more developers(potential help from a person from IBM GTS)
+-	Git repo migration under Zowe (need to finalize DCO options) , getting help from John Mertic, Mark Acker, Steve Winslow, Jack Jia
+
+Meeting Recording:
+https://zoom.us/rec/share/QWqHexaGdOCYbImRGNy-NhjUVlpeom4fubuUsfg7RTZzbHLT_o4GKP_jSUd2rSsc.iS1fHLGExCb3u6a6
+
+

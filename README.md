@@ -29,6 +29,12 @@ Copyright Contributors to the Zowe Project.
    - Prometheus
    - MongoDB
    
+Zebra main page screenshot
+
+
+Zebra use case example #1 - Plotting thru Grafana with RMF I real-time data
+
+
    
 # Running Zebra
 

@@ -21,5 +21,6 @@
     "usePrometheus":"false",
     "https": "false",
     "grafanaurl":"localhost",
-    "grafanaport":"3000"
+    "grafanaport":"3000",
+    "grafanahttptype": "https"
 }

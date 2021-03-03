@@ -1,0 +1,13 @@
+3/4/2021 Zebra Meeting Agenda 
+
+Zebra function/technical development
+ 1) Demo site with valid cert is up
+ 2) Added secure Grafana option
+ 3) Proposing new API (MIPS/LSPR value API) as an example
+
+
+Zebra operation/collabortaion
+ 4) GTS collaboration update  
+ 5) Marist server integration discussion
+ 6) JAVA based parser discussion
+ 

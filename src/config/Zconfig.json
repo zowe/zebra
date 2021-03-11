@@ -1,4 +1,5 @@
 {
+    "ddshhttptype":"https",
     "ddsbaseurl":"salisuali.com",
     "ddsbaseport":"8908",
     "rmf3filename":"rmfm3.xml",
@@ -21,5 +22,6 @@
     "usePrometheus":"false",
     "https": "false",
     "grafanaurl":"localhost",
-    "grafanaport":"3000"
+    "grafanaport":"3000",
+    "grafanahttptype": "http"
 }

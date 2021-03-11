@@ -6,6 +6,7 @@ let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
 let rmf3filename = Zconfig.rmf3filename;
 let mvsResource = Zconfig.mvsResource;
+let ddshttp = Zconfig.ddshhttptype;
 
 /**
  * RMFMonitor3getRequest is the GET function for retrieving data from RMF monitor III.
@@ -18,7 +19,7 @@ let mvsResource = Zconfig.mvsResource;
  */
 function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `https://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`; //Dynamically create URL
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`; //Dynamically create URL
   axios.get(RMF3URL)
   .then(function (response) {
     // handle success
@@ -36,7 +37,7 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsRe
 //***** */
 function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `https://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${mvsResource}`; //Dynamically create URL
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${mvsResource}`; //Dynamically create URL
   axios.get(RMF3URL)
   .then(function (response) {
     // handle success

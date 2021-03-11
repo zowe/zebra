@@ -19,9 +19,9 @@ const fs = require('fs');
 var Zconfig = require("../../config/Zconfig");
 let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
-let httptype = Zconfig.httptype;
+let grafanahttptype = Zconfig.grafanahttptype;
 const axios = require('axios');
-const grafanaServer = `${httptype}://${grafanabaseurl}:${grafanabaseport}`
+const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
 
 // Zebra UI routers
 

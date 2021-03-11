@@ -5,6 +5,7 @@ let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
 let rmfppfilename = Zconfig.rmfppfilename;
 var minutesInterval = Zconfig.ppminutesInterval;
+var ddshttp = Zconfig.ddshhttptype;
 
 /**
  * RMFPPgetRequest is the Function for Sending GET Request to RMF Monitor I (Post-Processor Report).
@@ -17,7 +18,7 @@ var minutesInterval = Zconfig.ppminutesInterval;
  */
 function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMFPPURL = `https://${baseurl}:${baseport}/gpm/${rmfppfilename}?reports=${urlReport}&date=${urlDate}`; //Dynamically create URL
+  var RMFPPURL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmfppfilename}?reports=${urlReport}&date=${urlDate}`; //Dynamically create URL
   axios.get(RMFPPURL)
   .then(function (response) {
     // handle success

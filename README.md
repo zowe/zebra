@@ -29,6 +29,15 @@ Copyright Contributors to the Zowe Project.
    - Prometheus
    - MongoDB
    
+
+<IMG SRC = "https://github.com/ykimvicom/zebra-1/blob/main/Zebra%20mainpage.png"> </IMG>
+
+## <Picture 1>  Zebra main page screenshot
+
+
+<IMG SRC = "https://github.com/ykimvicom/zebra-1/blob/main/Zebra%20GRAFANA.png"> </IMG>
+## <Picture 2>  Zebra use case example #1 - Plotting thru Grafana with RMF I real-time data
+  
    
 # Running Zebra
 

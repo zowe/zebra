@@ -42,6 +42,8 @@ setInterval(() => { // Set interval function allows this routine to run at a spe
             var value = 'CPCPLTOU';
             var name2 = "EFU_" + JSONBody_lpar['CPCPPNAM']; //append EFU(Effective Utilization) to lpar name
             var value2 = 'CPCPPEFU';
+            var name4 = "MIPS_" + JSONBody_lpar['CPCPPNAM'];
+            var value4 = 'MIPS';
             try {
                 cpu_lpar = new Prometheus.Gauge({ //create custom prometheus metric for lpar Total Urilization
                     name: name, // dynamicall add name
@@ -63,7 +65,19 @@ setInterval(() => { // Set interval function allows this routine to run at a spe
                     parm: value2 //dynamically set the label value
                 }, parseFloat(JSONBody_lpar['CPCPPEFU'])); //dynamically set the custom metric value 
 
-            } catch (err) {
+                cpu_lpar = new Prometheus.Gauge({ //create custom prometheus metric for lpar MIPS Urilization
+                    name: name4, // dynamicall add name
+                    help: 'lpar MIPS Utilization', //help statement
+                    labelNames: ['parm'] //custom metric label 
+                });
+
+                cpu_lpar.set({ //set custom metric value for lpar Total Urilization
+                    parm: value4 //dynamically set the label value 
+                }, (parseFloat(JSONBody_lpar['CPCPLTOU'])/100)*2951); //dynamically set the custom metric value
+                //console.log();
+
+                //
+            } catch (err) { 
                 //console.log('Caught one' + name);
             }
         }

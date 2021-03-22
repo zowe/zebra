@@ -5,6 +5,10 @@ let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
 let rmfppfilename = Zconfig.rmfppfilename;
 var minutesInterval = Zconfig.ppminutesInterval;
+var ddshttp = Zconfig.ddshhttptype;
+let ddsauth = Zconfig.ddsauth;
+let ddsid = Zconfig.ddsuser;
+let ddspass = Zconfig.ddspwd;
 
 /**
  * RMFPPgetRequest is the Function for Sending GET Request to RMF Monitor I (Post-Processor Report).
@@ -17,19 +21,42 @@ var minutesInterval = Zconfig.ppminutesInterval;
  */
 function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMFPPURL = `https://${baseurl}:${baseport}/gpm/${rmfppfilename}?reports=${urlReport}&date=${urlDate}`; //Dynamically create URL
-  axios.get(RMFPPURL)
-  .then(function (response) {
-    // handle success
-    fn(response.data);
-  })
-  .catch(function (error) {
-    // handle error
-    fn(error);
-  })
-  .then(function () {
-    // always executed
-  });
+  var RMFPPURL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmfppfilename}?reports=${urlReport}&date=${urlDate}`; //Dynamically create URL
+  if(ddsauth === 'true'){
+    axios.get(RMFPPURL, {
+      auth: {
+        username: ddsid,
+        password: ddspass
+      }
+    })
+    .then(function (response) {
+      // handle success
+      fn(response.data);
+    })
+    .catch(function (error) {
+      // handle error
+      //console.log(error)
+      fn(error);
+    })
+    .then(function () {
+      // always executed
+    });
+  }else{
+    axios.get(RMFPPURL)
+    .then(function (response) {
+      // handle success
+      fn(response.data);
+    })
+    .catch(function (error) {
+      // handle error
+      //console.log(error)
+      fn(error);
+    })
+    .then(function () {
+      // always executed
+    });
+
+  }
 };
 
 /**

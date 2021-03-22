@@ -1,6 +1,10 @@
 {
+    "ddshhttptype":"https",
     "ddsbaseurl":"salisuali.com",
     "ddsbaseport":"8908",
+    "ddsauth":"false",
+    "ddsuser":"username",
+    "ddspwd":"password",
     "rmf3filename":"rmfm3.xml",
     "rmfppfilename":"rmfpp.xml",
     "mvsResource":",SYS,_IMAGE",
@@ -21,5 +25,7 @@
     "usePrometheus":"false",
     "https": "false",
     "grafanaurl":"localhost",
-    "grafanaport":"3000"
+    "grafanaport":"3000",
+    "grafanahttptype": "http",
+    "PCI": 2951
 }

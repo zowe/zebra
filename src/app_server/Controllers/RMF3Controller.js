@@ -6,6 +6,11 @@ let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
 let rmf3filename = Zconfig.rmf3filename;
 let mvsResource = Zconfig.mvsResource;
+let ddshttp = Zconfig.ddshhttptype;
+let lspr = Zconfig.PCI
+let ddsauth = Zconfig.ddsauth;
+let ddsid = Zconfig.ddsuser;
+let ddspass = Zconfig.ddspwd;
 
 /**
  * RMFMonitor3getRequest is the GET function for retrieving data from RMF monitor III.
@@ -18,37 +23,85 @@ let mvsResource = Zconfig.mvsResource;
  */
 function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `https://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`; //Dynamically create URL
-  axios.get(RMF3URL)
-  .then(function (response) {
-    // handle success
-    fn(response.data);
-  })
-  .catch(function (error) {
-    // handle error
-    fn(error);
-  })
-  .then(function () {
-    // always executed
-  });
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`; //Dynamically create URL
+  if(ddsauth === 'true'){
+    axios.get(RMF3URL, {
+      auth: {
+        username: ddsid,
+        password: ddspass
+      }
+    })
+    .then(function (response) {
+      // handle success
+      fn(response.data);
+    })
+    .catch(function (error) {
+      // handle error
+      //console.log(error)
+      fn(error);
+    })
+    .then(function () {
+      // always executed
+    });
+  }else{
+    axios.get(RMF3URL)
+    .then(function (response) {
+      // handle success
+      fn(response.data);
+    })
+    .catch(function (error) {
+      // handle error
+      //console.log(error)
+      fn(error);
+    })
+    .then(function () {
+      // always executed
+    });
+
+  }
+  
 }
 
 //***** */
 function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `https://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${mvsResource}`; //Dynamically create URL
-  axios.get(RMF3URL)
-  .then(function (response) {
-    // handle success
-    fn(response.data);
-  })
-  .catch(function (error) {
-    // handle error
-    fn(error);
-  })
-  .then(function () {
-    // always executed
-  });
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${mvsResource}`; //Dynamically create URL
+
+  if(ddsauth === 'true'){
+    axios.get(RMF3URL, {
+      auth: {
+        username: ddsid,
+        password: ddspass
+      }
+    })
+    .then(function (response) {
+      // handle success
+      fn(response.data);
+    })
+    .catch(function (error) {
+      // handle error
+      //console.log(error)
+      fn(error);
+    })
+    .then(function () {
+      // always executed
+    });
+  }else{
+    axios.get(RMF3URL)
+    .then(function (response) {
+      // handle success
+      fn(response.data);
+    })
+    .catch(function (error) {
+      // handle error
+      //console.log(error)
+      fn(error);
+    })
+    .then(function () {
+      // always executed
+    });
+
+  }
 }
 
 /**
@@ -96,6 +149,27 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
     } else if (urlReport === "USAGE") { // checks if user has specify the value "USAGE" for report parameter in the URL
       displayUSAGE(urlReport, ulrParm, urlJobParm, function (result) { //A call to displayUSAGE function is made with a callback function as parameter
         res.json(result); //Express respond with the result returned from displayUSAGE function
+      });
+    } else if (urlReport === "MIPS") { // checks if user has specify the value "USAGE" for report parameter in the URL
+      displayCPC("CPC", ulrParm, urlJobParm, function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
+        for(i in result["table"]){
+          if (result["table"][i]["CPCPPNAM"] === "VIRPT"){
+            var virpt_tou = result["table"][i]['CPCPLTOU'];
+            var virpt_normalise = parseFloat(virpt_tou)  / 100
+            var virpt_mips = virpt_normalise * lspr
+            
+            var response = {};
+            response['lpar_name'] = result["table"][i]['CPCPPNAM'];
+            response['lpar_tou'] = result["table"][i]['CPCPLTOU'];
+            response['lpar_tou_normalized'] = virpt_normalise;
+            response['lpar_mips'] = virpt_mips;
+
+            //console.log(response);
+            res.json(response);
+          }
+        }
+        //console.log(result["table"]["CPCPPNAM"] === "VIRPT");
+        // //Express respond with the result returned from displayUSAGE function
       });
     }
   }

@@ -1,0 +1,17 @@
+3/18/2021 Zebra Meeting Minutes
+
+Zoom video replay link: https://zoom.us/rec/share/fLMc5m5lo8UgaVnhhUvMumsKsc7C_h-71KttK5C7OKlQIqHL4756S2wMOQS-ZjvP.nmVmh_oJZjnShH4D?startTime=1616069224000
+
+Zebra operation/collabortaion
+
+1) GTS collaboration update - got great feedback and new improvement to develop
+2) SHARE presentation - good feedbacks recieved, PPT to be shared 
+
+
+Zebra function/technical development
+
+3) New API Sample developed (MIPS) - demo & discussion. Sample Prometheus + Grafana case has currently writing into a single repository (/prommetric), thus giving differnt end-point for each LPAR/Sysplex would be a good example/demo to show later time. Plan to open an issue.
+
+5) Need to support authentication option for accessing GPM/DDS service : Issue#18  
+
+6) ZOWE built-in app discussion : what are the options? Alex to schedule a call w/ Joe Winchester and Salisu

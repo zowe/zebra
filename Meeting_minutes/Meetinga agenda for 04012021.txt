@@ -1,0 +1,23 @@
+4/1/2021 Zebra Meeting Agenda 
+
+
+Zebra operation/collabortaion
+
+1) GTS collaboration update - new code delivered to support DDS authentication
+2) Bruce continues to help with advocating Zebra inside of IBM 
+3) Blog/publication? Any other webex/presentation opportunity?
+
+
+Zebra function/technical development
+
+4) DDS Authentication support - new branch created zebra_dev, Issue #18 closed
+5) Issue #20 - support of multiple LPAR/Systems for Prometheus repository
+6) ZOWE built-in app discussion : A calll with Joe Winchester, Andrew Twydell, Salisu and Alex went well. Following items were discussed.
+
+ - Alex - create ID/PW for Joe, Salisu, Andrew for DVLP Z/OS  run Zebra on USS - 1) native API endpoint 2) API ML access
+ - Andrew/Salisu - take a look at Angular sample app connecting Zebra and sample graphics package
+ - API authentication - Joe will help set up
+ - Zowe packaging including Zebra sample app - future possibility
+
+7) SMF parsing discussion with Frank Kyne, Mario Bezzi, Salisu Ali, Alex Kim. Very good discussion around SMF record parsing options and potential/future short term development possibliities discussed.
+

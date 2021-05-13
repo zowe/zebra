@@ -1,0 +1,18 @@
+
+
+
+ZEBRA PI Planning meeting on APR 29th:
+Meeting replay link: https://zoom.us/rec/share/xY3HrXb5SAVZFH6VN46_TBJmc-mJwDsW24HxnRKRl5UqvQTd-pRiXjpg-8GecdE.3fsCcZnYOHhWPm_d?startTime=1619697749000
+
+
+Small group meeting for Zowe Desktop app on 5/4, Andrew Twydell, Salisu Ali, Alex Kim - replay link: 
+https://zoom.us/rec/share/STX5KNADAg8GA_6qOkFpGQzic5zO8RYKPm7AyOpnKgREqERH5jTszkVxPTJANPTD.jXJH154oabgTkOQd?startTime=1620140621000
+
+
+Small group meeting for Zowe Desktop app on 5/10, Andrew Twydell, Joe Winchestor, Salisu Ali, Alex Kim - replay link: https://zoom.us/rec/share/AcHaldtcHASDwxMPNDLRycOmyipUPnsEzdGUESNn-VhvOyPiGBiEAG9Z2fQupVkw.cBBIK_KtYsJC7DEE?startTime=1620651894000
+
+
+
+1) Update/discuss Zowe Desktop app 
+2) New RMF data additions and API structure discussion
+3) Upcoming presentations 

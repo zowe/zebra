@@ -11,6 +11,7 @@ let lspr = Zconfig.PCI
 let ddsauth = Zconfig.ddsauth;
 let ddsid = Zconfig.ddsuser;
 let ddspass = Zconfig.ddspwd;
+const url = require('url');
 
 /**
  * RMFMonitor3getRequest is the GET function for retrieving data from RMF monitor III.
@@ -34,11 +35,22 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsRe
     .then(function (response) {
       // handle success
       fn(response.data);
+      //console.log(response.data);
     })
     .catch(function (error) {
       // handle error
-      //console.log(error)
-      fn(error);
+      try{
+        if(parseInt(error.response.status) === 401){
+          fn("UA");
+        }else{
+          fn(error["errno"]);
+        }
+      }catch(e){
+        fn(error["errno"]);
+      }
+      
+      //console.log(error.response.status);
+      //console.log(error);
     })
     .then(function () {
       // always executed
@@ -52,7 +64,7 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsRe
     .catch(function (error) {
       // handle error
       //console.log(error)
-      fn(error);
+      fn(error["errno"]);
     })
     .then(function () {
       // always executed
@@ -80,8 +92,7 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) {
     })
     .catch(function (error) {
       // handle error
-      //console.log(error)
-      fn(error);
+      fn(error["errno"]);
     })
     .then(function () {
       // always executed
@@ -95,7 +106,7 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) {
     .catch(function (error) {
       // handle error
       //console.log(error)
-      fn(error);
+      fn(error["errno"]);
     })
     .then(function () {
       // always executed
@@ -140,7 +151,27 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
   }else{
     if (urlReport === "CPC") { // checks if user has specify the value "CPC" for report parameter in the URL
     displayCPC(urlReport, ulrParm, urlLpar_parms, function (result) { //A call to displayCPC function is made with a callback function as parameter
-      res.json(result); //Express respond with the result returned from displayCPC function
+      //Check for DE= Data Error from DDS, NE= Node Version Error, UA = User Authentication Error, EOUT= Request Time out error
+      if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
+        var string = encodeURIComponent(`${result}`);
+        res.redirect('/rmfm3/error?emsg=' + string);
+      }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
+        var string = encodeURIComponent(`${result["msg"]}`);
+        var errorw = encodeURIComponent(`${result["error"]}`); 
+        var dataw = result["data"];
+        res.redirect(url.format(
+          {
+            pathname: "/rmfm3/error",
+            query: {
+              emsg: string,
+              errorw: errorw
+            }
+          }
+        ))
+        //res.redirect(`/rmfm3/error?emsg=${string}&errorw=${errorw}`);
+      }else{
+        res.json(result); //Express respond with the result returned from displayCPC function
+      }
     });
     } else if (urlReport === "PROC") { // checks if user has specify the value "PROC" for report parameter in the URL
       displayPROC(urlReport, ulrParm, urlJobParm, function (result) { //A call to displayPROC function is made with a callback function as parameter
@@ -186,133 +217,150 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
  */
 function displayCPC(urlReport, urlParm, urlLpar_parms, fn) {
   RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) {
-    try {
-      RMFMonitor3parser.RMF3bodyParser(data, function (result) {
-        var RMF3bodyParserResult = result; // Parse JSON Response returned by RMF3bodyParser through call back function result argument.
-        var col = []; // a collection variable  
-        var jsonResponse = {}; // an object for JsonResponse. to be displayed in browser using Express.
-        var caption = RMF3bodyParserResult["caption"]; // caption variable for RMF3bodyParserResult caption key
-        var table = RMF3bodyParserResult["table"]; // table variable for RMF3bodyParserResult table key
-        if (urlParm === undefined && urlLpar_parms === undefined) { //checks if ulrParm and urlLpar_parms parameters are not specified
-          fn(RMF3bodyParserResult); //Function returns RMF3bodyParserResult
-        } else if (urlLpar_parms === undefined) { // checks if only lpar is not specified
-          if (urlParm === "ALL") { // check if urlParm value is equal to "ALL"
-            jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-            jsonResponse.timestart = RMF3bodyParserResult.timestart;
-            jsonResponse.timeend = RMF3bodyParserResult.timeend;
-            jsonResponse.caption = RMF3bodyParserResult.caption;
-          } else { // else if urlLpar_parms is not equal to "ALL"
-            var de = RMF3bodyParserResult['caption'][urlParm]; //a temporary value to check if RMF3bodyParserResult caption contains the value of urlParm specified by user in the URL 
-            if (de === undefined) { // de is equal to undefined if RMF3bodyParserResult caption does not contain the urlParm value
-              table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlParm
-                var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
-                col.push(d); //push the dictionary to col 
-              });
-              jsonResponse = {};// Prepares the necesary jsonResponse and its key/value content
-              jsonResponse.timestart = RMF3bodyParserResult.timestart;
-              jsonResponse.timeend = RMF3bodyParserResult.timeend;
-              jsonResponse.lpar = col;
-            } else { //else if de is not equal to undefined
-              jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-              jsonResponse.timestart = RMF3bodyParserResult.timestart;
-              jsonResponse.timeend = RMF3bodyParserResult.timeend;
-              jsonResponse[urlParm] = de;
-            }
-          }
-          fn(jsonResponse); //Express displays jsonResponse
-        } else { //if urlLpar_parms and urlparm are specified
-          if (caption === undefined) { //if caption is not available
-            table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlParm
-              var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
-              col.push(d); //push the dictionary to col
-            });
-            jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-            jsonResponse.timestart = RMF3bodyParserResult.timestart;
-            jsonResponse.timeend = RMF3bodyParserResult.timeend;
-            jsonResponse.lpar = col;
-            if (urlLpar_parms === "ALL_CP") { //checks if urlLpar_parms is equal to "ALL_CP"
-              jsonResponse.lpar = RMF3bodyParserResult.table; //add this line to jsonResponse
-            } else { //else if urlLpar_parm is not equal to "ALL_CP"
-              var table = RMF3bodyParserResult['table']; // RMF3bodyParserResult table
-              table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
-                if (i["CPCPPNAM"] === urlLpar_parms) {
-                  jsonResponse.lpar = i;  //add this line to jsonResponse
+    if(data === 'EPROTO'){
+      fn("NE")
+    }else if(data === 'ENOTFOUND'){
+      fn("DE")
+    }else if(data === 'UA'){
+      fn("UA")
+    }else if(data === 'ETIMEDOUT'){
+      fn("EOUT")
+    }else{
+      try {
+        RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+          if(result["msg"]){
+            fn({msg: "Err", error: result["error"], data: result["data"]});
+          }else{
+            var RMF3bodyParserResult = result; // Parse JSON Response returned by RMF3bodyParser through call back function result argument.
+            var col = []; // a collection variable  
+            var jsonResponse = {}; // an object for JsonResponse. to be displayed in browser using Express.
+            var caption = RMF3bodyParserResult["caption"]; // caption variable for RMF3bodyParserResult caption key
+            var table = RMF3bodyParserResult["table"]; // table variable for RMF3bodyParserResult table key
+            if (urlParm === undefined && urlLpar_parms === undefined) { //checks if ulrParm and urlLpar_parms parameters are not specified
+              fn(RMF3bodyParserResult); //Function returns RMF3bodyParserResult
+            } else if (urlLpar_parms === undefined) { // checks if only lpar is not specified
+              if (urlParm === "ALL") { // check if urlParm value is equal to "ALL"
+                jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                jsonResponse.caption = RMF3bodyParserResult.caption;
+              } else { // else if urlLpar_parms is not equal to "ALL"
+                var de = RMF3bodyParserResult['caption'][urlParm]; //a temporary value to check if RMF3bodyParserResult caption contains the value of urlParm specified by user in the URL 
+                if (de === undefined) { // de is equal to undefined if RMF3bodyParserResult caption does not contain the urlParm value
+                  table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlParm
+                    var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
+                    col.push(d); //push the dictionary to col 
+                  });
+                  jsonResponse = {};// Prepares the necesary jsonResponse and its key/value content
+                  jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                  jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                  jsonResponse.lpar = col;
+                } else { //else if de is not equal to undefined
+                  jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                  jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                  jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                  jsonResponse[urlParm] = de;
                 }
-              });
-            };
-          } else { // else if caption is RMF3bodyParserResult defined
-            var de = RMF3bodyParserResult['caption'][urlParm]; //a temporary value to check if RMF3bodyParserResult caption contains the value of urlParm specified by user in the URL 
-            if (urlParm === "ALL") { // check if urlParm value is equal to "ALL"
-              jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-              jsonResponse.timestart = RMF3bodyParserResult.timestart;
-              jsonResponse.timeend = RMF3bodyParserResult.timeend;
-              jsonResponse.caption = RMF3bodyParserResult.caption;
-              if (urlLpar_parms === "ALL_CP") { //checks if urlLpar_parms is equal to "ALL_CP"
-                jsonResponse.lpar = RMF3bodyParserResult.table; //add this line to jsonResponse
-              } else { //else if urlLpar_parm is not equal to "ALL_CP"
-                var table = RMF3bodyParserResult['table'];
-                table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
-                  if (i["CPCPPNAM"] === urlLpar_parms) {
-                    jsonResponse.lpar = i; //add this line to jsonResponse
-                  }
+              }
+              fn(jsonResponse); //Express displays jsonResponse
+            } else { //if urlLpar_parms and urlparm are specified
+              if (caption === undefined) { //if caption is not available
+                table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlParm
+                  var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
+                  col.push(d); //push the dictionary to col
                 });
-              };
-            } else if (de === undefined && urlParm === undefined) { // de is equal to undefined if RMF3bodyParserResult caption does not contain the urlParm value
-              jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-              jsonResponse.timestart = RMF3bodyParserResult.timestart;
-              jsonResponse.timeend = RMF3bodyParserResult.timeend;
-              if (urlLpar_parms === "ALL_CP") {//checks if urlLpar_parms is equal to "ALL_CP"
-                jsonResponse.lpar = RMF3bodyParserResult.table; //add this line to jsonResponse
-              } else { //else if urlLpar_parm is not equal to "ALL_CP"
-                var table = RMF3bodyParserResult['table'];
-                table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
-                  if (i["CPCPPNAM"] === urlLpar_parms) {
-                    jsonResponse.lpar = i; //add this line to jsonResponse
-                  }
-                });
-              };
-            } else if (de === undefined) { // de is equal to undefined if RMF3bodyParserResult caption does not contain the urlParm value
-              table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
-                var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
-                col.push(d);
-              });
-              jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-              jsonResponse.timestart = RMF3bodyParserResult.timestart;
-              jsonResponse.timeend = RMF3bodyParserResult.timeend;
-              jsonResponse.lpar_parm = col;
-              if (urlLpar_parms === "ALL_CP") { //checks if urlLpar_parms is equal to "ALL_CP"
-                jsonResponse.lpar = RMF3bodyParserResult.table;
-              } else {
-                var table = RMF3bodyParserResult['table'];
-                table.forEach((i) => {  //Loop through RMF3bodyParserResult table to check for urlLpar_parms
-                  if (i["CPCPPNAM"] === urlLpar_parms) {
-                    jsonResponse.lpar = i;
-                  }
-                });
-              };
-            } else {
-              jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
-              jsonResponse.timestart = RMF3bodyParserResult.timestart;
-              jsonResponse.timeend = RMF3bodyParserResult.timeend;
-              jsonResponse[urlParm] = de;
-              if (urlLpar_parms === "ALL_CP") {
-                jsonResponse.lpar = RMF3bodyParserResult.table;
-              } else {
-                var table = RMF3bodyParserResult['table'];
-                table.forEach((i) => {  //Loop through RMF3bodyParserResult table to check for urlLpar_parms
-                  if (i["CPCPPNAM"] === urlLpar_parms) {
-                    jsonResponse.lpar = i;
-                  }
-                });
-              };
+                jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                jsonResponse.lpar = col;
+                if (urlLpar_parms === "ALL_CP") { //checks if urlLpar_parms is equal to "ALL_CP"
+                  jsonResponse.lpar = RMF3bodyParserResult.table; //add this line to jsonResponse
+                } else { //else if urlLpar_parm is not equal to "ALL_CP"
+                  var table = RMF3bodyParserResult['table']; // RMF3bodyParserResult table
+                  table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
+                    if (i["CPCPPNAM"] === urlLpar_parms) {
+                      jsonResponse.lpar = i;  //add this line to jsonResponse
+                    }
+                  });
+                };
+              } else { // else if caption is RMF3bodyParserResult defined
+                var de = RMF3bodyParserResult['caption'][urlParm]; //a temporary value to check if RMF3bodyParserResult caption contains the value of urlParm specified by user in the URL 
+                if (urlParm === "ALL") { // check if urlParm value is equal to "ALL"
+                  jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                  jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                  jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                  jsonResponse.caption = RMF3bodyParserResult.caption;
+                  if (urlLpar_parms === "ALL_CP") { //checks if urlLpar_parms is equal to "ALL_CP"
+                    jsonResponse.lpar = RMF3bodyParserResult.table; //add this line to jsonResponse
+                  } else { //else if urlLpar_parm is not equal to "ALL_CP"
+                    var table = RMF3bodyParserResult['table'];
+                    table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
+                      if (i["CPCPPNAM"] === urlLpar_parms) {
+                        jsonResponse.lpar = i; //add this line to jsonResponse
+                      }
+                    });
+                  };
+                } else if (de === undefined && urlParm === undefined) { // de is equal to undefined if RMF3bodyParserResult caption does not contain the urlParm value
+                  jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                  jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                  jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                  if (urlLpar_parms === "ALL_CP") {//checks if urlLpar_parms is equal to "ALL_CP"
+                    jsonResponse.lpar = RMF3bodyParserResult.table; //add this line to jsonResponse
+                  } else { //else if urlLpar_parm is not equal to "ALL_CP"
+                    var table = RMF3bodyParserResult['table'];
+                    table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
+                      if (i["CPCPPNAM"] === urlLpar_parms) {
+                        jsonResponse.lpar = i; //add this line to jsonResponse
+                      }
+                    });
+                  };
+                } else if (de === undefined) { // de is equal to undefined if RMF3bodyParserResult caption does not contain the urlParm value
+                  table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlLpar_parms
+                    var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
+                    col.push(d);
+                  });
+                  jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                  jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                  jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                  jsonResponse.lpar_parm = col;
+                  if (urlLpar_parms === "ALL_CP") { //checks if urlLpar_parms is equal to "ALL_CP"
+                    jsonResponse.lpar = RMF3bodyParserResult.table;
+                  } else {
+                    var table = RMF3bodyParserResult['table'];
+                    table.forEach((i) => {  //Loop through RMF3bodyParserResult table to check for urlLpar_parms
+                      if (i["CPCPPNAM"] === urlLpar_parms) {
+                        jsonResponse.lpar = i;
+                      }
+                    });
+                  };
+                } else {
+                  jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
+                  jsonResponse.timestart = RMF3bodyParserResult.timestart;
+                  jsonResponse.timeend = RMF3bodyParserResult.timeend;
+                  jsonResponse[urlParm] = de;
+                  if (urlLpar_parms === "ALL_CP") {
+                    jsonResponse.lpar = RMF3bodyParserResult.table;
+                  } else {
+                    var table = RMF3bodyParserResult['table'];
+                    table.forEach((i) => {  //Loop through RMF3bodyParserResult table to check for urlLpar_parms
+                      if (i["CPCPPNAM"] === urlLpar_parms) {
+                        jsonResponse.lpar = i;
+                      }
+                    });
+                  };
+                }
+                fn(jsonResponse); //function returns jsonResponse
+              }
             }
-            fn(jsonResponse); //function returns jsonResponse
+            
           }
-        }
-      });
-    } catch (err) {
-      fn(data)
+          
+        });
+      } catch (err) {
+        fn(data)
+      }
     }
+    
   });
 };
 

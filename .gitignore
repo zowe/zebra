@@ -5,3 +5,5 @@ src/db
 
 src/my.db
 src/my.dbrefresh
+
+src/config/*

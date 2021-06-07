@@ -1,3 +1,7 @@
+# Node Modules
 src/node_modules
-
+# Local Database
 src/db
+
+src/my.db
+src/my.dbrefresh

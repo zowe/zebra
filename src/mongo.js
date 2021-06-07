@@ -47,17 +47,18 @@ function getdata(appbaseurl, fn){ // Function to make request for JSON using thi
  */
 async function fedDatabase(data, type, fn ){
   if(data != "error"){ // if data is not equal to error.... getdata function can return error instead of JSON when something goes wrong
-    var JSONBody = data; 
+    var JSONBody = data;
     var parm = JSONBody["title"] // represent the value of title key in JSONBody
     var timestamp = (JSONBody["timestart"]).split(" "); // represent the value of timestart key in JSONBody
     var date = timestamp[0];
     var time = timestamp[1];
 
+    var datetime = toDateTime(date, time);
+
     if(type === 'CPC'){ // if data type is equal to CPC
         var cpc = new cpcdoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time, // JSONBody timestart for Timestamp Key
+            datetime: datetime,
             caption: JSONBody["caption"], // JSONBody caption for caption Key
             lpar: JSONBody["table"] // JSONBody table for lpar Key
         })
@@ -72,8 +73,7 @@ async function fedDatabase(data, type, fn ){
     }else if(type === 'PROC'){ // if data type is equal to PROC
         var proc = new procdoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time, 
+            datetime: datetime,
             lpar_proc: JSONBody["table"] // JSONBody table for lpar Key
         })
 
@@ -87,8 +87,7 @@ async function fedDatabase(data, type, fn ){
     }else if(type === 'USAGE'){ // if data type is equal to USAGE
         var usage = new usagedoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time,
+            datetime: datetime,
             lpar_usage: JSONBody["table"] // JSONBody table for lpar Key
         })
         usage.save((err, USage) => { // save Subdocument to existing Document
@@ -101,8 +100,7 @@ async function fedDatabase(data, type, fn ){
     }else if(type === 'WKL'){ // if data type is equal to CPC
         var workload =  new workloaddoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time,
+            datetime: datetime,
             Caption: JSONBody["caption"], // JSONBody caption for caption Key
             Class: JSONBody["table"] // JSONBody table for Class Key
         })
@@ -137,3 +135,14 @@ setInterval(() => { // Set interval function allows this routine to run at a spe
   });
 }, parseInt(dbinterval) * 1000); // duration of the interval
 
+/**
+ * Converts date and time strings to Date object
+ * @param {String} date String representing date in MM/DD/YYYY format
+ * @param {String} time String representing time in HOUR:MINUTE:SECONDS format
+ * @returns Date object representing the date and time of the record
+ */
+function toDateTime(date, time) {
+  const [month, day, year] = date.split("/");
+  const dateTimeString = `${year}-${month}-${day}T${time}`;
+  return Date.parse(dateTimeString);
+}

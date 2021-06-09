@@ -1,4 +1,11 @@
+var timehandler = require("./RMFPPcontroller");
+let cpcdoc = require("../Models/cpcdocSchema")
+let procdoc = require("../Models/procdocSchema")
+let usagedoc = require("../Models/usagedocSchema")
+let wkldoc = require("../Models/workloaddocSchema")
 var MongoClient = require('mongodb').MongoClient;
+//var mongoose = require( 'mongoose' );
+//var url = "mongodb://localhost:27017/";
 var Zconfig = require("../../config/Zconfig");
 var mongourl = Zconfig['mongourl'] ;
 var mongoport = Zconfig['mongoport'] ;
@@ -65,7 +72,6 @@ module.exports.mongoReport = function(req, res) {
  * @param {Object} fn - returns the data stored in cpcactivities
  */
 function getDoc(collection, filter, fn){
-    console.log(filter);
     if (dbauth === 'true'){ // if user has specified database authentication
         MongoClient.connect(dbURIAuth, function(err, db) {
             var dbo = db.db(dbname); // use dbname from Zconfig file

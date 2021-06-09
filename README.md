@@ -36,7 +36,7 @@ Copyright Contributors to the Zowe Project.
 
 
 <IMG SRC = "https://github.com/ykimvicom/zebra-1/blob/main/Zebra%20GRAFANA.png"> </IMG>
-## <Picture 2>  Zebra use case example #1 - Plotting thru Grafana with RMF III real-time data
+## <Picture 2>  Zebra use case example #1 - Plotting thru Grafana with RMF I real-time data
   
    
 # Running Zebra

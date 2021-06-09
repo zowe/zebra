@@ -1,0 +1,15 @@
+extends ../layout
+
+block header 
+    style. 
+        .tofa{
+            margin: 2%;
+        }
+    
+
+block content
+    div(class="tofa")
+      - if(msg)
+            h4 Error
+            hr 
+            p !{msg} 

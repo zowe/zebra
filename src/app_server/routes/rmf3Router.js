@@ -19,9 +19,9 @@ router.get('/error',  function(req, res){
       }else if(result === "EOUT"){ //NODE Version Error
         res.render('error/timeout')
       }else if(result === "Err"){
-        res.render('error/nodata', {msg:`Error Message: ${result}`});
+        res.render('error/parserError', {data:result});
       }else{
-        res.render('error/nodata', {msg:`Error Message: ${result}`});
+        res.render('error/parserError', {data:result});
       }
     }catch(e){
         res.render('error/nodata', {msg:`Error Message: ${result}`});

@@ -64,7 +64,15 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsRe
     .catch(function (error) {
       // handle error
       //console.log(error)
-      fn(error["errno"]);
+      try{
+        if(parseInt(error.response.status) === 401){
+          fn("UA");
+        }else{
+          fn(error["errno"]);
+        }
+      }catch(e){
+        fn(error["errno"]);
+      }
     })
     .then(function () {
       // always executed
@@ -92,7 +100,15 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) {
     })
     .catch(function (error) {
       // handle error
-      fn(error["errno"]);
+      try{
+        if(parseInt(error.response.status) === 401){
+          fn("UA");
+        }else{
+          fn(error["errno"]);
+        }
+      }catch(e){
+        fn(error["errno"]);
+      }
     })
     .then(function () {
       // always executed
@@ -106,7 +122,15 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) {
     .catch(function (error) {
       // handle error
       //console.log(error)
-      fn(error["errno"]);
+      try{
+        if(parseInt(error.response.status) === 401){
+          fn("UA");
+        }else{
+          fn(error["errno"]);
+        }
+      }catch(e){
+        fn(error["errno"]);
+      }
     })
     .then(function () {
       // always executed
@@ -144,9 +168,19 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
     ulrFilename = (req.query.reports).toUpperCase() + ".xml";
     RMFMonitor3getInfo(baseurl, baseport, ulrFilename, mvsResource, function (data){
       //res.json(data);
-      RMFMonitor3parser.RMF3bodyParser(data, function (result){
-        res.json(result);
-      });
+      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+        var string = encodeURIComponent(`${data}`);
+        res.redirect('/rmfm3/error?emsg=' + string);
+      }else{
+        RMFMonitor3parser.RMF3bodyParser(data, function (result){
+          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+            var data = result["data"];
+            res.redirect(`/rmfm3/error?emsg=${data}`);
+          }else{
+            res.json(result);
+          }
+        });
+      }
     });
   }else{
     if (urlReport === "CPC") { // checks if user has specify the value "CPC" for report parameter in the URL
@@ -156,30 +190,37 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         var string = encodeURIComponent(`${result}`);
         res.redirect('/rmfm3/error?emsg=' + string);
       }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-        var string = encodeURIComponent(`${result["msg"]}`);
-        var errorw = encodeURIComponent(`${result["error"]}`); 
-        var dataw = result["data"];
-        res.redirect(url.format(
-          {
-            pathname: "/rmfm3/error",
-            query: {
-              emsg: string,
-              errorw: errorw
-            }
-          }
-        ))
-        //res.redirect(`/rmfm3/error?emsg=${string}&errorw=${errorw}`);
+        var data = result["data"];
+        res.redirect(`/rmfm3/error?emsg=${data}`);
       }else{
         res.json(result); //Express respond with the result returned from displayCPC function
       }
     });
     } else if (urlReport === "PROC") { // checks if user has specify the value "PROC" for report parameter in the URL
       displayPROC(urlReport, ulrParm, urlJobParm, function (result) { //A call to displayPROC function is made with a callback function as parameter
-        res.json(result); //Express respond with the result returned from displayPROC function
+        if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
+          var string = encodeURIComponent(`${result}`);
+          res.redirect('/rmfm3/error?emsg=' + string);
+        }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
+          var data = result["data"];
+          res.redirect(`/rmfm3/error?emsg=${data}`);
+        }else{
+          res.json(result); //Express respond with the result returned from displayPROC function
+        }
+        //res.json(result); //Express respond with the result returned from displayPROC function
       });
     } else if (urlReport === "USAGE") { // checks if user has specify the value "USAGE" for report parameter in the URL
       displayUSAGE(urlReport, ulrParm, urlJobParm, function (result) { //A call to displayUSAGE function is made with a callback function as parameter
-        res.json(result); //Express respond with the result returned from displayUSAGE function
+        if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
+          var string = encodeURIComponent(`${result}`);
+          res.redirect('/rmfm3/error?emsg=' + string);
+        }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
+          var data = result["data"];
+          res.redirect(`/rmfm3/error?emsg=${data}`);
+        }else{
+          res.json(result); //Express respond with the result returned from displayUSAGE function
+        }
+        //res.json(result); //Express respond with the result returned from displayUSAGE function
       });
     } else if (urlReport === "MIPS") { // checks if user has specify the value "USAGE" for report parameter in the URL
       displayCPC("CPC", ulrParm, urlJobParm, function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
@@ -375,64 +416,78 @@ function displayCPC(urlReport, urlParm, urlLpar_parms, fn) {
  */
 function displayPROC(urlReport, arg, job, fn) {
   RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) { //Send GET request for PROC data to Monitor III.
-    try { //try
-      RMFMonitor3parser.RMF3bodyParser(data, function (result) { //send returned XML to Monitor III parser.
-        var RMF3bodyParserResult = result; //save returned JSON from the parser to RMF3bodyParserResult variable.
-        var col = []; //an Empty Collection.
-        var jsonResponse = {}; //jsonResponse collection.
-        var table = RMF3bodyParserResult["table"]; //save the table section of PROC report into "table" variable.
-        if (arg === undefined && job === undefined) { //checks if parm and lpar parameters are not specified.
-          fn(result); //return JSON from the parser.
-        } else if (job === undefined) { //checks if only lpar is not specified.
-          table.forEach((i) => { //Loop through table.
-            var d = { "PRCPJOB": i["PRCPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value.
-            col.push(d); // push temporary dictionary to col array.
-          });
-          jsonResponse = {}; //Prepare JSON Response.
-          jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key and value.
-          jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key and value.
-          jsonResponse.job = col; //job key and value.
-          fn(jsonResponse); //return jsonResponse.
-        } else { //JOB is specified
-          if (arg === undefined) { //if "parm" parameter is not specified in the URL(e.g /rmfm3?report=PROC&job=ZOWESVR3).
-            jsonResponse = {}; //Prepare JSON Response
-            jsonResponse.timestart = RMF3bodyParserResult.timestart; // timestart key and value
-            jsonResponse.timeend = RMF3bodyParserResult.timeend; // timeend key and value
-            if (job === "ALL_JOBS") { // if user specified "ALL_JOBS" as the value of job parameter.
-              jsonResponse.job = RMF3bodyParserResult.table; //Add the entire table section of JSON returned by parser to jsonResponse. 
-            } else { // if user specified a value for job parameter.
-              var table = RMF3bodyParserResult['table']; //save the table section of PROC report into "table" variable.
-              table.forEach((i) => { //Loop through table
-                if (i["PRCPJOB"] === job) { //if the value of PRCPJOB matches the value of job in the URL(e.g /rmfm3?report=PROC&job=ZOWESVR3).
-                  jsonResponse.job = i; //add job key value pair to jsonResponse
-                }
+    if(data === 'EPROTO'){
+      fn("NE")
+    }else if(data === 'ENOTFOUND'){
+      fn("DE")
+    }else if(data === 'UA'){
+      fn("UA")
+    }else if(data === 'ETIMEDOUT'){
+      fn("EOUT")
+    }else{
+      try { //try
+        RMFMonitor3parser.RMF3bodyParser(data, function (result) { //send returned XML to Monitor III parser.
+          if(result["msg"]){
+            fn({msg: "Err", error: result["error"], data: result["data"]});
+          }else{
+            var RMF3bodyParserResult = result; //save returned JSON from the parser to RMF3bodyParserResult variable.
+            var col = []; //an Empty Collection.
+            var jsonResponse = {}; //jsonResponse collection.
+            var table = RMF3bodyParserResult["table"]; //save the table section of PROC report into "table" variable.
+            if (arg === undefined && job === undefined) { //checks if parm and lpar parameters are not specified.
+              fn(result); //return JSON from the parser.
+            } else if (job === undefined) { //checks if only lpar is not specified.
+              table.forEach((i) => { //Loop through table.
+                var d = { "PRCPJOB": i["PRCPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value.
+                col.push(d); // push temporary dictionary to col array.
               });
-            };
-          } else {// if user specified all parameters in the URL(e.g /rmfm3?report=PROC&parm=PRCPSVCL&job=ZOWESVR3).
-            table.forEach((i) => { //Loop through table
-              var d = { "PRCPJOB": i["PRCPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value
-              col.push(d); //push temporary dictionary into col array
-            });
-            jsonResponse = {}; //Prepare JSON Response
-            jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key and value
-            jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key and value
-            jsonResponse.job_parm = col; //job_parm for parm value specified by user in the URL(e.g /rmfm3?report=PROC&parm=PRCPSVCL&job=ZOWESVR3).
-            if (job === "ALL_JOBS") { // if user specified "ALL_JOBS" as the value of job parameter.
-              jsonResponse.job = RMF3bodyParserResult.table; //Add the entire table section of JSON returned by parser to jsonResponse. 
-            } else { // if user specified a value for job parameter.
-              var table = RMF3bodyParserResult['table']; //save the table section of PROC report into "table" variable.
-              table.forEach((i) => { //Loop through table
-                if (i["PRCPJOB"] === job) { //if the value of PRCPJOB matches the value of job in the URL(e.g /rmfm3?report=PROC&job=ZOWESVR3).
-                  jsonResponse.job = i; //add job key value pair to jsonResponse
-                }
-              });
-            };
+              jsonResponse = {}; //Prepare JSON Response.
+              jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key and value.
+              jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key and value.
+              jsonResponse.job = col; //job key and value.
+              fn(jsonResponse); //return jsonResponse.
+            } else { //JOB is specified
+              if (arg === undefined) { //if "parm" parameter is not specified in the URL(e.g /rmfm3?report=PROC&job=ZOWESVR3).
+                jsonResponse = {}; //Prepare JSON Response
+                jsonResponse.timestart = RMF3bodyParserResult.timestart; // timestart key and value
+                jsonResponse.timeend = RMF3bodyParserResult.timeend; // timeend key and value
+                if (job === "ALL_JOBS") { // if user specified "ALL_JOBS" as the value of job parameter.
+                  jsonResponse.job = RMF3bodyParserResult.table; //Add the entire table section of JSON returned by parser to jsonResponse. 
+                } else { // if user specified a value for job parameter.
+                  var table = RMF3bodyParserResult['table']; //save the table section of PROC report into "table" variable.
+                  table.forEach((i) => { //Loop through table
+                    if (i["PRCPJOB"] === job) { //if the value of PRCPJOB matches the value of job in the URL(e.g /rmfm3?report=PROC&job=ZOWESVR3).
+                      jsonResponse.job = i; //add job key value pair to jsonResponse
+                    }
+                  });
+                };
+              } else {// if user specified all parameters in the URL(e.g /rmfm3?report=PROC&parm=PRCPSVCL&job=ZOWESVR3).
+                table.forEach((i) => { //Loop through table
+                  var d = { "PRCPJOB": i["PRCPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value
+                  col.push(d); //push temporary dictionary into col array
+                });
+                jsonResponse = {}; //Prepare JSON Response
+                jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key and value
+                jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key and value
+                jsonResponse.job_parm = col; //job_parm for parm value specified by user in the URL(e.g /rmfm3?report=PROC&parm=PRCPSVCL&job=ZOWESVR3).
+                if (job === "ALL_JOBS") { // if user specified "ALL_JOBS" as the value of job parameter.
+                  jsonResponse.job = RMF3bodyParserResult.table; //Add the entire table section of JSON returned by parser to jsonResponse. 
+                } else { // if user specified a value for job parameter.
+                  var table = RMF3bodyParserResult['table']; //save the table section of PROC report into "table" variable.
+                  table.forEach((i) => { //Loop through table
+                    if (i["PRCPJOB"] === job) { //if the value of PRCPJOB matches the value of job in the URL(e.g /rmfm3?report=PROC&job=ZOWESVR3).
+                      jsonResponse.job = i; //add job key value pair to jsonResponse
+                    }
+                  });
+                };
+              }
+              fn(jsonResponse); //return jsonResponse
+            }
           }
-          fn(jsonResponse); //return jsonResponse
-        }
-      });
-    } catch (err) {
-      fn(err) // return error
+        });
+      } catch (err) {
+        fn(err) // return error
+      }
     }
   });
 };
@@ -448,65 +503,80 @@ function displayPROC(urlReport, arg, job, fn) {
  */
 function displayUSAGE(urlReport, arg, job, fn) { //function for processing of Monitor III USAGE report
   RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) { //Send GET request for USAGE data to Monitor III.
-    try { //try
-      RMFMonitor3parser.RMF3bodyParser(data, function (result) {  //send returned XML to Monitor III parser;
-        var RMF3bodyParserResult = result; //save returned JSON from the parser to RMF3bodyParserResult variable
-        var col = []; //col array
-        var jsonResponse = {}; //jsonResponse Collection
-        var table = RMF3bodyParserResult["table"]; //save the table section of USAGE report into "table" variable.
-        if (arg === undefined && job === undefined) { //checks if parm and lpar parameters are not specified
-          fn(result); //
-        } else if (job === undefined) { // checks if only JOB is not specified
-          table.forEach((i) => { //Loop through table
-            var d = { "JUSPJOB": i["JUSPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value
-            col.push(d); //push temporary dictionary to col array.
-          });
-          jsonResponse = {}; //Prepare JSON Response
-          jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key and value.
-          jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key and value.
-          jsonResponse.job = col; //job key and value.
-          fn(jsonResponse); //return jsonResponse.
-        } else { //JOB is specified
-          if (arg === undefined) { //if "parm" parameter is not specified in the URL(e.g /rmfm3?report=USAGE&job=ZOWESVR3).
-            jsonResponse = {}; //Prepare JSON Response
-            jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key value pair
-            jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key value pair
-            if (job === "ALL_JOBS") { //if user specified "ALL_JOBS" as the value of job parameter.
-              jsonResponse.job = RMF3bodyParserResult.table; //save the table section of USAGE report into "table" variable.
-            } else { // if user specified a value for job parameter.
-              var table = RMF3bodyParserResult['table']; //save the table section of USAGE report into "table" variable.
+    if(data === 'EPROTO'){
+      fn("NE")
+    }else if(data === 'ENOTFOUND'){
+      fn("DE")
+    }else if(data === 'UA'){
+      fn("UA")
+    }else if(data === 'ETIMEDOUT'){
+      fn("EOUT")
+    }else{
+      try { //try
+        RMFMonitor3parser.RMF3bodyParser(data, function (result) {  //send returned XML to Monitor III parser;
+          if(result["msg"]){
+            fn({msg: "Err", error: result["error"], data: result["data"]});
+          }else{
+            var RMF3bodyParserResult = result; //save returned JSON from the parser to RMF3bodyParserResult variable
+            var col = []; //col array
+            var jsonResponse = {}; //jsonResponse Collection
+            var table = RMF3bodyParserResult["table"]; //save the table section of USAGE report into "table" variable.
+            if (arg === undefined && job === undefined) { //checks if parm and lpar parameters are not specified
+              fn(result); //
+            } else if (job === undefined) { // checks if only JOB is not specified
               table.forEach((i) => { //Loop through table
-                if (i["JUSPJOB"] === job) { //if the value of JUSPJOB matches the value of job in the URL(e.g /rmfm3?report=USAGE&job=ZOWESVR3).
-                  jsonResponse.job = i; //add job key value pair to jsonResponse
-                }
+                var d = { "JUSPJOB": i["JUSPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value
+                col.push(d); //push temporary dictionary to col array.
               });
-            };
-          } else { // if user specified all parameters in the URL(e.g /rmfm3?report=USAGE&parm=PRCPSVCL&job=ZOWESVR3).
-            table.forEach((i) => { //Loop through table
-              var d = { "JUSPJOB": i["JUSPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value
-              col.push(d);
-            });
-            jsonResponse = {}; //Prepare JSON Response
-            jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key value pair
-            jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key value pair
-            jsonResponse.job_parm = col; //job_parm for parm value specified by user in the URL(e.g /rmfm3?report=PROC&parm=PRCPSVCL&job=ZOWESVR3).
-            if (job === "ALL_JOBS") { //if user specified "ALL_JOBS" as the value of job parameter.
-              jsonResponse.job = RMF3bodyParserResult.table; //save the table section of USAGE report into "table" variable.
-            } else { // if user specified a value for job parameter.
-              var table = RMF3bodyParserResult['table']; //save the table section of USAGE report into "table" variable.
-              table.forEach((i) => { //Loop through table
-                if (i["JUSPJOB"] === job) { //if the value of JUSPJOB matches the value of job in the URL(e.g /rmfm3?report=USAGE&job=ZOWESVR3).
-                  jsonResponse.job = i; //add job key value pair to jsonResponse
-                }
-              });
-            };
-
+              jsonResponse = {}; //Prepare JSON Response
+              jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key and value.
+              jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key and value.
+              jsonResponse.job = col; //job key and value.
+              fn(jsonResponse); //return jsonResponse.
+            } else { //JOB is specified
+              if (arg === undefined) { //if "parm" parameter is not specified in the URL(e.g /rmfm3?report=USAGE&job=ZOWESVR3).
+                jsonResponse = {}; //Prepare JSON Response
+                jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key value pair
+                jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key value pair
+                if (job === "ALL_JOBS") { //if user specified "ALL_JOBS" as the value of job parameter.
+                  jsonResponse.job = RMF3bodyParserResult.table; //save the table section of USAGE report into "table" variable.
+                } else { // if user specified a value for job parameter.
+                  var table = RMF3bodyParserResult['table']; //save the table section of USAGE report into "table" variable.
+                  table.forEach((i) => { //Loop through table
+                    if (i["JUSPJOB"] === job) { //if the value of JUSPJOB matches the value of job in the URL(e.g /rmfm3?report=USAGE&job=ZOWESVR3).
+                      jsonResponse.job = i; //add job key value pair to jsonResponse
+                    }
+                  });
+                };
+              } else { // if user specified all parameters in the URL(e.g /rmfm3?report=USAGE&parm=PRCPSVCL&job=ZOWESVR3).
+                table.forEach((i) => { //Loop through table
+                  var d = { "JUSPJOB": i["JUSPJOB"], [arg]: i[arg] } //a temporary dictionary of argument and its value
+                  col.push(d);
+                });
+                jsonResponse = {}; //Prepare JSON Response
+                jsonResponse.timestart = RMF3bodyParserResult.timestart; //timestart key value pair
+                jsonResponse.timeend = RMF3bodyParserResult.timeend; //timeend key value pair
+                jsonResponse.job_parm = col; //job_parm for parm value specified by user in the URL(e.g /rmfm3?report=PROC&parm=PRCPSVCL&job=ZOWESVR3).
+                if (job === "ALL_JOBS") { //if user specified "ALL_JOBS" as the value of job parameter.
+                  jsonResponse.job = RMF3bodyParserResult.table; //save the table section of USAGE report into "table" variable.
+                } else { // if user specified a value for job parameter.
+                  var table = RMF3bodyParserResult['table']; //save the table section of USAGE report into "table" variable.
+                  table.forEach((i) => { //Loop through table
+                    if (i["JUSPJOB"] === job) { //if the value of JUSPJOB matches the value of job in the URL(e.g /rmfm3?report=USAGE&job=ZOWESVR3).
+                      jsonResponse.job = i; //add job key value pair to jsonResponse
+                    }
+                  });
+                };
+    
+              }
+              fn(jsonResponse); //return jsonResponse
+            }
           }
-          fn(jsonResponse); //return jsonResponse
-        }
-      });
-    } catch (err) {
-      fn(result)
+          
+        });
+      } catch (err) {
+        fn(result)
+      }
     }
   });
 };

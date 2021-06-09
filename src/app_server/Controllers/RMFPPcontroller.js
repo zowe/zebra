@@ -36,7 +36,15 @@ function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, f
     .catch(function (error) {
       // handle error
       //console.log(error)
-      fn(error);
+      try{
+        if(parseInt(error.response.status) === 401){
+          fn("UA");
+        }else{
+          fn(error["errno"]);
+        }
+      }catch(e){
+        fn(error["errno"]);
+      }
     })
     .then(function () {
       // always executed
@@ -50,7 +58,15 @@ function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, f
     .catch(function (error) {
       // handle error
       //console.log(error)
-      fn(error);
+      try{
+        if(parseInt(error.response.status) === 401){
+          fn("UA");
+        }else{
+          fn(error["errno"]);
+        }
+      }catch(e){
+        fn(error["errno"]);
+      }
     })
     .then(function () {
       // always executed
@@ -88,35 +104,56 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
   }
   if (urlReport === "CPU") { //if user specified CPU as report name
     RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, function (data) { //A call to the getRequestpp function made with a callback function as parameter
-      RMFPPparser.bodyParserforRmfCPUPP(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
-        res.json(result); //Express display all the result returned by the call back function
-      });
+      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+        var string = encodeURIComponent(`${data}`);
+        res.redirect('/rmfpp/error?emsg=' + string);
+      }else{
+        RMFPPparser.bodyParserforRmfCPUPP(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
+          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+            var data = result["data"];
+            res.redirect(`/rmfpp/error?emsg=${data}`);
+          }else{
+            res.json(result); //Express display all the result returned by the call back function
+          }
+          //res.json(result); 
+        });
+      }
     });
   } else if (urlReport === "WLMGL") { //if user specified WLMGL as report name
     RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, function (data) { //A call to the getRequestpp function made with a callback function as parameter
-      RMFPPparser.bodyParserforRmfWLMPP(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
-        if (urlSvcCls != undefined) { //if user has specify value for the SvcCls(service classs) parameter
-          try {
-            var preSvcCls = 'Service Class '; //String
-            filterClass(result, preSvcCls, urlSvcCls, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
-              res.json(rdata); //Express Respond with the JSON returned by the filterClass function
-            });
-          } catch (err) { //catch error
-            res.json(result);//Express Respond with the Error returned by the filterClass function
+      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+        var string = encodeURIComponent(`${data}`);
+        res.redirect('/rmfpp/error?emsg=' + string);
+      }else{
+        RMFPPparser.bodyParserforRmfWLMPP(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
+          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+            var data = result["data"];
+            res.redirect(`/rmfpp/error?emsg=${data}`);
+          }else{
+            if (urlSvcCls != undefined) { //if user has specify value for the SvcCls(service classs) parameter
+              try {
+                var preSvcCls = 'Service Class '; //String
+                filterClass(result, preSvcCls, urlSvcCls, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
+                  res.json(rdata); //Express Respond with the JSON returned by the filterClass function
+                });
+              } catch (err) { //catch error
+                res.json(result);//Express Respond with the Error returned by the filterClass function
+              }
+            } else if (urlWlkd) { //if user has specify value for the Wlkd(workload) parameter
+              try {
+                var preWlkd = 'Workload '; //String
+                filterClass(result, preWlkd, urlWlkd, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
+                  res.json(rdata); //Express Respond with the JSON returned by the filterClass function
+                });
+              } catch (err) { //catch error
+                res.json(result);//Express Respond with the Error returned by the filterClass function
+              }
+            } else {
+              res.json(result); //Express Respond with the full worload report if SvcCls or Wlkd parameters were not specified by user
+            }
           }
-        } else if (urlWlkd) { //if user has specify value for the Wlkd(workload) parameter
-          try {
-            var preWlkd = 'Workload '; //String
-            filterClass(result, preWlkd, urlWlkd, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
-              res.json(rdata); //Express Respond with the JSON returned by the filterClass function
-            });
-          } catch (err) { //catch error
-            res.json(result);//Express Respond with the Error returned by the filterClass function
-          }
-        } else {
-          res.json(result); //Express Respond with the full worload report if SvcCls or Wlkd parameters were not specified by user
-        }
-      });
+        });
+      }
     });
 
   }

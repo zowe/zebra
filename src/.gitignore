@@ -1,0 +1,16 @@
+# Node Modules
+node_modules
+
+# Local Database
+db
+
+# DB
+my.db
+my.dbrefresh
+
+# Any config files
+config/Zconfig.json
+
+# SSL Certs
+sslcert/*.cert
+sslcert/*.key

@@ -1,9 +1,15 @@
 # Node Modules
 src/node_modules
+
 # Local Database
 src/db
 
+# DB
 src/my.db
 src/my.dbrefresh
 
+# Any config files
 src/config/*
+
+# SSL Certs
+src/sslcert/*

@@ -580,4 +580,3 @@ function displayUSAGE(urlReport, arg, job, fn) { //function for processing of Mo
     }
   });
 };
-

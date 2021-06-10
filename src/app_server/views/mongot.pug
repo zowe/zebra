@@ -33,8 +33,8 @@ block content
                     - for(file of cpcdata)
                         .mySlides.faded
                             h6(style={"color":"red","margin-left":"5%"})= `Title : ${file.title}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.date}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.time}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.datetime.toDateString()}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.datetime.toTimeString()}`
                             h6(style={"color":"red","margin-left":"5%"})= 'Captions'
                             if(file.caption)
                                 ul(style={"color":"red","margin-left":"5%"})
@@ -126,8 +126,8 @@ block content
                     - for(file of procdata)
                         .mySlides.faded
                             h6(style={"color":"red","margin-left":"5%"})= `Title : ${file.title}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.date}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.time}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.datetime.toDateString()}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.datetime.toTimeString()}`
                             h6(style={"color":"red","margin-left":"5%"})= 'Captions'
                             if(file.caption)
                                 ul(style={"color":"red","margin-left":"5%"})
@@ -200,8 +200,8 @@ block content
                     - for(file of usagedata)
                         .mySlides.faded
                             h6(style={"color":"red","margin-left":"5%"})= `Title : ${file.title}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.date}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.time}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.datetime.toDateString()}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.datetime.toTimeString()}`
                             h6(style={"color":"red","margin-left":"5%"})= 'Captions'
                             if(file.caption)
                                 ul(style={"color":"red","margin-left":"5%"})
@@ -280,8 +280,8 @@ block content
                     - for(file of wlkdata)
                         .mySlides.faded
                             h6(style={"color":"red","margin-left":"5%"})= `Title : ${file.title}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.date}`
-                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.time}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Date : ${file.datetime.toDateString()}`
+                            h6(style={"color":"red","margin-left":"5%"})= `Time : ${file.datetime.toTimeString()}`
                             h6(style={"color":"red","margin-left":"5%"})= 'Captions'
                             if(file.Caption)
                                 ul(style={"color":"red","margin-left":"5%"})

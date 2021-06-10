@@ -38,6 +38,7 @@ var rmf3Router = require('./app_server/routes/rmf3Router');
 var rmfppRouter = require('./app_server/routes/rmfppRouter');
 var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
+var apiRouter = require('./app_server/routes/apiRouter');
 
 var app = express();
 
@@ -75,6 +76,7 @@ app.use('/rmfm3', rmf3Router);
 app.use('/static', staticRouter);
 app.use('/upload', fileUploadRouter);
 app.use('/rmfpp', rmfppRouter);
+app.use('/api', apiRouter);
 
 app.use(express.static('uploads'));
 

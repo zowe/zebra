@@ -60,7 +60,7 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
             fn(finalJSON); //function returns parsed postprocessor
         });
     } catch (err) {// if parsing XML didn't went smooth 
-      fn("Parsing RMF I XML Failed! Check Connection to DDS server");// return the error 
+        fn({msg: 'Err', error: err, data: data});// return the error 
     }
 }
 
@@ -155,6 +155,6 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
             fn(allWLMPPJSON); // return All workload post processor JSON
         });
     } catch (err) { // if error
-        fn("Parsing RMF I XML Failed! Check Connection to DDS server"); // return error
+        fn({msg: 'Err', error: err, data: data}); // return error
     }
 }

@@ -76,30 +76,30 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
             var allWLMPPJSON = []; // A JSON collection for all parsed Workload postprocessor sections
             for (a in postprocessors) { // loop through all postprocessor sections
                 var singleWLMPPReport = {}; // JSON Collection for a single postprocession section of the XML
-                var segments = result['ddsml']['postprocessor'][a]['segment']; // represent segments each postprocessor section
+                var segments = postprocessors[a]['segment']; // represent segments each postprocessor section
                 AllsegmentCollection = []; // A JSON collection for all segments
                 for (b in segments) { // loop through segments in the XML
-                    var parts = result['ddsml']['postprocessor'][a]['segment'][b]['part']; // represent segment part value in the XML
-                    var message = result['ddsml']['postprocessor'][a]['segment'][b]['message']; // represent segment message value in the XML
-                    var segmentName = result['ddsml']['postprocessor'][a]['segment'][b]['name']; // represent segment name in the XML
+                    var parts = segments[b]['part']; // represent segment part value in the XML
+                    var message = segments[b]['message']; // represent segment message value in the XML
+                    var segmentName = segments[b]['name']; // represent segment name in the XML
                     segmentCollection = {}; //A JSON for single XML segment
                     if (message) {  // if segment contains mesaage atrributes in the XML
-                        var messageDescription = result['ddsml']['postprocessor'][a]['segment'][b]['message'][0]['description'][0]; // represent message description
-                        var messageSeverity = result['ddsml']['postprocessor'][a]['segment'][b]['message'][0]['severity'][0]; // represent message severity
+                        var messageDescription = message[0]['description'][0]; // represent message description
+                        var messageSeverity = message[0]['severity'][0]; // represent message severity
                         var messageCollection = {} // A JSON for message Collection
                         messageCollection['Description'] = messageDescription; // message Description key value pairs in messageCollection
                         messageCollection['Severity'] = messageSeverity; // message severity key value pairs in messageCollection
                         segmentCollection['Message'] = messageCollection; //message key value pair in segmentCollection
                     }
-                    for (c in parts) { //loop through segment parts value
-                        partCollection = {}; // A JSON collection for single part 
-                        var partName = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['name']; // represent part name in the XML
-                        var varlist = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['var-list']; // Represent variable list in the XML
-                        var table = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['table']; // represent table in the XML
+                    partCollection = {}; // A JSON collection for single part
+                    for (c in parts) { //loop through segment parts value 
+                        var partName = parts[c]['name']; // represent part name in the XML
+                        var varlist = parts[c]['var-list']; // Represent variable list in the XML
+                        var table = parts[c]['table']; // represent table in the XML
 
                         if (varlist) { // if XML contains variable list
                             variablesCollection = {}; //A JSON for  XML variable key value pairs
-                            var variables = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['var-list'][0]['var'] //represent the variables name and value in the XML
+                            var variables = varlist[0]['var'] //represent the variables name and value in the XML
                             for (d in variables) { // loop through the variables
                                 variablesCollection[variables[d]['name'][0]] = variables[d]['value'][0]; //populate variables collection with name and value from XML 
                             }
@@ -111,8 +111,8 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
 
                         }
                         if (table) { //if report contains table attributes in the XML
-                            var tablecolumnheader = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['table'][0]['column-headers'][0]['col']; // represent column heads
-                            var tableBody = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['table'][0]['row']; // represent the rows
+                            var tablecolumnheader = table[0]['column-headers'][0]['col']; // represent column heads
+                            var tableBody = table[0]['row']; // represent the rows
                             columnheadCollection = [] // An array for Column headers
                             tableBodyCollection = {} // A JSON for column head as key and row as values
                             finaltableReport = [];//final table report collection vontaining all rows

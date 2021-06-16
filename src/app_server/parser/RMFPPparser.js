@@ -91,8 +91,8 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
                         messageCollection['Severity'] = messageSeverity; // message severity key value pairs in messageCollection
                         segmentCollection['Message'] = messageCollection; //message key value pair in segmentCollection
                     }
-                    for (c in parts) { //loop through segment parts value
-                        partCollection = {}; // A JSON collection for single part 
+                    partCollection = {}; // A JSON collection for single part
+                    for (c in parts) { //loop through segment parts value 
                         var partName = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['name']; // represent part name in the XML
                         var varlist = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['var-list']; // Represent variable list in the XML
                         var table = result['ddsml']['postprocessor'][a]['segment'][b]['part'][c]['table']; // represent table in the XML

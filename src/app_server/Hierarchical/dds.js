@@ -1,14 +1,14 @@
 module.exports.dds = { //please modify this object with your DDS server details
     RPRT: {
         "ddshhttptype":"https",
-        "ddsbaseurl":"salisuali.com",
-        "ddsbaseport":"9908",
+        "ddsbaseurl":"rprt.infinite-blue.com",
+        "ddsbaseport":"8803",
         "ddsauth":"true",
-        "ddsuser":"USER",
-        "ddspwd":"PASSWORD",
+        "ddsuser":"ZEBRA",
+        "ddspwd":"OMPUSER",
         "rmf3filename":"rmfm3.xml",
         "rmfppfilename":"rmfpp.xml",
-        "mvsResource":"Resourse",
+        "mvsResource":",RPRT,MVS_IMAGE",
     },
     DVLP : {
 

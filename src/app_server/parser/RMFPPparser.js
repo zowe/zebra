@@ -114,7 +114,6 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
                             var tablecolumnheader = table[0]['column-headers'][0]['col']; // represent column heads
                             var tableBody = table[0]['row']; // represent the rows
                             columnheadCollection = [] // An array for Column headers
-                            tableBodyCollection = {} // A JSON for column head as key and row as values
                             finaltableReport = [];//final table report collection vontaining all rows
                             for (i in tablecolumnheader) { //loop through columnhead
                                 columnheadCollection[i] = tablecolumnheader[i]['_']; //populate the colunmhead collection
@@ -127,12 +126,15 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
                                     for (j in columnheadCollection) {//looping through ColumnHead
                                         WLMtable[columnheadCollection[j]] = tableBody[i].col[j]; //creating a key value pairs for each row in the table with columnhead values serving as keys and rows as values 
                                     }
-                                    if (partName) { // if part name atrribute is present in the XML
-                                        partCollection[partName] = WLMtable; //populate part collections with partname as key and WLMtable as value
-                                    } else { // if part name atrribute is not present in the XML
-                                        partCollection['Info'] = WLMtable; //populate part collections with "info" as key and WLMtable as value
-                                    }
+                                    finaltableReport.push(WLMtable);
                                 };
+                            }
+
+                            // Add to part
+                            if (partName) { // if part name atrribute is present in the XML
+                                partCollection[partName] = finaltableReport; //populate part collections with partname as key and finaltableReport as value
+                            } else { // if part name atrribute is not present in the XML
+                                partCollection['Info'] = finaltableReport; //populate part collections with "info" as key and finaltableReport as value
                             }
                         }
                         if (segmentName) { // if segment name atrribute is present in the XML

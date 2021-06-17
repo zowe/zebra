@@ -22,6 +22,7 @@ let ddspass = Zconfig.ddspwd;
 function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
   var RMFPPURL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmfppfilename}?reports=${urlReport}&date=${urlDate}`; //Dynamically create URL
+  console.log(RMFPPURL);
   if(ddsauth === 'true'){
     axios.get(RMFPPURL, {
       auth: {
@@ -82,6 +83,7 @@ function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, f
  */
 module.exports.rmfpp = async function (req, res) {//Controller Function for Realtime Report Processing
   var urlReportNumber, urlSvcCls, urlWlkd, urlTime, urlDuration, timestart, timeend;
+  console.log(req.query.report);
   var urlReport = (req.query.report).toUpperCase(); //variable for report parameter in the User Specified URL
   var urlDate = (req.query.date).toUpperCase(); //variable for date parameter in the User Specified URL
   if (req.query.reportnumber) {
@@ -102,7 +104,7 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
     timestart = cduration[0]; //timestart from user specified duration
     timeend = cduration[1]; //timeend from user specified duration  
   }
-  if (urlReport === "CPU") { //if user specified CPU as report name
+  if (urlReport.length >= 3 && urlReport.slice(0,3) === "CPU") { //if user specified CPU as report name
     RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, function (data) { //A call to the getRequestpp function made with a callback function as parameter
       if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
         var string = encodeURIComponent(`${data}`);
@@ -119,7 +121,7 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
         });
       }
     });
-  } else if (urlReport === "WLMGL") { //if user specified WLMGL as report name
+  } else if (urlReport.length >= 5 && urlReport.slice(0,5) === "WLMGL") { //if user specified WLMGL as report name
     RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, function (data) { //A call to the getRequestpp function made with a callback function as parameter
       if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
         var string = encodeURIComponent(`${data}`);

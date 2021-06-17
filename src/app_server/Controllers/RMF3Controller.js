@@ -243,6 +243,23 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         //console.log(result["table"]["CPCPPNAM"] === "VIRPT");
         // //Express respond with the result returned from displayUSAGE function
       });
+    } else{ //Any other report
+      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) {
+        //res.json(data);
+        if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+          var string = encodeURIComponent(`${data}`);
+          res.redirect('/rmfm3/error?emsg=' + string);
+        }else{
+          RMFMonitor3parser.RMF3bodyParser(data, function (result){
+            if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+              var data = result["data"];
+              res.redirect(`/rmfm3/error?emsg=${data}`);
+            }else{
+              res.json(result);
+            }
+          });
+        }
+      });
     }
   }
 };

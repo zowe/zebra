@@ -74,15 +74,38 @@ var Zconfig = require("./dds");
 module.exports.api = async function (req, res) {
 
     if(req.params.lpar){
-        var c = Zconfig["dds"][req.params.lpar];
-        RMFMonitor3getRequest(c["ddshhttptype"], c["ddsbaseurl"], c["ddsbaseport"], c["rmf3filename"], req.params.report, c["mvsResource"], c["ddsuser"], c["ddspwd"], c["ddsauth"], function (data) {
-            RMFMonitor3parser.RMF3bodyParser(data, function (result) {
-                res.json(result)
-            });
-            
-
+        var lpar = Zconfig["dds"][req.params.lpar];
+        RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+          RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+              res.json(result)
+          });
         });
         //res.json(c);
     }
-
 };
+
+/*if(req.params.file === "*" && req.params.resource === "*"){
+  RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+    RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+        res.json(result)
+    });
+  });
+}else if(req.params.file === "*"){
+  RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, req.params.resource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+    RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+        res.json(result)
+    });
+  });
+}else if(req.params.resource === "*"){
+  RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], req.params.file, req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+    RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+        res.json(result)
+    });
+  });
+}else{
+  RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], req.params.file, req.params.report, req.params.resource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+    RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+        res.json(result)
+    });
+  });
+} */

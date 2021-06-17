@@ -22,7 +22,6 @@ let ddspass = Zconfig.ddspwd;
 function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
   var RMFPPURL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmfppfilename}?reports=${urlReport}&date=${urlDate}`; //Dynamically create URL
-  console.log(RMFPPURL);
   if(ddsauth === 'true'){
     axios.get(RMFPPURL, {
       auth: {
@@ -83,7 +82,6 @@ function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, f
  */
 module.exports.rmfpp = async function (req, res) {//Controller Function for Realtime Report Processing
   var urlReportNumber, urlSvcCls, urlWlkd, urlTime, urlDuration, timestart, timeend;
-  console.log(req.query.report);
   var urlReport = (req.query.report).toUpperCase(); //variable for report parameter in the User Specified URL
   var urlDate = (req.query.date).toUpperCase(); //variable for date parameter in the User Specified URL
   if (req.query.reportnumber) {

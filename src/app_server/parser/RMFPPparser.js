@@ -12,14 +12,17 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
         parser.parseString(data, function (err, result) {
             var finalJSON = []; // Collection for storing JSON of Parsed CPU XML
             var key1 = result['ddsml']['postprocessor']; // keys1 represent all postprocessor report sections
-
             //For loop to create dictionary/JSON 
             for (k in key1) { //looping through all postprocessor sections, one at a time: k is an integer startinf from zero and increase with each iteration
+                var cpuMachineType = key1[k]['segment'][0]['part'][0]['var-list'][0]['var'][0]['value'][0];
+                var cpuModelType = key1[k]['segment'][0]['part'][0]['var-list'][0]['var'][1]['value'][0];
                 var CPUSectiontable = key1[k]['segment'][0]['part'][0]['table'][0]["row"] // Rows in CPU Section of XML
                 var CPUsectioncolumnheader = key1[k]['segment'][0]['part'][0]['table'][0]['column-headers'][0]['col']; // Column headers in CPU Section of XML
                 var partitionDataName = key1[k]['segment'][1]['part'][2]['name'][0]; // Partion data section name
                 var partitionDataTable = key1[k]['segment'][1]['part'][2]['table'][0]['row']; // Table of the partition data section
                 var partitionDataColumnHead = key1[k]['segment'][1]['part'][2]['table'][0]['column-headers'][0]['col']; //Columnhead of the partition data section
+                var resourceName = key1[k]['resource'][0]['resname'][0];
+                var resourceType = key1[k]['resource'][0]['restype'][0];
                 var PDCH = [] //partition data columnheader collection
                 var FPDR = [] //final partition data report collection 
                 for (i in partitionDataColumnHead) { //looping through partitionDataColumnHead
@@ -39,21 +42,25 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
                     CPUColumnhead[i] = CPUsectioncolumnheader[i]['_']; //populating the CPU columnheader collection
                 };
 
-                finalCPUReport = [];//final CPU report collection
+                finalCPUTable = [];//final CPU report collection
                 for (i in CPUSectiontable) {   //looping through CPUsectiontable
                     CPUtable = {} //CPU table data collection
                     for (j in CPUColumnhead) {//looping through CPU ColumnHead
                         CPUtable[CPUColumnhead[j]] = CPUSectiontable[i].col[j]; //creating a key value pairs for each CPU in the CPU table  
                     }
-                    finalCPUReport.push(CPUtable); //populating final CPU report collection
+                    finalCPUTable.push(CPUtable); //populating final CPU report collection
                 };
+
+                var finalCPUReport = { Machine: cpuMachineType, Model: cpuModelType, Table: finalCPUTable };
 
                 parsedPostprocessor = {}; //collection  for individual parsed postprocessor, one at a time
                 parsedPostprocessor['Report'] = key1[k]['metric'][0]["description"][0]; // Report key value pair
                 parsedPostprocessor['Timestamp'] = key1[k]['time-data'][0]['display-start'][0]['_']; // Timestamp key value pair
+                parsedPostprocessor[resourceType] = resourceName;
                 parsedPostprocessor['CPU'] = finalCPUReport; // CPU key value pair
-                parsedPostprocessor['partitionDataName'] = partitionDataName; // partitionDataName key value pair
-                parsedPostprocessor['partionDataBody'] = FPDR; // partionDataBody key value pair
+                parsedPostprocessor[partitionDataName] = FPDR;
+                //parsedPostprocessor['partitionDataName'] = partitionDataName; // partitionDataName key value pair
+                //parsedPostprocessor['partitionDataBody'] = FPDR; // partionDataBody key value pair
 
                 finalJSON.push(parsedPostprocessor); //populating FinalJSON with parsedPostprocessor
             }
@@ -96,17 +103,12 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
                         var partName = parts[c]['name']; // represent part name in the XML
                         var varlist = parts[c]['var-list']; // Represent variable list in the XML
                         var table = parts[c]['table']; // represent table in the XML
+                        var fieldCollection = {}
 
                         if (varlist) { // if XML contains variable list
-                            variablesCollection = {}; //A JSON for  XML variable key value pairs
                             var variables = varlist[0]['var'] //represent the variables name and value in the XML
                             for (d in variables) { // loop through the variables
-                                variablesCollection[variables[d]['name'][0]] = variables[d]['value'][0]; //populate variables collection with name and value from XML 
-                            }
-                            if (partName) { // if part name atrribute is present in the XML
-                                partCollection[partName] = variablesCollection; //populate part collections with partname as key and variables collection as value
-                            } else { // if part name atrribute is not present in the XML
-                                partCollection['Info'] = variablesCollection; //populate part collections with "info" as key and variables collection as value
+                                fieldCollection[variables[d]['name'][0]] = variables[d]['value'][0]; //populate variables collection with name and value from XML 
                             }
 
                         }
@@ -129,13 +131,13 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
                                     finaltableReport.push(WLMtable);
                                 };
                             }
-
-                            // Add to part
-                            if (partName) { // if part name atrribute is present in the XML
-                                partCollection[partName] = finaltableReport; //populate part collections with partname as key and finaltableReport as value
-                            } else { // if part name atrribute is not present in the XML
-                                partCollection['Info'] = finaltableReport; //populate part collections with "info" as key and finaltableReport as value
-                            }
+                            fieldCollection["Table"] = finaltableReport;
+                        }
+                        // Add to part
+                        if (partName) { // if part name atrribute is present in the XML
+                            partCollection[partName] = fieldCollection; //populate part collections with partname as key and finaltableReport as value
+                        } else { // if part name atrribute is not present in the XML
+                            partCollection['Info'] = fieldCollection; //populate part collections with "info" as key and finaltableReport as value
                         }
                         if (segmentName) { // if segment name atrribute is present in the XML
                             segmentCollection[segmentName] = partCollection; //populate segment collections with segmentname as key and partCollection as value

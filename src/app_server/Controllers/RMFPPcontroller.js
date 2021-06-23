@@ -102,7 +102,7 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
     timestart = cduration[0]; //timestart from user specified duration
     timeend = cduration[1]; //timeend from user specified duration  
   }
-  if (urlReport === "CPU") { //if user specified CPU as report name
+  if (urlReport.length >= 3 && urlReport.slice(0,3) === "CPU") { //if user specified CPU as report name
     RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, function (data) { //A call to the getRequestpp function made with a callback function as parameter
       if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
         var string = encodeURIComponent(`${data}`);
@@ -119,7 +119,7 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
         });
       }
     });
-  } else if (urlReport === "WLMGL") { //if user specified WLMGL as report name
+  } else if (urlReport.length >= 5 && urlReport.slice(0,5) === "WLMGL") { //if user specified WLMGL as report name
     RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, function (data) { //A call to the getRequestpp function made with a callback function as parameter
       if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
         var string = encodeURIComponent(`${data}`);

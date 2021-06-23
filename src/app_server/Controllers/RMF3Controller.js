@@ -19,12 +19,12 @@ const url = require('url');
  * @param {string} baseport - The port of the DDS server, obtained from Zconfig file.
  * @param {string} rmf3filename - The filename of the XML document you want to retrieve, followed by the extension .xml (rmfm3.xml), obtained from Zconfig file.
  * @param {string} urlReport - Monitor III report name, obtained from URL User Input.
- * @param {string} mvsResource - Monitor III resource identifier, obtained from Zconfig file.
+ * @param {string} urlResource - Monitor III resource identifier, obtained from Zconfig file.
  * @param {XML} fn - Callback function which returns an XML containing data from Monitor III.
  */
-function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, fn) { //fn is to return value from callback
+function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, urlResource, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`; //Dynamically create URL
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${urlResource}`; //Dynamically create URL
   if(ddsauth === 'true'){
     axios.get(RMF3URL, {
       auth: {
@@ -83,9 +83,9 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsRe
 }
 
 //***** */
-function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, mvsResource, fn) { //fn is to return value from callback
+function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, urlResource, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${mvsResource}`; //Dynamically create URL
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${urlResource}`; //Dynamically create URL
 
   if(ddsauth === 'true'){
     axios.get(RMF3URL, {
@@ -152,6 +152,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
   var urlReport;
   var urlLpar_parms; //variable for lpar_parms parameter in the User Specified URL
   var urlJobParm; //variable for job parameter in the User Specified URL
+  var urlResource = mvsResource; // default resource
   if(req.query.report){
     urlReport = (req.query.report).toUpperCase(); //variable for report parameter in the User Specified URL
   }
@@ -164,9 +165,12 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
   if (req.query.job) {// checks if user has specify a value for job parameter in the URL
     urlJobParm = (req.query.job).toUpperCase(); //Sets urlJobParm to value specified by the user in the URL
   }
+  if (req.query.resource) { // checks if user has specify a value for resource parameter
+    urlResource = req.query.resource;
+  }
   if(req.query.reports){
     ulrFilename = (req.query.reports).toUpperCase() + ".xml";
-    RMFMonitor3getInfo(baseurl, baseport, ulrFilename, mvsResource, function (data){
+    RMFMonitor3getInfo(baseurl, baseport, ulrFilename, urlResource, function (data){
       //res.json(data);
       if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
         var string = encodeURIComponent(`${data}`);
@@ -244,7 +248,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         // //Express respond with the result returned from displayUSAGE function
       });
     } else{ //Any other report
-      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) {
+      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, urlResource, function (data) {
         //res.json(data);
         if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
           var string = encodeURIComponent(`${data}`);

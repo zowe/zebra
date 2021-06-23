@@ -190,7 +190,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         });
       }
     });
-  } else if (req.query.id.toUpperCase() === "LIST") {
+  } else if (req.query.id && req.query.id.toUpperCase() === "LIST") {
     RMFMonitor3getRequest(baseurl, baseport, "listmetrics.xml", { resource: urlResource }, function (data) {
       //res.json(data);
       if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 

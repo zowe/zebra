@@ -224,16 +224,21 @@ k.	http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL
 
 -	Other RMF3 Reports  
 l.	http://localhost:3090/rmfm3?report=SYSINFO
+
 m. http://localhost:3090/rmfm3?report=SYSSUM&resource=,,SYSPLEX
 
 -  Specific RMF3 Fields
 n. http://localhost:3090/rmfm3?id=8D0160
+
 o. http://localhost:3090/rmfm3?id=8D0160&resource=,,SYSPLEX
+
 p. http://localhost:3090/rmfm3?id=8D0F60
 
 -  Listing IDs and Description
 q. http://localhost:3090/rmfm3?id=LIST
+
 r. http://localhost:3090/rmfm3?id=LIST&resource=,,SYSPLEX
+
   
 2.	Post Processor Report
 -	Workload  

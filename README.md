@@ -58,6 +58,8 @@ Copyright Contributors to the Zowe Project.
   ```
   npm install
   ```
+
+  - Make a copy of ```exampleZconfig.json``` and name it ```Zconfig.json```
    
   - Run Zebra using npm, pm2, nodemon or any other nodejs process manager
   
@@ -118,7 +120,7 @@ Copyright Contributors to the Zowe Project.
  
  * authSource: MongoDB's authentication DB source. Default is 'admin'.
  
- * useMongo: true|fasle - option to send data to MongoDB
+ * useMongo: true|false - option to send data to MongoDB
  
  * usePrometheus: true|false - option to send data to Prometheus
  

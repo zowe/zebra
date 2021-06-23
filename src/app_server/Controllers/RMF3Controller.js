@@ -1,6 +1,5 @@
 const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
-var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFPPparser file
 var Zconfig = require("../../config/Zconfig");
 let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
@@ -18,13 +17,18 @@ const url = require('url');
  * @param {string} baseurl - The the IP address or the symbolic name of the DDS server, obtained from Zconfig file. 
  * @param {string} baseport - The port of the DDS server, obtained from Zconfig file.
  * @param {string} rmf3filename - The filename of the XML document you want to retrieve, followed by the extension .xml (rmfm3.xml), obtained from Zconfig file.
- * @param {string} urlReport - Monitor III report name, obtained from URL User Input.
- * @param {string} urlResource - Monitor III resource identifier, obtained from Zconfig file.
+ * @param {string} params - Can contain Monitor III report name, Monitor III resource identifier, Monitor III field id. Format: { report, resource, id }.
  * @param {XML} fn - Callback function which returns an XML containing data from Monitor III.
  */
-function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, urlResource, fn) { //fn is to return value from callback
+function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //fn is to return value from callback
   //Use backtick for URL string formatting
-  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${urlResource}`; //Dynamically create URL
+  var urlParams = "?";
+  for (const param in params) {
+    urlParams = urlParams.concat(`${param}=${params[param]}&`);
+  }
+  urlParams = urlParams.slice(0, urlParams.length - 1);
+  var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}${urlParams}`; //Dynamically create URL
+  console.log(RMF3URL);
   if(ddsauth === 'true'){
     axios.get(RMF3URL, {
       auth: {
@@ -168,7 +172,42 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
   if (req.query.resource) { // checks if user has specify a value for resource parameter
     urlResource = req.query.resource;
   }
-  if(req.query.reports){
+  // querying specific field
+  if (req.query.id && req.query.id.toUpperCase() !== "LIST") {
+    RMFMonitor3getRequest(baseurl, baseport, "perform.xml", { resource: urlResource, id: req.query.id }, function (data) {
+      //res.json(data);
+      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+        var string = encodeURIComponent(`${data}`);
+        res.redirect('/rmfm3/error?emsg=' + string);
+      }else{
+        RMFMonitor3parser.RMF3fieldParser(data, function (result){
+          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+            var data = result["data"];
+            res.redirect(`/rmfm3/error?emsg=${data}`);
+          }else{
+            res.json(result);
+          }
+        });
+      }
+    });
+  } else if (req.query.id.toUpperCase() === "LIST") {
+    RMFMonitor3getRequest(baseurl, baseport, "listmetrics.xml", { resource: urlResource }, function (data) {
+      //res.json(data);
+      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+        var string = encodeURIComponent(`${data}`);
+        res.redirect('/rmfm3/error?emsg=' + string);
+      }else{
+        RMFMonitor3parser.RMF3idListParser(data, function (result){
+          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+            var data = result["data"];
+            res.redirect(`/rmfm3/error?emsg=${data}`);
+          }else{
+            res.json(result);
+          }
+        });
+      }
+    });
+  } else if(req.query.reports){
     ulrFilename = (req.query.reports).toUpperCase() + ".xml";
     RMFMonitor3getInfo(baseurl, baseport, ulrFilename, urlResource, function (data){
       //res.json(data);
@@ -248,7 +287,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         // //Express respond with the result returned from displayUSAGE function
       });
     } else{ //Any other report
-      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, urlResource, function (data) {
+      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: urlResource }, function (data) {
         //res.json(data);
         if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
           var string = encodeURIComponent(`${data}`);
@@ -278,7 +317,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
  * User can specify 0, 1 or All optional parameters. 
  */
 function displayCPC(urlReport, urlParm, urlLpar_parms, fn) {
-  RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) {
+  RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: mvsResource }, function (data) {
     if(data === 'EPROTO'){
       fn("NE")
     }else if(data === 'ENOTFOUND'){
@@ -436,7 +475,7 @@ function displayCPC(urlReport, urlParm, urlLpar_parms, fn) {
  * User can specify 0, 1 or All optional parameters.
  */
 function displayPROC(urlReport, arg, job, fn) {
-  RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) { //Send GET request for PROC data to Monitor III.
+  RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: mvsResource }, function (data) { //Send GET request for PROC data to Monitor III.
     if(data === 'EPROTO'){
       fn("NE")
     }else if(data === 'ENOTFOUND'){
@@ -523,7 +562,7 @@ function displayPROC(urlReport, arg, job, fn) {
  * User can specify 0, 1 or All optional parameters.
  */
 function displayUSAGE(urlReport, arg, job, fn) { //function for processing of Monitor III USAGE report
-  RMFMonitor3getRequest(baseurl, baseport, rmf3filename, urlReport, mvsResource, function (data) { //Send GET request for USAGE data to Monitor III.
+  RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: mvsResource }, function (data) { //Send GET request for USAGE data to Monitor III.
     if(data === 'EPROTO'){
       fn("NE")
     }else if(data === 'ENOTFOUND'){

@@ -153,7 +153,8 @@ setInterval(() => { // Set interval function allows this routine to run at a spe
 function toDateTime(date, time) {
   const [month, day, year] = date.split("/");
   const dateTimeString = `${year}-${month}-${day}T${time}`;
-  return Date.parse(dateTimeString);
+  const parsed = new Date(Date.parse(dateTimeString));
+  return parsed;
 }
 
 /**

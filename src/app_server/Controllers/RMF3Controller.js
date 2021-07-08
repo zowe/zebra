@@ -28,7 +28,6 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //
   }
   urlParams = urlParams.slice(0, urlParams.length - 1);
   var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}${urlParams}`; //Dynamically create URL
-  console.log(RMF3URL);
   if(ddsauth === 'true'){
     axios.get(RMF3URL, {
       auth: {

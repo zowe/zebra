@@ -8,9 +8,8 @@ db
 my.db
 my.dbrefresh
 
-# Any config files
+# Zconfig file
 config/Zconfig.json
-config/Zconfig copy.json
 
 # SSL Certs
 sslcert/*.cert

@@ -81,9 +81,21 @@ function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, f
  * @param {JSON} res - Express Response
  */
 module.exports.rmfpp = async function (req, res) {//Controller Function for Realtime Report Processing
-  var urlReportNumber, urlSvcCls, urlWlkd, urlTime, urlDuration, timestart, timeend;
+  var urlReportNumber, urlDate, urlSvcCls, urlWlkd, urlTime, urlDuration, timestart, timeend;
   var urlReport = (req.query.report).toUpperCase(); //variable for report parameter in the User Specified URL
-  var urlDate = (req.query.date).toUpperCase(); //variable for date parameter in the User Specified URL
+  if (req.query.date) {
+    urlDate = (req.query.date).toUpperCase(); //variable for date parameter in the User Specified URL
+  } else if (req.query.start && req.query.end) {
+    // convert to DDS format
+    let date, year, month, day;
+    [year, month, day] = req.query.start.split('-');
+    date = `${year}${month}${day}`;
+    [year, month, day] = req.query.end.split('-');
+    date = date.concat(`,${year}${month}${day}`);
+    urlDate = date.toUpperCase();
+  } else {
+    throw new SyntaxError("Must include either date parameter or both start and end parameters.");
+  }
   if (req.query.reportnumber) {
     urlReportNumber = (req.query.reportnumber).toUpperCase(); //variable for reportnumber parameter in the User Specified URL
   }

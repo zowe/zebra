@@ -58,6 +58,8 @@ Copyright Contributors to the Zowe Project.
   ```
   npm install
   ```
+
+  - Make a copy of ```exampleZconfig.json``` and name it ```Zconfig.json```
    
   - Run Zebra using npm, pm2, nodemon or any other nodejs process manager
   
@@ -118,7 +120,7 @@ Copyright Contributors to the Zowe Project.
  
  * authSource: MongoDB's authentication DB source. Default is 'admin'.
  
- * useMongo: true|fasle - option to send data to MongoDB
+ * useMongo: true|false - option to send data to MongoDB
  
  * usePrometheus: true|false - option to send data to Prometheus
  
@@ -214,15 +216,31 @@ c.	http://localhost:3090/rmfm3/?report=CPC&parm=ALL
 d.	http://localhost:3090/rmfm3/?report=CPC&lpar_parms=ALL_CP  
 e.	http://localhost:3090/rmfm3/?report=CPC&lpar_parms=VIRPT  
 f.	http://localhost:3090/rmfm3/?report=CPC&lpar_parms=VIRPT&parm=CPCHLMSU  
--	RMF3 files  
-g.	http://localhost:3090/rmfm3?filename=SYSINFO  
-h.	http://localhost:3090/rmfm3?filename=USAGE  
   
 -	USAGE and PROC Reports  
-i.	http://localhost:3090/rmfm3?report=PROC  
-j.	http://localhost:3090/rmfm3?report=PROC&job=SDSFAUX  
-k.	http://localhost:3090/rmfm3?report=PROC&job=ALL_JOBS  
-l.	http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL  
+g.	http://localhost:3090/rmfm3?report=USAGE  
+h.	http://localhost:3090/rmfm3?report=PROC  
+i.	http://localhost:3090/rmfm3?report=PROC&job=SDSFAUX  
+j.	http://localhost:3090/rmfm3?report=PROC&job=ALL_JOBS  
+k.	http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL 
+
+-	Other RMF3 Reports  
+l.	http://localhost:3090/rmfm3?report=SYSINFO
+
+m. http://localhost:3090/rmfm3?report=SYSSUM&resource=,,SYSPLEX
+
+-  Specific RMF3 Fields
+n. http://localhost:3090/rmfm3?id=8D0160
+
+o. http://localhost:3090/rmfm3?id=8D0160&resource=,,SYSPLEX
+
+p. http://localhost:3090/rmfm3?id=8D0F60
+
+-  Listing IDs and Description
+q. http://localhost:3090/rmfm3?id=LIST
+
+r. http://localhost:3090/rmfm3?id=LIST&resource=,,SYSPLEX
+
   
 2.	Post Processor Report
 -	Workload  

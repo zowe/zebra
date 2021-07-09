@@ -1,11 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var  ctrlStatic = require('../Hierarchical/apiController');
+var  rmf3controller = require('../v1_Controllers/RMF3Controller');
+var  rmfppcontroller = require('../v1_Controllers/RMFPPController');
 var multer  = require('multer')
 const path = require('path');
 const fs = require('fs');
 
-router.get('/:lpar/:monitor/:report',  ctrlStatic.api)
+router.get('/:lpar/rmf3/:report',  rmf3controller.RMFIII);
+
+router.get('/:lpar/:rmfpp/:report',  rmfppcontroller.rmfpp)
 
 /*router.get('/:lpar/:resource/:file/:monitor/:report',  function(req, res){
     res.json({

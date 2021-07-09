@@ -3,6 +3,7 @@ var fs = require('fs'); //importing the fs module
 var Zconfig = require("../../config/Zconfig");
 var path = require("path");
 var  Auth = require('../../Auth');
+var ddsconfig = require("../../config/dds");
 
 /**
  * parameters function reads the parameters in the Zconfig file
@@ -42,10 +43,12 @@ function parameters(fn){
  * Endpoint does not take any parameter                                                        
  */
 module.exports.home = async function(req, res){ //Controller function for Index page/Home page
+  var lpar_details = ddsconfig["dds"];
+  var lpars = Object.keys(lpar_details);
   if(req.session.name){ //Check if User login session is available
-    res.render("index",{msg:"Admin"}); // render the homepage wih Admin previledge
+    res.render("index",{msg:"Admin", lpar:lpars}); // render the homepage wih Admin previledge
   }else{ // if login session not available
-    res.render("index"); //render the homepage with user previledge
+    res.render("index", {lpar:lpars}); //render the homepage with user previledge
   }
 };
 

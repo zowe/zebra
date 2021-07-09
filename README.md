@@ -246,9 +246,9 @@ The user can specify multiple configuration parameters at once:
     + CPU  
         a. http://localhost:3090/rmfpp?report=CPU&date=20200731,20200731
         b. http://localhost:3090/rmfpp?report=CPU&start=2020-07-31&end=2020-07-31
-    + Static  
-        a. http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU
-        b. http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=WLMGL
+3. Static  
+    + POST request with ```xml``` field in the body containing the file input
+        a. http://localhost:3090/static
 
 
 | Folder | Description |

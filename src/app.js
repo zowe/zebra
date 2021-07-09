@@ -36,7 +36,7 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 var mainRouter = require('./app_server/routes/mainRouter');
 var rmf3Router = require('./app_server/routes/rmf3Router');
 var rmfppRouter = require('./app_server/routes/rmfppRouter');
-var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
+//var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
 var apiRouter = require('./app_server/routes/apiRouter');
 
@@ -74,7 +74,7 @@ app.use(session({
 app.use('/', mainRouter);
 app.use('/rmfm3', rmf3Router);
 app.use('/static', staticRouter);
-app.use('/upload', fileUploadRouter);
+//app.use('/upload', fileUploadRouter);
 app.use('/rmfpp', rmfppRouter);
 app.use('/api', apiRouter);
 

@@ -1,0 +1,18 @@
+ 
+ - git branches when to merge to main?
+
+ - Zowe Desktop App demo by Andrew Twydell
+
+ - Zebra updates  / API Endpoints 
+		  / MongoDB handler
+		  / IOs data points
+
+ - Presentations / ECC June 14-15  https://ecc.marist.edu/ 
+		 / GSE-UK Nov 2- 11 https://conferences.gse.org.uk/2021
+		 / OMP Summit Sept 22-23 https://events.linuxfoundation.org/open-mainframe-summit/ 
+ 			CFP Closes: Friday, July 16 at 11:59 PDT
+		 / zTechU Oct 25-28,  https://www.ibm.com/training/events/callforspeakers
+   			CFP Closes: Monday, June 21
+		 / MediumBlog
+
+		  

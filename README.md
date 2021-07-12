@@ -208,53 +208,47 @@ The user can specify multiple configuration parameters at once:
 
 # Sample Zebra Queries
   Please replace localhost with the IP address of your running Zebra Instance 
-1.	Monitor 3  
--	CPC Report  
-a.	http://localhost:3090/rmfm3/?report=CPC  
-b.	http://localhost:3090/rmfm3/?report=CPC&parm=CPCHCMSU  
-c.	http://localhost:3090/rmfm3/?report=CPC&parm=ALL  
-d.	http://localhost:3090/rmfm3/?report=CPC&lpar_parms=ALL_CP  
-e.	http://localhost:3090/rmfm3/?report=CPC&lpar_parms=VIRPT  
-f.	http://localhost:3090/rmfm3/?report=CPC&lpar_parms=VIRPT&parm=CPCHLMSU  
   
--	USAGE and PROC Reports  
-g.	http://localhost:3090/rmfm3?report=USAGE  
-h.	http://localhost:3090/rmfm3?report=PROC  
-i.	http://localhost:3090/rmfm3?report=PROC&job=SDSFAUX  
-j.	http://localhost:3090/rmfm3?report=PROC&job=ALL_JOBS  
-k.	http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL 
-
--	Other RMF3 Reports  
-l.	http://localhost:3090/rmfm3?report=SYSINFO
-
-m. http://localhost:3090/rmfm3?report=SYSSUM&resource=,,SYSPLEX
-
--  Specific RMF3 Fields
-n. http://localhost:3090/rmfm3?id=8D0160
-
-o. http://localhost:3090/rmfm3?id=8D0160&resource=,,SYSPLEX
-
-p. http://localhost:3090/rmfm3?id=8D0F60
-
--  Listing IDs and Description
-q. http://localhost:3090/rmfm3?id=LIST
-
-r. http://localhost:3090/rmfm3?id=LIST&resource=,,SYSPLEX
-
-  
-2.	Post Processor Report
--	Workload  
-a.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731  
-b.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH  
-c.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH&Time=05.30.00  
-d.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH&duration=05.30.00,09.30.00  
-e.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO  
-f.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&Time=05.30.00  
-g.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&duration=04.00.00,07.30.00  
--	CPU  
-h.	http://localhost:3090/rmfpp?report=CPU&date=20200731,20200731  
-3.	Static  
-a.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU  
+1. RMF Monitor 3 Report
+    + CPC Report  
+        a. http://localhost:3090/rmfm3?report=CPC  
+        b. http://localhost:3090/rmfm3?report=CPC&parm=CPCHCMSU  
+        c. http://localhost:3090/rmfm3?report=CPC&parm=ALL  
+        d. http://localhost:3090/rmfm3?report=CPC&lpar_parms=ALL_CP  
+        e. http://localhost:3090/rmfm3?report=CPC&lpar_parms=VIRPT  
+        f. http://localhost:3090/rmfm3?report=CPC&lpar_parms=VIRPT&parm=CPCHLMSU  
+    + USAGE and PROC Reports  
+        a. http://localhost:3090/rmfm3?report=USAGE  
+        b. http://localhost:3090/rmfm3?report=PROC  
+        c. http://localhost:3090/rmfm3?report=PROC&job=SDSFAUX  
+        d. http://localhost:3090/rmfm3?report=PROC&job=ALL_JOBS  
+        e. http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL 
+    + Other RMF3 Reports  
+        a. http://localhost:3090/rmfm3?report=SYSINFO
+        b. http://localhost:3090/rmfm3?report=SYSSUM&resource=,,SYSPLEX
+    + Specific RMF3 Fields
+        a. http://localhost:3090/rmfm3?id=8D0160
+        b. http://localhost:3090/rmfm3?id=8D0160&resource=,,SYSPLEX
+        c. http://localhost:3090/rmfm3?id=8D0F60
+    + Listing IDs and Description
+        a. http://localhost:3090/rmfm3?id=LIST
+        b. http://localhost:3090/rmfm3?id=LIST&resource=,,SYSPLEX
+2.	RMF Post Processor Report
+    + Workload  
+        a. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731
+        b. http://localhost:3090/rmfpp?report=WLMGL&start=2020-07-31&end=2020-07-31
+        c. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH  
+        d. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH&Time=05.30.00  
+        e. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH&duration=05.30.00,09.30.00  
+        f. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO  
+        g. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&Time=05.30.00  
+        h. http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&duration=04.00.00,07.30.00  
+    + CPU  
+        a. http://localhost:3090/rmfpp?report=CPU&date=20200731,20200731
+        b. http://localhost:3090/rmfpp?report=CPU&start=2020-07-31&end=2020-07-31
+3. Static  
+    + POST request with ```xml``` field in the body containing the file input
+        a. http://localhost:3090/static
 
 
 | Folder | Description |

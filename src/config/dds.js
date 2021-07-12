@@ -2,7 +2,7 @@ module.exports.dds = { //please modify this object with your DDS server details
     LPAR1: {
         "ddshhttptype":"https",
         "ddsbaseurl":"salis.com",
-        "ddsbaseport":"0808",
+        "ddsbaseport":"4595",
         "ddsauth":"true",
         "ddsuser":"user",
         "ddspwd":"pass",
@@ -10,16 +10,13 @@ module.exports.dds = { //please modify this object with your DDS server details
         "rmfppfilename":"rmfpp.xml",
         "mvsResource":",RPRT,MVS_IMAGE",
         "PCI": 2951,
-        "usePrometheus":"false",
-        "rmf3interval":"100",
-        "appurl":"localhost",
-        "appport":"3090",
-        "httptype":"https",
+        "usePrometheus":"true",
+        "useMongo":"false",
     },
-    LPAR1 : {
+    LPAR2 : {
         "ddshhttptype":"https",
         "ddsbaseurl":"salis.com",
-        "ddsbaseport":"0808",
+        "ddsbaseport":"4595",
         "ddsauth":"true",
         "ddsuser":"user",
         "ddspwd":"pass",
@@ -27,10 +24,7 @@ module.exports.dds = { //please modify this object with your DDS server details
         "rmfppfilename":"rmfpp.xml",
         "mvsResource":",RPRT,MVS_IMAGE",
         "PCI": 2951,
-        "usePrometheus":"false",
-        "rmf3interval":"100",
-        "appurl":"localhost",
-        "appport":"3090",
-        "httptype":"https",
+        "usePrometheus":"true",
+        "useMongo":"false",
     }
 }

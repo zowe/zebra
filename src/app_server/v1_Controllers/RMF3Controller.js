@@ -11,10 +11,17 @@ let lspr = 2091 //Zconfig.PCI
  * @param {string} urlReport - Monitor III report name, obtained from URL User Input.
  * @param {string} mvsResource - Monitor III resource identifier, obtained from Zconfig/dds config file.
  * @param {XML} fn - Callback function which returns an XML containing data from Monitor III.
- */
- function RMFMonitor3getRequest(ddshttp, baseurl, baseport, rmf3filename, urlReport, mvsResource, ddsid, ddspass, ddsauth, fn) { //fn is to return value from callback
+ */ 
+ //function RMFMonitor3getRequest(ddshttp, baseurl, baseport, rmf3filename, urlReport, mvsResource, ddsid, ddspass, ddsauth, fn) 
+ function RMFMonitor3getRequest(ddshttp, baseurl, baseport, rmf3filename, params, ddsid, ddspass, ddsauth, fn) { //fn is to return value from callback
     //Use backtick for URL string formatting
-    var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`; //Dynamically create URL
+    var urlParams = "?";
+    for (const param in params) {
+      urlParams = urlParams.concat(`${param}=${params[param]}&`);
+    }
+    urlParams = urlParams.slice(0, urlParams.length - 1);
+    //var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`;
+    var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}${urlParams}`; //Dynamically create URL
     if(ddsauth === 'true'){
       axios.get(RMF3URL, {
         auth: {
@@ -71,11 +78,59 @@ let lspr = 2091 //Zconfig.PCI
     } 
 }
 
+module.exports.RMFIIImetrics = async function (req, res) {
+  if(req.params.lpar){
+    var lpar = ddsconfig["dds"][req.params.lpar];
+    var urlResource = lpar["mvsResource"];
+    if (req.query.resource) { // checks if user has specify a value for resource parameter
+      urlResource = req.query.resource;
+    }
+    // querying specific field
+    if (req.query.id && req.query.id.toUpperCase() !== "LIST") {
+      RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], "perform.xml", { resource: urlResource, id: req.query.id }, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+        //res.json(data);
+        if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+          var string = encodeURIComponent(`${data}`);
+          res.redirect('/rmfm3/error?emsg=' + string);
+        }else{
+          RMFMonitor3parser.RMF3fieldParser(data, function (result){
+            if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+              var data = result["data"];
+              res.redirect(`/rmfm3/error?emsg=${data}`);
+            }else{
+              res.json(result);
+            }
+          });
+        }
+      });
+    } else if (req.query.id && req.query.id.toUpperCase() === "LIST") {
+      RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], "listmetrics.xml", { resource: urlResource}, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+        //res.json(data);
+        if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
+          var string = encodeURIComponent(`${data}`);
+          res.redirect('/rmfm3/error?emsg=' + string);
+        }else{
+          RMFMonitor3parser.RMF3idListParser(data, function (result){
+            if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+              var data = result["data"];
+              res.redirect(`/rmfm3/error?emsg=${data}`);
+            }else{
+              res.json(result);
+            }
+          });
+        }
+      });
+    } 
+
+  }
+}
+
 module.exports.RMFIII = async function (req, res) {
     if(req.params.lpar){
         var lpar = ddsconfig["dds"][req.params.lpar];
         var lspr = lpar["PCI"];
         var urlReport = req.params.report
+        var urlResource = lpar["mvsResource"];
         var ulrParm; //variable for parm parameter in the User Specified URL
         var urlLpar_parms; //variable for lpar_parms parameter in the User Specified URL
         var urlJobParm; //variable for job parameter in the User Specified URL
@@ -88,10 +143,11 @@ module.exports.RMFIII = async function (req, res) {
         if (req.query.lpar_parms) { // checks if user has specify a value for lpar_parms parameter in the URL
           urlLpar_parms = (req.query.lpar_parms).toUpperCase(); //Sets urlLpar_parms to value specified by the user in the URL
         }
-
-
+        if (req.query.resource) { // checks if user has specify a value for resource parameter
+          urlResource = req.query.resource;
+        }
         if (urlReport.toUpperCase() === "CPC") { // checks if user has specify the value "CPC" for report parameter in the URL
-          displayCPC(ulrParm, urlLpar_parms, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is made with a callback function as parameter
+          displayCPC(ulrParm, urlLpar_parms, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is made with a callback function as parameter
             //Check for DE= Data Error from DDS, NE= Node Version Error, UA = User Authentication Error, EOUT= Request Time out error
             if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
               var string = encodeURIComponent(`${result}`);
@@ -104,7 +160,7 @@ module.exports.RMFIII = async function (req, res) {
             }
           });
         }else if (urlReport.toUpperCase() === "PROC") { // checks if user has specify the value "PROC" for report parameter in the URL
-          displayPROC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayPROC function is made with a callback function as parameter
+          displayPROC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayPROC function is made with a callback function as parameter
             if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
               var string = encodeURIComponent(`${result}`);
               res.redirect('/rmfm3/error?emsg=' + string);
@@ -117,7 +173,7 @@ module.exports.RMFIII = async function (req, res) {
             //res.json(result); //Express respond with the result returned from displayPROC function
           });
         } else if (urlReport.toUpperCase() === "USAGE") { // checks if user has specify the value "USAGE" for report parameter in the URL
-          displayUSAGE(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayUSAGE function is made with a callback function as parameter
+          displayUSAGE(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayUSAGE function is made with a callback function as parameter
             if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
               var string = encodeURIComponent(`${result}`);
               res.redirect('/rmfm3/error?emsg=' + string);
@@ -130,7 +186,7 @@ module.exports.RMFIII = async function (req, res) {
             //res.json(result); //Express respond with the result returned from displayUSAGE function
           });
         } else if (urlReport.toUpperCase() === "MIPS") { // checks if user has specify the value "USAGE" for report parameter in the URL
-          displayCPC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], "CPC", lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
+          displayCPC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], "CPC", urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
             for(i in result["table"]){
               if (result["table"][i]["CPCPPNAM"] === "VIRPT"){
                 var virpt_tou = result["table"][i]['CPCPLTOU'];
@@ -147,9 +203,14 @@ module.exports.RMFIII = async function (req, res) {
             }
           });
         }else{
-          RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, lpar["mvsResource"], lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+          RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], {report: req.params.report, resource: urlResource}, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
             RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+              if(result["msg"]){
+                var data = result["data"];
+                res.redirect(`/rmfm3/error?emsg=${data}`);
+              }else{
                 res.json(result);
+              }
             });
           });
         }
@@ -166,7 +227,7 @@ module.exports.RMFIII = async function (req, res) {
  * User can specify 0, 1 or All optional parameters. 
  */
  function displayCPC(urlParm, urlLpar_parms, ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, report, mvsResource, ddsuser, ddspwd, ddsauth, fn) {
-  RMFMonitor3getRequest(ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, report, mvsResource, ddsuser, ddspwd, ddsauth, function (data) {
+  RMFMonitor3getRequest(ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, {report: report, resource: mvsResource}, ddsuser, ddspwd, ddsauth, function (data) {
     if(data === 'EPROTO'){
       fn("NE")
     }else if(data === 'ENOTFOUND'){
@@ -323,7 +384,7 @@ module.exports.RMFIII = async function (req, res) {
  * User can specify 0, 1 or All optional parameters.
  */
  function displayPROC(arg, job, ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, report, mvsResource, ddsuser, ddspwd, ddsauth, fn) {
-  RMFMonitor3getRequest(ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, report, mvsResource, ddsuser, ddspwd, ddsauth, function (data) { //Send GET request for PROC data to Monitor III.
+  RMFMonitor3getRequest(ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, {report: report, resource: mvsResource}, ddsuser, ddspwd, ddsauth, function (data) { //Send GET request for PROC data to Monitor III.
     if(data === 'EPROTO'){
       fn("NE")
     }else if(data === 'ENOTFOUND'){
@@ -409,7 +470,7 @@ module.exports.RMFIII = async function (req, res) {
  * User can specify 0, 1 or All optional parameters.
  */
 function displayUSAGE(arg, job, ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, report, mvsResource, ddsuser, ddspwd, ddsauth, fn) { //function for processing of Monitor III USAGE report
-  RMFMonitor3getRequest(ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, report, mvsResource, ddsuser, ddspwd, ddsauth, function (data) { //Send GET request for USAGE data to Monitor III.
+  RMFMonitor3getRequest(ddshhttptype, ddsbaseurl, ddsbaseport, rmf3filename, {report: report, resource: mvsResource}, ddsuser, ddspwd, ddsauth, function (data) { //Send GET request for USAGE data to Monitor III.
     if(data === 'EPROTO'){
       fn("NE")
     }else if(data === 'ENOTFOUND'){

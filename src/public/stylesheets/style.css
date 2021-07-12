@@ -28,7 +28,7 @@
 
 .main {
     margin-top: 2%;
-    margin-left: 10%; /* Same as the width of the sidenav */
+    margin-left: 12%; 
 }
 
 @media screen and (max-height: 450px) {

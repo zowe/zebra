@@ -6,7 +6,7 @@ let db = nedb.db;
 let dbrefresh = nedb.dbrefresh;
 var Zconfig = require("./config/Zconfig.json");
 
-function parameters(fn){
+/*function parameters(fn){
     parms = {
       ddsbaseurl: Zconfig.ddsbaseurl,
       ddsbaseport: Zconfig.ddsbaseport,
@@ -33,7 +33,7 @@ function parameters(fn){
       grafanaport: Zconfig.grafanaport
     }
     fn(parms);
-  }
+}*/
 
 //Update Password REST API
 module.exports.updatePassword = async function(req, res){
@@ -343,7 +343,7 @@ function tformToken(user, fn){
     fn(res);
 }
 
-module.exports.authenticateFormToken =function (req,res, next) {
+/*module.exports.authenticateFormToken =function (req,res, next) {
     const token = req.body.access;
     if(token == null){
         tformToken(req.session.name, function(data){
@@ -376,4 +376,4 @@ module.exports.authenticateFormToken =function (req,res, next) {
         
     }) 
 
-}
+}*/

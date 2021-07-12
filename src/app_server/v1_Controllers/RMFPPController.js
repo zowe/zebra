@@ -76,7 +76,18 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
         var lpar = ddsconfig["dds"][req.params.lpar];
         var urlReportNumber, urlSvcCls, urlWlkd, urlTime, urlDuration, timestart, timeend;
         var urlReport = (req.params.report).toUpperCase(); //variable for report parameter in the User Specified URL
-        var urlDate = (req.query.date).toUpperCase(); //variable for date parameter in the User Specified URL
+        //variable for date parameter in the User Specified URL
+        if (req.query.start && req.query.end) {
+          // convert to DDS format
+          let date, year, month, day;
+          [year, month, day] = req.query.start.split('-');
+          date = `${year}${month}${day}`;
+          [year, month, day] = req.query.end.split('-');
+          date = date.concat(`,${year}${month}${day}`);
+          urlDate = date.toUpperCase();
+        } else {
+          throw new SyntaxError("Must include either date parameter or both start and end parameters.");
+        }
         if (req.query.reportnumber) {
             urlReportNumber = (req.query.reportnumber).toUpperCase(); //variable for reportnumber parameter in the User Specified URL
         }

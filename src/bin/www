@@ -8,7 +8,7 @@ var app = require('../app');
 var debug = require('debug')('zebra:server');
 var http = require('http');
 var Zconfig = require("../config/Zconfig");
-var httpsparm = Zconfig["https"];
+var httpsparm = Zconfig["use_cert"];
 var pfx = "undefined" //Zconfig["pfx"];
 var pass = "None" //Zconfig["passhrase"];
 var config;

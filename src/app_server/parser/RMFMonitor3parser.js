@@ -83,3 +83,70 @@ module.exports.RMF3bodyParser = function (data, fn) {
 
 }
 
+module.exports.RMF3fieldParser = function (data, fn) {
+    parser.parseString(data, function (err, result) {
+        if (err) {
+            fn({msg: 'Err', error: err, data: data});
+        }
+        try {
+            parsedJSON = {};
+            parsedJSON.description = result['ddsml']['report'][0]['metric'][0]['description'][0]; // Initialize description of field
+            parsedJSON.timestart = result['ddsml']['report'][0]['time-data'][0]['display-start'][0]['_']; //Initialize timestart variable
+            parsedJSON.timeend = result['ddsml']['report'][0]['time-data'][0]['display-end'][0]['_']; //Initialize timeend variable
+            parsedJSON.value = {} // Initialize table variable
+            
+            // loop through table in XML and add to data in JSON
+            rows = result['ddsml']['report'][0]['row'];
+            let index = 0
+            let lastVal = null;
+            rows.forEach( row => {
+                let key = row['col'][0];
+                if (key === "" || !key) {
+                    key = `value ${index + 1}`;
+                }
+                let val = row['col'].slice(1);
+                if (val.length === 1) {
+                    val = val[0];
+                }
+                parsedJSON.value[key] = val;
+                lastVal = val;
+                index++;
+            });
+            if (index === 1) {
+                parsedJSON.value = lastVal;
+            } else if (index === 0) {
+                parsedJSON.value = null;
+            }
+
+            fn(parsedJSON); //return parsed JSON
+
+        } catch(err) {
+            fn({msg: 'Err', error: err, data: data});
+        }
+    });
+}
+
+module.exports.RMF3idListParser = function (data, fn) {
+    parser.parseString(data, function (err, result) {
+        if (err) {
+            fn({msg: 'Err', error: err, data: data});
+        }
+        try {
+            parsedJSON = {};
+            parsedJSON.title = "Metric ID numbers mapped to their associated descriptions";
+            parsedJSON.resource = result['ddsml']['metric-list'][0]['resource'][0]['reslabel'][0];
+            parsedJSON.metrics = {}
+            let metrics = result['ddsml']['metric-list'][0]['metric'];
+            metrics.forEach( metric => {
+                if (!metric['description']) {
+                    return;
+                }
+                parsedJSON.metrics[metric['$']['id']] = metric['description'][0];
+            });
+            fn(parsedJSON); //return parsed JSON
+
+        } catch(err) {
+            fn({msg: 'Err', error: err, data: data});
+        }
+    });
+}

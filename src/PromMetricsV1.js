@@ -9,7 +9,7 @@ var ddsconfig = require("./config/dds");
 let appbaseurl = Zconfig.appurl;
 let appbaseport = Zconfig.appport;
 let rmf3interval = Zconfig.rmf3interval; //needed this for timeinterval to work
-let httptype = Zconfig.httptype;
+let httptype = Zconfig.zebra_httptype;
 var lpar_details = ddsconfig["dds"];
 var lpars = Object.keys(lpar_details);
 lpar_prom = [];
@@ -27,13 +27,10 @@ if(lpar_prom.length > 0){
         Prometheus.register.clear();  //clear prometheus register
         for(i in lpar_prom){
             var lpar_name = lpar_prom[i];
-            var appbaseurl = ddsconfig["dds"][lpar_name]["appurl"];
-            var appbaseport = ddsconfig["dds"][lpar_name]["appport"];
-            var rmf3interval = ddsconfig["dds"][lpar_name]["rmf3interval"];
-            var httptype = ddsconfig["dds"][lpar_name]["httptype"];
-            //console.log(`http ${httptype}, url ${appbaseurl}, pt ${appbaseport}, int ${rmf3interval},`)
             const cpuRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/CPC`;
             const sysRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/SYSINFO`;
+            const jobsRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/USAGE`;
+            const channelRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/CHANNEL`;
 
             await axios.get(cpuRealtimeURL)
             .then(function (response) {
@@ -139,6 +136,70 @@ if(lpar_prom.length > 0){
             .catch(function (error) {
                 // handle error
                 console.log("sys request not successful");
+            })
+            .then(function () {
+                // always executed
+            });
+
+            //---------------- routine for started task address spaces -------
+            await axios.get(jobsRealtimeURL)
+            .then(function (response) {
+                // handle success
+                var JSONBody = response.data;
+                for (i in JSONBody['table']) { // loop through the table in the sys report(JSONBody)
+                    var JSONBody_lpar = JSONBody['table'][i];
+                    var name5 = lpar_name+"_JOB_" + JSONBody_lpar['JUSPJOB']; //append VC to sys name
+                    var value5 = 'JUSPCPUD'; //--  CPU Time for the interval
+                    try {
+                        cpu_lpar = new Prometheus.Gauge({ //create custom prometheus metric
+                            name: name5, // dynamicall add name
+                            help: 'Workload TASK CPU Time for the interval', // help statement
+                            labelNames: ['parm'] //custom metric label
+                        });
+                        cpu_lpar.set({ //set custom metric value
+                            parm: value5 //dynamically set the label value
+                        }, parseFloat(JSONBody_lpar['JUSPCPUD'])); //dynamically set the custom metric value
+                    } catch (err) {
+                        //console.log('Caught one' + name);
+                    }
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log("job request not successful");
+            })
+            .then(function () {
+                // always executed
+            });
+            //---------------- routine for channel utilization reports  -------
+            await axios.get(channelRealtimeURL)
+            .then(function (response) {
+                // handle success
+                var JSONBody = response.data;
+                for (i in JSONBody['table']) { // loop through the table in the sys report(JSONBody)
+                    var JSONBody_lpar = JSONBody['table'][i];
+                    var name6 = lpar_name+"_CHANNEL_"+JSONBody_lpar['CHACPIVC']+"_"+JSONBody_lpar['CHACPTVC']; //append chtype to sys name
+                //console.log(name6);
+                    var value6 = 'CHACTUVC'; //-- channel utilization for the interval
+                    try {
+                        cpu_lpar = new Prometheus.Gauge({ //create custom prometheus metric 
+                            name: name6, // dynamicall add name
+                            help: 'Total Channel Utilization for the interval', // help statement
+                            labelNames: ['parm'] //custom metric label
+                        });
+                        cpu_lpar.set({ //set custom metric value 
+                            parm: value6 //dynamically set the label value 
+                        }, parseFloat(JSONBody_lpar['CHACTUVC'])); //dynamically set the custom metric value 
+                    } catch (err) {
+                        //console.log('Caught one' + name);
+                    }
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log("channel request not successful");
+                //console.log(error);
+                //console.log(response);
             })
             .then(function () {
                 // always executed

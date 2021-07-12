@@ -10,7 +10,7 @@ var Zconfig = require("./config/Zconfig");
 let appbaseurl = Zconfig.appurl;
 let appbaseport = Zconfig.appport;
 let dbinterval = Zconfig.dbinterval;
-let httptype = Zconfig.httptype;
+let httptype = Zconfig.zebra_httptype;
 const axios = require('axios');
 
 console.log('mongo started');

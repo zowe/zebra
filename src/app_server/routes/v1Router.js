@@ -6,7 +6,7 @@ var multer  = require('multer')
 const path = require('path');
 const fs = require('fs');
 
-router.get('/:lpar/rmf3',  rmf3controller.RMFIIImetrics);
+router.get('/:lpar/rmf',  rmf3controller.RMFIIImetrics);
 
 router.get('/:lpar/rmf3/:report',  rmf3controller.RMFIII);
 

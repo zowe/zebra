@@ -15,7 +15,7 @@ const axios = require('axios');
 
 
 console.log('mongo started');
-var ddsconfig = require("./config/dds");
+var ddsconfig = require("./config/Zconfig.json");
 
 var lpar_details = ddsconfig["dds"];
 var lpars = Object.keys(lpar_details);

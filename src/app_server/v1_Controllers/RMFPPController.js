@@ -1,6 +1,6 @@
 const axios = require('axios');
 var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFMonitor3parser file
-var ddsconfig = require("../../config/dds");
+var ddsconfig = require("../../config/Zconfig.json");
 
 /**
  * RMFPPgetRequest is the Function for Sending GET Request to RMF Monitor I (Post-Processor Report).

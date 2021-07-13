@@ -3,7 +3,7 @@ var fs = require('fs'); //importing the fs module
 var Zconfig = require("../../config/Zconfig");
 var path = require("path");
 var  Auth = require('../../Auth');
-var ddsconfig = require("../../config/dds");
+var ddsconfig = require("../../config/Zconfig.json");
 
 /**
  * parameters function reads the parameters in the Zconfig file

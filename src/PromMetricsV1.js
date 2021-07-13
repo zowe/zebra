@@ -5,7 +5,7 @@ const { Console } = require('console');
 var cpu_lpar;
 const Prometheus = require('prom-client');
 var Zconfig = require("./config/Zconfig");
-var ddsconfig = require("./config/dds");
+var ddsconfig = require("./config/Zconfig.json");
 let appbaseurl = Zconfig.appurl;
 let appbaseport = Zconfig.appport;
 let rmf3interval = Zconfig.rmf3interval; //needed this for timeinterval to work

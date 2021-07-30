@@ -73,28 +73,27 @@ if (httpsparm === "true"){
   };
   
   const httpsServer = https.createServer(credentials, app);
-  httpsServer.listen(config.port+1);
-  console.log(`https server listening at port ${config.port + 1}`);
+  httpsServer.listen(config.port);
+  console.log(`https server listening at secured port ${config.port}`);
 
 }else{
   app.set('port', port);
+  /**
+   * Create HTTP server.
+   */
+
+  var server = http.createServer(app);
+
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
   console.log(`http server listening at port ${port}`);
 }
 
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.

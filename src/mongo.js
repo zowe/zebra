@@ -18,6 +18,7 @@ const cpuRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/rmfm3?report=
 const procRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/rmfm3?report=PROC`;
 const usageRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/rmfm3?report=USAGE`;
 const sysRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/rmfm3?reports=SYSINFO`;
+const syssumRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/rmfm3?reports=SYSSUM&resource=\",,SYSPLEX\"`; // TODO: make dynamic?
 
 /**
  * getdata function query this app using its endpoint for JSON data to save to mongo DB 
@@ -47,17 +48,18 @@ function getdata(appbaseurl, fn){ // Function to make request for JSON using thi
  */
 async function fedDatabase(data, type, fn ){
   if(data != "error"){ // if data is not equal to error.... getdata function can return error instead of JSON when something goes wrong
-    var JSONBody = data; 
+    var JSONBody = data;
     var parm = JSONBody["title"] // represent the value of title key in JSONBody
     var timestamp = (JSONBody["timestart"]).split(" "); // represent the value of timestart key in JSONBody
     var date = timestamp[0];
     var time = timestamp[1];
 
+    var datetime = toDateTime(date, time);
+
     if(type === 'CPC'){ // if data type is equal to CPC
         var cpc = new cpcdoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time, // JSONBody timestart for Timestamp Key
+            datetime: datetime,
             caption: JSONBody["caption"], // JSONBody caption for caption Key
             lpar: JSONBody["table"] // JSONBody table for lpar Key
         })
@@ -72,8 +74,7 @@ async function fedDatabase(data, type, fn ){
     }else if(type === 'PROC'){ // if data type is equal to PROC
         var proc = new procdoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time, 
+            datetime: datetime,
             lpar_proc: JSONBody["table"] // JSONBody table for lpar Key
         })
 
@@ -87,8 +88,7 @@ async function fedDatabase(data, type, fn ){
     }else if(type === 'USAGE'){ // if data type is equal to USAGE
         var usage = new usagedoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time,
+            datetime: datetime,
             lpar_usage: JSONBody["table"] // JSONBody table for lpar Key
         })
         usage.save((err, USage) => { // save Subdocument to existing Document
@@ -99,17 +99,17 @@ async function fedDatabase(data, type, fn ){
           }
         })
     }else if(type === 'WKL'){ // if data type is equal to CPC
+        var { SYSINFO, SYSSUM } = JSONBody["classes"];
         var workload =  new workloaddoc({ // Push the following key value pairs as subdocument
             title: parm,
-            date: date,
-            time: time,
+            datetime: datetime,
             Caption: JSONBody["caption"], // JSONBody caption for caption Key
-            Class: JSONBody["table"] // JSONBody table for Class Key
+            Class: joinWorkloadData(SYSINFO, [ SYSSUM ]), // join SYSINFO and SYSSUM data into same entry
         })
     
         workload.save((err, wkl) => { // save Subdocument to existing Document
         if(err){
-            console.log('error');
+            console.log(err.message);
         } else{
             console.log(`Workload Updated Successflly`);
         }
@@ -132,8 +132,115 @@ setInterval(() => { // Set interval function allows this routine to run at a spe
     fedDatabase(data, 'USAGE', function(c){}) // Save USAGE JSON to MongoDB
   });
 
-  getdata(sysRealtimeURL, function(data){ // get Workload data in JSON format
-    fedDatabase(data, 'WKL', function(c){}) // Save Workload JSON to MongoDB
+  getdata(sysRealtimeURL, function(sysinfoData){ // get Workload data in JSON format
+    getdata(syssumRealtimeURL, function(syssumData) { // get SYSSUM data to combine with SYSINFO
+      fedDatabase({
+        title: "Workload Activity",
+        timestart: sysinfoData["timestart"],
+        caption: { ...sysinfoData["caption"], ...syssumData["caption"] },
+        classes: { SYSINFO: sysinfoData["table"], SYSSUM: syssumData["table"] }, 
+      }, 'WKL', function(c){}); // Save Workload JSON to MongoDB
+    });
   });
 }, parseInt(dbinterval) * 1000); // duration of the interval
 
+/**
+ * Converts date and time strings to Date object
+ * @param {String} date String representing date in MM/DD/YYYY format
+ * @param {String} time String representing time in HOUR:MINUTE:SECONDS format
+ * @returns Date object representing the date and time of the record
+ */
+function toDateTime(date, time) {
+  const [month, day, year] = date.split("/");
+  const dateTimeString = `${year}-${month}-${day}T${time}`;
+  const parsed = new Date(Date.parse(dateTimeString));
+  return parsed;
+}
+
+/**
+ * Joins different reports into one class name and type
+ * @param {Object} sysinfo The base data
+ * @param {Array} reportsToJoin  The data to join into sysinfo
+ * @returns The data joined on class name and type
+ */
+function joinWorkloadData(sysinfo, [ syssum ]) {
+  let joinedData = [];
+  for (let i = 0; i < sysinfo.length; i++) {
+    let found = false;
+    for (let j = 0; j < syssum.length; j++) {
+      if (sysinfo[i]["SYSDDSIN"] === syssum[j]["SUMDDSIN"] &&
+          sysinfo[i]["SYSDDSIT"] === syssum[j]["SUMDDSIT"] &&
+          sysinfo[i]["SYSDDSIP"] === syssum[j]["SUMDDSIP"] ) {
+        found = true;
+        joinedData.push({
+          ...sysinfo[i],
+          ...syssum[j]
+        });
+        break;
+      }
+    }
+    if (!found) {
+      for (let j = 0; j < syssum.length; j++) {
+        if (sysinfo[i]["SYSDDSIN"] === syssum[j]["SUMDDSIN"] &&
+            sysinfo[i]["SYSDDSIT"] === syssum[j]["SUMDDSIT"] ) {
+          found = true;
+          joinedData.push({
+            ...sysinfo[i],
+            ...syssum[j]
+          });
+          break;
+        }
+      }
+    }
+    if (!found) {
+      joinedData.push({ 
+        ...sysinfo[i],
+        SUMGRP:"",
+        SUMTYP:"",
+        SUMRCTNT:"",
+        SUMIMP:"",
+        SUMEVG:"",
+        SUMEVA:"",
+        SUMRTGTM:"",
+        SUMRTGP:"",
+        SUMRTATM:"",
+        SUMRTAP:"",
+        SUMPFID:"",
+        SUMTRAN:"",
+        SUMARTWM:"",
+        SUMARTAM:"",
+        SUMARTTM:"",
+        SUMARTQM:"",
+        SUMARTRM:"",
+        SUMARTIM:"",
+        SUMARTCM:"",
+        SUMGOA:"",
+        SUMDUR:"",
+        SUMRES:"",
+        SUMRGTYP:"",
+        SUMSMI:"",
+        SUMSMA:"",
+        SUMSRA:"",
+        SUMRGSPC:"",
+        SUMCRIT:"",
+        SUMHONP:"",
+        SUMMLIM:"",
+        SUMMEMUS:"",
+        SUMDDSIN:"",
+        SUMDDSIT:"",
+        SUMDDSIP:"",
+        SUMEGRP:"",
+        SUMRTGT:"",
+        SUMRTAT:"",
+        SUMARTW:"",
+        SUMARTA:"",
+        SUMARTT:"",
+        SUMARTQ:"",
+        SUMARTR:"",
+        SUMARTI:"",
+        SUMARTC:""
+      });
+    }
+  }
+  return joinedData;
+}

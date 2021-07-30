@@ -1,0 +1,27 @@
+extends ../layout
+
+block header 
+    style. 
+        .tofa{
+            margin: 2%;
+        }
+    
+
+block content
+    div(class="tofa")
+        h4 Error
+        hr 
+        p NO DATA RECEIVED FROM DDS            
+        p - Check your internet connection 
+        p - Edit/Ensure Zconfig.json has the Accurate values for: 
+            ul
+                li   ddshhttptype
+                li  ddsbaseurl
+                li  ddsbaseport
+                li  ddsauth
+                li  ddsuser
+                li  ddspwd
+                li  rmf3filename
+                li  rmfppfilename
+                li  mvsResource
+                 

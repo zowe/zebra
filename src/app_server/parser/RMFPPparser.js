@@ -18,6 +18,8 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
                 var cpuModelType = key1[k]['segment'][0]['part'][0]['var-list'][0]['var'][1]['value'][0];
                 var CPUSectiontable = key1[k]['segment'][0]['part'][0]['table'][0]["row"] // Rows in CPU Section of XML
                 var CPUsectioncolumnheader = key1[k]['segment'][0]['part'][0]['table'][0]['column-headers'][0]['col']; // Column headers in CPU Section of XML
+                var numProcName = key1[k]['segment'][1]['part'][1]['name'][0]; // Number of Physical Processors section name
+                var numProcTable = key1[k]['segment'][1]['part'][1]['table'][0]['row']; // Table of Number of Physical Processors section
                 var partitionDataName = key1[k]['segment'][1]['part'][2]['name'][0]; // Partion data section name
                 var partitionDataTable = key1[k]['segment'][1]['part'][2]['table'][0]['row']; // Table of the partition data section
                 var partitionDataColumnHead = key1[k]['segment'][1]['part'][2]['table'][0]['column-headers'][0]['col']; //Columnhead of the partition data section
@@ -36,6 +38,13 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
                     }
                     FPDR.push(PDTB); //populating final partition data report collection
                 };
+
+                var FNPT = {} // final number of phys proc table
+                var regExp = /\(([^)]+)\)/; // used to get shorthand proc name
+                for (var i = 0; i < numProcTable.length - 1; i++) {
+                    var matches = regExp.exec(numProcTable[i]['col'][0])
+                    FNPT[matches[1]] = numProcTable[i]['col'][1]
+                }
 
                 CPUColumnhead = [] // CPU columnheader collection
                 for (i in CPUsectioncolumnheader) { //looping through CPUsectioncolumnheader
@@ -58,6 +67,7 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
                 parsedPostprocessor['Timestamp'] = key1[k]['time-data'][0]['display-start'][0]['_']; // Timestamp key value pair
                 parsedPostprocessor[resourceType] = resourceName;
                 parsedPostprocessor['CPU'] = finalCPUReport; // CPU key value pair
+                parsedPostprocessor[numProcName] = FNPT;
                 parsedPostprocessor[partitionDataName] = FPDR;
                 //parsedPostprocessor['partitionDataName'] = partitionDataName; // partitionDataName key value pair
                 //parsedPostprocessor['partitionDataBody'] = FPDR; // partionDataBody key value pair
@@ -66,7 +76,7 @@ module.exports.bodyParserforRmfCPUPP = function (data, fn) {//Function to parse 
             }
             fn(finalJSON); //function returns parsed postprocessor
         });
-    } catch (err) {// if parsing XML didn't went smooth 
+    } catch (err) {// if parsing XML didn't went smooth
         fn({msg: 'Err', error: err, data: data});// return the error 
     }
 }

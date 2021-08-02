@@ -35,7 +35,6 @@ function RMFPPgetRequest(baseurl, baseport, rmfppfilename, urlReport, urlDate, f
     })
     .catch(function (error) {
       // handle error
-      //console.log(error)
       try{
         if(parseInt(error.response.status) === 401){
           fn("UA");
@@ -92,7 +91,7 @@ module.exports.rmfpp = async function (req, res) {//Controller Function for Real
     date = `${year}${month}${day}`;
     [year, month, day] = req.query.end.split('-');
     date = date.concat(`,${year}${month}${day}`);
-    urlDate = date.toUpperCase();
+    urlDate = date;
   } else {
     throw new SyntaxError("Must include either date parameter or both start and end parameters.");
   }

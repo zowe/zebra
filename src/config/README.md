@@ -1,7 +1,7 @@
 # Zconfig File Sample
 
 * Create a file with the name ```Zconfig.json``` in this directory(config)
-* Copy the sample JSON beleow into the file
+* Copy the sample JSON below into the file
 * Edit the file with the your DDS parameters. Edit other parameters as it suits your need. The meaning of these parameters can be found on the readme in the SRC directory or in the ZEBRA Documentation
 * Zebra can support multiple DDS instances running on different lpars. feel free to delete or add DDS information under the dds parameter in the Zconfig file.
 

@@ -30,12 +30,12 @@ Copyright Contributors to the Zowe Project.
    - MongoDB
    
 
-<IMG SRC = "https://github.com/ykimvicom/zebra-1/blob/main/Zebra%20mainpage.png"> </IMG>
+![](/Documentation/Images/zhome.png)
 
 ## <Picture 1>  Zebra main page screenshot
 
 
-<IMG SRC = "https://github.com/ykimvicom/zebra-1/blob/main/Zebra%20GRAFANA.png"> </IMG>
+![](/Documentation/Images/ZebraGRAFANA.png)
 ## <Picture 2>  Zebra use case example #1 - Plotting thru Grafana with RMF I real-time data
   
    
@@ -81,71 +81,70 @@ Copyright Contributors to the Zowe Project.
  ## Configuring Zebra 
  
  ### Zebra Configuration parameters for Zconfig.json file
- 
- * dds : This contains DDS information on multiple LPAR’s as JavaScript objects. The JavaScript object contains:
-  *	Key:  
+ 1. **dds** : This contains DDS information on multiple LPAR’s as a nested JSON. The nested JSON contains:
+  *	***Key***:  
    The key will be the LPAR name and this key will be used as {lpar_name} in the new API structure.
-  * Value:  
+  * ***Value***:  
         The value for each key (LPAR name) a JSON containing:
         
-      * ddshhttptype : This is the hypertext transfer protocol type of the DDS. Its value is either http or https. E.g ddshttptype: http  
+      * **ddshhttptype** : This is the hypertext transfer protocol type of the DDS. Its value is either http or https. E.g ***ddshttptype : http***  
 
-      * ddsbaseurl : IP address or domain name of z/OS RMF DDS Server. E.g ddsurl: 127.0.0.1
+      * **ddsbaseurl** : IP address or domain name of z/OS RMF DDS Server. E.g ***ddsurl : 127.0.0.1***
 
-      * ddsbaseport:   port number used when accessing above DDS Server. The typical default DDS port number if 8803. E.g ddsport: 8888
+      * **ddsbaseport**:   port number used when accessing above DDS Server. The typical default DDS port number if 8803. E.g ***ddsport : 8888***
 
-      * ddsauth : This config parameter determines the type of connection to DDS, either with authentication or without authentication. Its value is either true or false. If value is set to true, ZEBRA will require username and password with which to connect to DDS. E.g ddsauth: false
+      * **ddsauth** : This config parameter determines the type of connection to DDS, either with authentication or without authentication. Its value is either true or false. If value is set to true, ZEBRA will require username and password with which to connect to DDS. E.g ***ddsauth : false***
 
-      * ddsuser : This is the username with which ZEBRA will connect to DDS if value of ddsauth is set to true. E.g. ddsuser: userID
+      * **ddsuser** : This is the username with which ZEBRA will connect to DDS if value of ddsauth is set to true. E.g. ***ddsuser : userID***
 
-      * ddspwd : This is thepassword with which ZEBRA will connect to DDS if value of ddsauth is set to true. E.g. ddspwd: Password
+      * **ddspwd** : This is thepassword with which ZEBRA will connect to DDS if value of ddsauth is set to true. E.g. ***ddspwd : Password***
 
-      * rmf3filename:  filename/extension used when DDS RMF service sends RMF 3 data to its Web API. The default value is 'rmfm3.xml'. E.g rmf3filename: rmfm3.xml
+      * **rmf3filename**:  filename/extension used when DDS RMF service sends RMF 3 data to its Web API. The default value is 'rmfm3.xml'. E.g ***rmf3filename : rmfm3.xml***
 
-      * rmfppfilename: filename/extension used when DDS RMF service sends RMF I Post Processor data to its Web API. The default value is 'rmfpp.xml'. E.g rmfppfilename: rmfpp.xml
+      * **rmfppfilename**: filename/extension used when DDS RMF service sends RMF I Post Processor data to its Web API. The default value is 'rmfpp.xml'. E.g ***rmfppfilename : rmfpp.xml***
 
-      * mvsResource:   Parameter value for RMF DDS Monitor III resource identifier. E.g mvsResource: ,SYS,RESOURCE 
+      * **mvsResource**:   Parameter value for RMF DDS Monitor III resource identifier. E.g ***mvsResource : ,SYS,RESOURCE***  
 
-      * PCI : This PCI parameter represent the PCI value of the Mainframe. E.g. PCI: 2091
+      * **PCI** : This PCI parameter represent the PCI value of the Mainframe. E.g. ***PCI : 2091***
 
-      * usePrometheus: true|false - option to send data to Prometheus. E.g usePrometheus: true
+      * **usePrometheus**: true|false - option to send data to Prometheus. E.g ***usePrometheus : true***
  
  
- * ppminutesInterval: Interval for which DDS Produce RMF I data. Its unit is in minutes E.g. Every 30 Minutes or 15 Minutes. E.g ppminutesInterval: 30
+ 2. **ppminutesInterval**: Interval for which DDS Produce RMF I data. Its unit is in minutes E.g. Every 30 Minutes or 15 Minutes. E.g ***ppminutesInterval: 30***
  
- * rmf3interval: Interval set on how often DDS Produce RMF III data. E.g. Every 100 seconds E.g rmf3interval: 100
+ 3. **rmf3interval**: Interval set on how often DDS Produce RMF III data. E.g. Every 100 seconds E.g ***rmf3interval : 100***
  
- * use_cert: true|false - parameter to set enabling TLS for servicing Zebra APIs. E.g 4)	use_cert: true
+ 4. **use_cert**: true|false - parameter to set enabling TLS for servicing Zebra APIs. E.g ***use_cert : true***
 
- * zebra_httptype: http|https - Setting Zebra service type either HTTP or HTTPS. E.g zebra_httptype: http
+ 5. **zebra_httptype**: http|https - Setting Zebra service type either HTTP or HTTPS. E.g ***zebra_httptype : http***
 
- * appurl:        IP address / URL of running Zebra instance (after hosting). This value is needed for MongoDB, Prometheus and Grafana to work with Zebra. E.g appurl: 127.0.0.1
+ 6. **appurl**:        IP address / URL of running Zebra instance (after hosting). This value is needed for MongoDB, Prometheus and Grafana to work with Zebra. E.g ***appurl : 127.0.0.1***
  
- * appport:       Port of a running Zebra Server Instance E.g apport: 3090
+ 7. **appport**:       Port of a running Zebra Server Instance E.g ***apport : 3090***
  
- * mongourl:      IP or URL of MongoDB server location which RMF data will be saved.
+ 8. **mongourl**:      IP or URL of MongoDB server location which RMF data will be saved.E.g ***mongourl : localhost*** 
  
- * dbinterval:    The data capture/recording interval into MongoDB, the default value is 100 (secodns).
+ 9. **dbinterval**:    The data capture/recording interval into MongoDB, the default value is 100 (seconds). E.g ***dbinterval : 100***
  
- * dbname:        MongoDB database name where RMF III monitor data will be saved.
+ 10. **dbname**:        MongoDB database name where RMF III monitor data will be saved. E.g ***dbname : ZebraDB***
  
- * mongoport:     MongoDB service port
+ 11. **mongoport**:     MongoDB service port. E.g ***mongoport : 27017***
  
- * useDbAuth: true|false - Set if MongoDB would require authentication to access its database writing RMF data into MongoDB.
+ 12. **useDbAuth**: true|false - Set if MongoDB would require authentication to access its database writing RMF data into MongoDB. E.g ***useDbAuth : false***
  
- * dbUser: MongoDB's User ID used by Zebra when writing RMF data into JSON(BSON) format to MongoDB.
+ 13. **dbUser**: MongoDB's User ID used by Zebra when writing RMF data into JSON(BSON) format to MongoDB. E.g ***dbUser : mongouserid***
  
- * dbPassword: MongoDB's User Password used by Zebra.
+ 14. **dbPassword**: MongoDB's User Password used by Zebra. E.g ***dbPassword : mongopassword***
  
- * authSource: MongoDB's authentication DB source. Default is 'admin'.
+ 15. **authSource**: MongoDB's authentication DB source. Default is 'admin'. E.g ***authSource : admin***
  
- * useMongo: true|fasle - option to send data to MongoDB
+ 16. **useMongo**: true|fasle - option for Zebra to send data to MongoDB. E.g ***useMongo : true***
  
- * grafanahttptype: This is the hypertext transfer protocol type of the running Grafana instance. Its value is either http or https. E.g. grafanahttptype: http
+ 17. **grafanahttptype**: This is the hypertext transfer protocol type of the running Grafana instance. Its value is either http or https. E.g. ***grafanahttptype: http***
  
- * grafanaurl: IP address or URL to Prometheus/Grafana service.
+ 18. **grafanaurl**: IP address or URL to Prometheus/Grafana service. E.g ***grafanaurl : localhost***
  
- * grafanaport: Port used to access Grafana service.
+ 19. **grafanaport**: Port used to access Grafana service. E.g ***grafanaport : 3000***
 
 # Sample Zebra Queries
   Please replace localhost with the IP address of your running Zebra Instance and lpar_name with the name of your DDS lpar name(key) in Zconfig file.

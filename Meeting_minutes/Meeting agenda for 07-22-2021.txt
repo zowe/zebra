@@ -1,0 +1,33 @@
+1) Dev team updates:
+
+ - New version of APIs/Doc released : Salisu
+ - Zowe built-in app updates : Andrew 
+ - Additional updates to Zebra core - Justin
+
+2) 2Q summary of key milestones and 3Q PI planning session information (7/28-7/30)
+ 
+https://github.com/zowe/community/tree/master/Project%20Management/PI%20Planning/21PI3%20Planning
+
+Accomplishments:
+More APIs are provided for RMF I and III reports (Workload report parameters, I/O etc)
+Zowe Built-in app making progress
+Preparing containerization (running on native s390x)
+
+3Q plannig (discuss during PI sessions?)
+3) Discuss new main release timing
+
+4) Static API integrated to ZOWE API Catalog - let's discuss API ML authentication
+  - SAF 
+  - make calls to API ML to get tokens
+  - separate session w/ ML team (Pavlin)
+
+5) Upcoming events
+
+  - DevOps.com round table discussion for OMP: July’s topic - ZOWE - to be aired on 7/28 on https://techstrong.tv
+
+  - OMP Summit Sept 22-23 https://events.linuxfoundation.org/open-mainframe-summit/ 
+	Proposal submitted
+
+  - IBM Z DAY 9/15 https://ibmzday.bemyapp.com/2021
+
+Previous meeting recording: https://zoom.us/rec/share/8njY0gwV1QJqDr72h-HRq7cfBNrsBeYmuzAjpKMk8U2VhdXWbMG0vxpdYcF6nDbu._5cSN2S6nakmzLfF

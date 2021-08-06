@@ -1,6 +1,7 @@
 extends layout
 
 block content
+    - function currentDate() { return (new Date()).toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' }); }
     .apis
         br
         ul
@@ -36,15 +37,17 @@ block content
         h4(style={"margin-top":"20px"}) RMF Monitor I report
         hr(style={"margin":"0"})
         .row
-            .col-md-6
+            .col-md-3
                 p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF I Report In JSON
-            .col-md-6
+            .col-md-9
                 form(class="form-inline float-right" action="/rmfpp")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
                         input(type="text" class="form-control" name="report" style={"margin-right": "10px"} value="CPU")
-                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Date
-                        input(type="text" class="form-control" name="date" style={"margin-right": "10px"} value="20201103,20201103")
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Start Date
+                        input(type="date" class="form-control" name="start" style={"margin-right": "10px"} value=currentDate() )
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) End Date
+                        input(type="date" class="form-control" name="end" style={"margin-right": "10px"} value=currentDate() )
                         button(type='submit' class='btn btn-primary' id="rmf3b") Try it
             
         hr(style={"margin":"0"})
@@ -53,14 +56,12 @@ block content
         hr(style={"margin":"0"})
         .row
             .col-md-5
-                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Convert RMF Static XML file to JSON
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Convert RMF XML file to JSON
             .col-md-7
-                form(class="form-inline float-right" action="/upload" method="post" enctype="multipart/form-data")
+                form(class="form-inline float-right" action="/static" method="post" enctype="multipart/form-data")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report File
-                        input(type="file" class="form-control" name="avatar_file" style={"margin-right": "10px"})
-                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Type
-                        input(type="text" class="form-control" name="type" style={"margin-right": "10px"} value="CPU")
+                        input(type="file" class="form-control" name="xml" style={"margin-right": "10px"})
                         button(type='submit' class='btn btn-primary' id="rmf3b") Try it
             
         hr(style={"margin":"0"})

@@ -1,4 +1,5 @@
 
+
 Prior meeting(4/15) recodring replay link: https://zoom.us/rec/share/ftjybj2jXXEOf1KsmUZ1MmaSjb6-ysrNuaK0tuzZzhxZfUQ14BwAvffryBbb77DS.TbP_Z8G_ONZrEma9?startTime=1618488112000
 
 
@@ -21,6 +22,25 @@ Milestone			Description
 •MISC updates found from working with GTS & others	TBD		 
 
 
+Prior meeting(4/15) recodring replay link: https://zoom.us/rec/share/ftjybj2jXXEOf1KsmUZ1MmaSjb6-ysrNuaK0tuzZzhxZfUQ14BwAvffryBbb77DS.TbP_Z8G_ONZrEma9?startTime=1618488112000
 
+
+This week's meeting will be about PI Planning Meeting with other ZOWE sqauds.
+
+Here’s the 21PI2 Zowe  Planning meeting agenda: https://github.com/zowe/community/tree/master/Project%20Management/PI%20Planning/21PI2%20Planning#readme
+ 
+Here’s some quick overview about what PI Planning meeting is (from Nick Kocsis) : https://www.scaledagileframework.com/pi-planning/
+
+Zowe Zebra - 21PI2 PI Planning Scope (Key milestones for the project with deliverables and target dates)
+• For the PI Planning Preparation we only need the Description field filled in. Later after PI Planning and Sprint Planning completes you can fill in the other columns
+
+
+Milestone			Description					 
+•ZOWE Desktop built-in app:	Demonstrate Zebra app launch within ZOWE Desktop 
+
+•More sample/custom APIs (showing value of Zebra): Current Zebra APIs are based on selected RMF DDS functions. To provide more value in a short-term, plan to convert more/all XML formatted data points from RMF DDS into Zebra APIs.		
+
+•Containerize Zebra:		Provide docker images for Zebra app as well as sample use cases(MongoDB, Grafana + Prometheus) as a simpler deployment option 	 
+•MISC updates found from working with GTS & others	TBD		 
 
 

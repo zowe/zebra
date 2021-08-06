@@ -19,9 +19,9 @@ const fs = require('fs');
 var Zconfig = require("../../config/Zconfig");
 let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
-let httptype = Zconfig.httptype;
+let grafanahttptype = Zconfig.grafanahttptype;
 const axios = require('axios');
-const grafanaServer = `${httptype}://${grafanabaseurl}:${grafanabaseport}`
+const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
 
 // Zebra UI routers
 
@@ -97,6 +97,7 @@ router.get('/files', (req, res) => {
     //handling error
     if (err) {
         res.send('Unable to scan uploads directory: ' + err);
+        return;
     } 
     res.render("files", {resfiles: files});
   });
@@ -181,6 +182,7 @@ router.get("/users", Auth.authenticateToken, (req,res) =>{
 router.get("/logout", Auth.authenticateToken, (req,res) => {
   dbrefresh.remove({}, {multi: true}, err => {
       if (err) {
+        res.send('Error logging out.');
       }else{
           res.status(200).send("Done!!!!");
       }

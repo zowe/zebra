@@ -10,7 +10,11 @@ router.get('/:lpar/rmf',  rmf3controller.RMFIIImetrics);
 
 router.get('/:lpar/rmf3/:report',  rmf3controller.RMFIII);
 
+router.get('/:lpar/rmf3/:report/:apiml',  rmf3controller.RMFIII);
+
 router.get('/:lpar/:rmfpp/:report',  rmfppcontroller.rmfpp)
+
+router.get('/:lpar/:rmfpp/:report/:apiml',  rmfppcontroller.rmfpp)
 
 /*router.get('/:lpar/:resource/:file/:monitor/:report',  function(req, res){
     res.json({

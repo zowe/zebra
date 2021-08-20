@@ -2,6 +2,14 @@ const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
 var ddsconfig = require("../../config/Zconfig.json");
 let lspr = 2091 //Zconfig.PCI
+const fs = require('fs');
+const yaml = require('js-yaml');
+var apiml_http_type = ddsconfig.apiml_http_type;
+var apiml_IP = ddsconfig.apiml_IP;
+var apiml_port = ddsconfig.apiml_port;
+var username = ddsconfig.apiml_username;
+var password = ddsconfig.apiml_password;
+var apiml_auth = ddsconfig.apiml_auth_type;
 
 /**
  * RMFMonitor3getRequest is the GET function for retrieving data from RMF monitor III.
@@ -125,94 +133,176 @@ module.exports.RMFIIImetrics = async function (req, res) {
   }
 }
 
+/*async function readyml(fn){
+  try {
+    let fileContents = fs.readFileSync('./Zebra.yml', 'utf8');
+    let data = yaml.load(fileContents);
+
+    fn(data.services[0].authentication.scheme);
+  } catch (e) {
+      fn('Error');
+  }
+}*/
+
+async function getAPIMLCookie(req, fn){
+  if (req.cookies.apimlAuthenticationToken == undefined){
+    fn("No Cookie");
+  }else{
+    fn(req.cookies.apimlAuthenticationToken);
+  }
+}
+
+async function apimllogin(user, pass, fn){
+  axios.post(`${apiml_http_type}://${apiml_IP}:${apiml_port}/api/v1/gateway/auth/login`, {
+    "username": user,
+    "password": pass
+  })
+  .then(function (response) {
+    if(response.headers["set-cookie"]){
+      var res_head = response.headers["set-cookie"][0].split("=");
+      var token_split = res_head[1].split(";");
+      var token = token_split[0];
+      fn(token);
+    }else{
+      fn("error");
+    }
+  })
+  .catch(function (error) {
+    fn("error");
+  });
+}
+
+async function apimlverification(req, fn){
+  if(apiml_auth.toUpperCase() === "ZOWEJWT"){
+    await getAPIMLCookie(req, async function(result){
+      if(result.toUpperCase() != "NO COOKIE"){
+        //continue
+        fn("OK") // User logged into API ML evident by presence of apiauthenticationtoken cookie
+      }else{ // Login User
+        await apimllogin(username, password, function(result){
+          if(result.toUpperCase() === "ERROR"){
+            //end this
+            fn("LOGIN FAILED")
+            //console.log(`status ${status}`)
+          }else{
+            //flow continues
+            fn("OK") // User loggin into API ML Successful
+          }
+        });
+      }
+    })
+  }else if(apiml_auth.toUpperCase() === "BYPASS"){
+    fn("OK") // Bypass API ML Authentication 
+  }
+}
+
+async function RMFIIIJSON(req, res, status){
+  switch(status){
+    case "OK" : // If the flow is Okay, No Obstruction
+      var lpar = ddsconfig["dds"][req.params.lpar];
+      var lspr = lpar["PCI"];
+      var urlReport = req.params.report
+      var urlResource = lpar["mvsResource"];
+      var ulrParm; //variable for parm parameter in the User Specified URL
+      var urlLpar_parms; //variable for lpar_parms parameter in the User Specified URL
+      var urlJobParm; //variable for job parameter in the User Specified URL
+      if (req.query.job) {// checks if user has specify a value for job parameter in the URL
+        urlJobParm = (req.query.job).toUpperCase(); //Sets urlJobParm to value specified by the user in the URL
+      }
+      if (req.query.parm) { // checks if user has specify a value for parm parameter in the URL
+        ulrParm = (req.query.parm).toUpperCase(); //Sets urlParm to values specified by the user in the URL
+      }
+      if (req.query.lpar_parms) { // checks if user has specify a value for lpar_parms parameter in the URL
+        urlLpar_parms = (req.query.lpar_parms).toUpperCase(); //Sets urlLpar_parms to value specified by the user in the URL
+      }
+      if (req.query.resource) { // checks if user has specify a value for resource parameter
+        urlResource = req.query.resource;
+      }
+      if (urlReport.toUpperCase() === "CPC") { // checks if user has specify the value "CPC" for report parameter in the URL
+        displayCPC(ulrParm, urlLpar_parms, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is made with a callback function as parameter
+          //Check for DE= Data Error from DDS, NE= Node Version Error, UA = User Authentication Error, EOUT= Request Time out error
+          if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
+            var string = encodeURIComponent(`${result}`);
+            res.redirect('/rmfm3/error?emsg=' + string);
+          }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
+            var data = result["data"];
+            res.redirect(`/rmfm3/error?emsg=${data}`);
+          }else{
+            res.json(result); //Express respond with the result returned from displayCPC function
+          }
+        });
+      }else if (urlReport.toUpperCase() === "PROC") { // checks if user has specify the value "PROC" for report parameter in the URL
+        displayPROC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayPROC function is made with a callback function as parameter
+          if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
+            var string = encodeURIComponent(`${result}`);
+            res.redirect('/rmfm3/error?emsg=' + string);
+          }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
+            var data = result["data"];
+            res.redirect(`/rmfm3/error?emsg=${data}`);
+          }else{
+            res.json(result); //Express respond with the result returned from displayPROC function
+          }
+          //res.json(result); //Express respond with the result returned from displayPROC function
+        });
+      } else if (urlReport.toUpperCase() === "USAGE") { // checks if user has specify the value "USAGE" for report parameter in the URL
+        displayUSAGE(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayUSAGE function is made with a callback function as parameter
+          if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
+            var string = encodeURIComponent(`${result}`);
+            res.redirect('/rmfm3/error?emsg=' + string);
+          }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
+            var data = result["data"];
+            res.redirect(`/rmfm3/error?emsg=${data}`);
+          }else{
+            res.json(result); //Express respond with the result returned from displayUSAGE function
+          }
+          //res.json(result); //Express respond with the result returned from displayUSAGE function
+        });
+      } else if (urlReport.toUpperCase() === "MIPS") { // checks if user has specify the value "USAGE" for report parameter in the URL
+        displayCPC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], "CPC", urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
+          for(i in result["table"]){
+            if (result["table"][i]["CPCPPNAM"] === "VIRPT"){
+              var virpt_tou = result["table"][i]['CPCPLTOU'];
+              var virpt_normalise = parseFloat(virpt_tou)  / 100
+              var virpt_mips = virpt_normalise * lspr
+              
+              var response = {};
+              response['lpar_name'] = result["table"][i]['CPCPPNAM'];
+              response['lpar_tou'] = result["table"][i]['CPCPLTOU'];
+              response['lpar_tou_normalized'] = virpt_normalise;
+              response['lpar_mips'] = virpt_mips;
+              res.json(response);
+            }
+          }
+        });
+      }else{
+        RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], {report: req.params.report, resource: urlResource}, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
+          RMFMonitor3parser.RMF3bodyParser(data, function (result) {
+            if(result["msg"]){
+              var data = result["data"];
+              res.redirect(`/rmfm3/error?emsg=${data}`);
+            }else{
+              res.json(result);
+            }
+          });
+        });
+      }
+      break;
+    case "LOGIN FAILED": // if API ML Login Failed
+      res.json("Login to API ML Failed");
+      break;
+  }
+}
+
 module.exports.RMFIII = async function (req, res) {
+  var status = "OK"; // A variable to track function flow status
     if(req.params.lpar){
-        var lpar = ddsconfig["dds"][req.params.lpar];
-        var lspr = lpar["PCI"];
-        var urlReport = req.params.report
-        var urlResource = lpar["mvsResource"];
-        var ulrParm; //variable for parm parameter in the User Specified URL
-        var urlLpar_parms; //variable for lpar_parms parameter in the User Specified URL
-        var urlJobParm; //variable for job parameter in the User Specified URL
-        if (req.query.job) {// checks if user has specify a value for job parameter in the URL
-          urlJobParm = (req.query.job).toUpperCase(); //Sets urlJobParm to value specified by the user in the URL
-        }
-        if (req.query.parm) { // checks if user has specify a value for parm parameter in the URL
-          ulrParm = (req.query.parm).toUpperCase(); //Sets urlParm to values specified by the user in the URL
-        }
-        if (req.query.lpar_parms) { // checks if user has specify a value for lpar_parms parameter in the URL
-          urlLpar_parms = (req.query.lpar_parms).toUpperCase(); //Sets urlLpar_parms to value specified by the user in the URL
-        }
-        if (req.query.resource) { // checks if user has specify a value for resource parameter
-          urlResource = req.query.resource;
-        }
-        if (urlReport.toUpperCase() === "CPC") { // checks if user has specify the value "CPC" for report parameter in the URL
-          displayCPC(ulrParm, urlLpar_parms, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is made with a callback function as parameter
-            //Check for DE= Data Error from DDS, NE= Node Version Error, UA = User Authentication Error, EOUT= Request Time out error
-            if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
-              var string = encodeURIComponent(`${result}`);
-              res.redirect('/rmfm3/error?emsg=' + string);
-            }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-              var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
-            }else{
-              res.json(result); //Express respond with the result returned from displayCPC function
-            }
-          });
-        }else if (urlReport.toUpperCase() === "PROC") { // checks if user has specify the value "PROC" for report parameter in the URL
-          displayPROC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayPROC function is made with a callback function as parameter
-            if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
-              var string = encodeURIComponent(`${result}`);
-              res.redirect('/rmfm3/error?emsg=' + string);
-            }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-              var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
-            }else{
-              res.json(result); //Express respond with the result returned from displayPROC function
-            }
-            //res.json(result); //Express respond with the result returned from displayPROC function
-          });
-        } else if (urlReport.toUpperCase() === "USAGE") { // checks if user has specify the value "USAGE" for report parameter in the URL
-          displayUSAGE(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], req.params.report, urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayUSAGE function is made with a callback function as parameter
-            if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
-              var string = encodeURIComponent(`${result}`);
-              res.redirect('/rmfm3/error?emsg=' + string);
-            }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-              var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
-            }else{
-              res.json(result); //Express respond with the result returned from displayUSAGE function
-            }
-            //res.json(result); //Express respond with the result returned from displayUSAGE function
-          });
-        } else if (urlReport.toUpperCase() === "MIPS") { // checks if user has specify the value "USAGE" for report parameter in the URL
-          displayCPC(ulrParm, urlJobParm, lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], "CPC", urlResource, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
-            for(i in result["table"]){
-              if (result["table"][i]["CPCPPNAM"] === "VIRPT"){
-                var virpt_tou = result["table"][i]['CPCPLTOU'];
-                var virpt_normalise = parseFloat(virpt_tou)  / 100
-                var virpt_mips = virpt_normalise * lspr
-                
-                var response = {};
-                response['lpar_name'] = result["table"][i]['CPCPPNAM'];
-                response['lpar_tou'] = result["table"][i]['CPCPLTOU'];
-                response['lpar_tou_normalized'] = virpt_normalise;
-                response['lpar_mips'] = virpt_mips;
-                res.json(response);
-              }
-            }
-          });
+        if(req.params.apiml){
+          await apimlverification(req, function(result){
+            status = result;
+            RMFIIIJSON(req, res, status);
+          })   
         }else{
-          RMFMonitor3getRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmf3filename"], {report: req.params.report, resource: urlResource}, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) {
-            RMFMonitor3parser.RMF3bodyParser(data, function (result) {
-              if(result["msg"]){
-                var data = result["data"];
-                res.redirect(`/rmfm3/error?emsg=${data}`);
-              }else{
-                res.json(result);
-              }
-            });
-          });
+          RMFIIIJSON(req, res, status);
         }
     }
 };

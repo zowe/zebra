@@ -22,7 +22,7 @@
   ],
   "produces": ["application/json;charset=UTF-8"],
   "paths": {
-    "/v1/{lpar}/rmf3/{report}": {
+    "/v1/{lpar}/rmf3/{report}/apiml": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -72,7 +72,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmf3/{report}?parm={value}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?parm={value}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -131,7 +131,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmf3/{report}?lpar_parms={value}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?lpar_parms={value}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -190,7 +190,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmf3/{report}?parm={value1}&lpar_parms={value2}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?parm={value1}&lpar_parms={value2}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -258,7 +258,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmf3/{report}?job={value}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?job={value}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -317,7 +317,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmf3/{report}?resource={resource}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?resource={resource}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -485,7 +485,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -553,7 +553,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}&SvcCls={value3}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&SvcCls={value3}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -630,7 +630,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}&SvcCls={value3}&Time={value4}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&SvcCls={value3}&Time={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -716,7 +716,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}&SvcCls={value3}&duration={value4}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&SvcCls={value3}&duration={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -802,7 +802,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}&Wlkd={value3}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&Wlkd={value3}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -879,7 +879,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}&Wlkd={value3}&Time={value4}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&Wlkd={value3}&Time={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -965,7 +965,7 @@
         "deprecated": false
       }
     },
-    "/v1/{lpar}/rmfpp/{report}?start={value1}&end={value2}&Wlkd={value3}&duration={value4}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&Wlkd={value3}&duration={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"

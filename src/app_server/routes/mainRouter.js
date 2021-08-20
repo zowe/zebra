@@ -21,7 +21,39 @@ let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
 let grafanahttptype = Zconfig.grafanahttptype;
 const axios = require('axios');
+const { send } = require('process');
 const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
+
+
+
+// Zebra API ML cookie checker
+router.get('/apimlcookie',  function(req, res, next){
+  if (req.cookies.apimlAuthenticationToken == undefined){
+    res.send("No Cookie");
+  }else{
+    res.send(req.cookies.apimlAuthenticationToken);
+  }
+})
+
+router.post('/apimllogin',  function(req, res, next){
+  axios.post('https://localhost:10010/api/v1/gateway/auth/login', {
+    "username": req.body.username,
+    "password": req.body.password
+  })
+  .then(function (response) {
+    if(response.headers["set-cookie"]){
+      var res_head = response.headers["set-cookie"][0].split("=");
+      var token_split = res_head[1].split(";");
+      var token = token_split[0];
+      res.send(token);
+    }else{
+      res.send("error");
+    }
+  })
+  .catch(function (error) {
+    res.send("error");
+  });
+})
 
 // Zebra UI routers
 

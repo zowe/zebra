@@ -53,6 +53,12 @@
     "authSource":"admin",
     "grafanaurl":"localhost",
     "grafanaport":"3000",
-    "grafanahttptype": "http"
+    "grafanahttptype": "http",
+    "apiml_http_type" : "https",
+    "apiml_IP" : "localhost",
+    "apiml_port" : "10010",
+    "apiml_auth_type" : "bypass",
+    "apiml_username" : "username",
+    "apiml_password" : "password"
 }
 ```

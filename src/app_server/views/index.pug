@@ -41,17 +41,6 @@ block content
             .col-md-3
                 p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF I Report In JSON
             .col-md-9
-<<<<<<< HEAD
-                form(class="form-inline float-right" action="/rmfpp")
-                    .form-group
-                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
-                        input(type="text" class="form-control" name="report" style={"margin-right": "10px"} value="CPU")
-                        p(style={"margin-top":"10px", "margin-right": "10px"}) Start Date
-                        input(type="date" class="form-control" name="start" style={"margin-right": "10px"} value=currentDate() )
-                        p(style={"margin-top":"10px", "margin-right": "10px"}) End Date
-                        input(type="date" class="form-control" name="end" style={"margin-right": "10px"} value=currentDate() )
-                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
-=======
                 form(class="form-inline float-right")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
@@ -61,7 +50,6 @@ block content
                         p(style={"margin-top":"10px", "margin-right": "10px"}) End Date
                         input(type="date" class="form-control" name="end" id="end" style={"margin-right": "10px"} value=currentDate() )
                         a(href='javascript:rmfpp()' class='btn btn-primary' id="rmf3b") Try it
->>>>>>> 8c159d4f05fac4a382f5c5fd6d2b9795986df848
             
         hr(style={"margin":"0"})
     .apis

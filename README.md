@@ -35,13 +35,8 @@ Copyright Contributors to the Zowe Project.
 ## <Picture 1>  Zebra main page screenshot
 
 
-<<<<<<< HEAD
-<IMG SRC = "https://github.com/ykimvicom/zebra-1/blob/main/Zebra%20GRAFANA.png"> </IMG>
-## <Picture 2>  Zebra use case example #1 - Plotting thru Grafana with RMF III real-time data
-=======
 ![](/Documentation/Images/ZebraGRAFANA.png)
 ## <Picture 2>  Zebra use case example #1 - Plotting thru Grafana with RMF I real-time data
->>>>>>> 8c159d4f05fac4a382f5c5fd6d2b9795986df848
   
    
 # Running Zebra
@@ -133,11 +128,7 @@ Copyright Contributors to the Zowe Project.
  
  9. **dbinterval**:    The data capture/recording interval into MongoDB, the default value is 100 (seconds). E.g ***dbinterval : 100***
  
-<<<<<<< HEAD
- * useMongo: true|false - option to send data to MongoDB
-=======
  10. **dbname**:        MongoDB database name where RMF III monitor data will be saved. E.g ***dbname : ZebraDB***
->>>>>>> 8c159d4f05fac4a382f5c5fd6d2b9795986df848
  
  11. **mongoport**:     MongoDB service port. E.g ***mongoport : 27017***
  
@@ -149,7 +140,7 @@ Copyright Contributors to the Zowe Project.
  
  15. **authSource**: MongoDB's authentication DB source. Default is 'admin'. E.g ***authSource : admin***
  
- 16. **useMongo**: true|fasle - option for Zebra to send data to MongoDB. E.g ***useMongo : true***
+ 16. **useMongo**: true|false - option for Zebra to send data to MongoDB. E.g ***useMongo : true***
  
  17. **grafanahttptype**: This is the hypertext transfer protocol type of the running Grafana instance. Its value is either http or https. E.g. ***grafanahttptype: http***
  

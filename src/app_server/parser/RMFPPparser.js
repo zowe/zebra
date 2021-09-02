@@ -196,3 +196,96 @@ module.exports.bodyParserforRmfWLMPP = function (data, fn) {//Function to parse 
         fn({msg: 'Err', error: err, data: data}); // return error
     }
 }
+
+/**
+ * General parser for parsing RMF monitor I XML data to JSON
+ * @param {XML} data - Workload XML data from RMF Monitor I 
+ * @param {JSON} fn - Callback funtion to return JSON of Parsed CPU XML
+ */
+module.exports.RMFPPparser = (data, fn) => {
+    try {
+        parser.parseString(data, function (err, result) {
+            var finalJSON = []; // Collection for storing JSON of Parsed XML
+            var postprocessors = result['ddsml']['postprocessor'];
+            for (a in postprocessors) { // Loop through postprocessor sections
+                var singleReport = {};
+                var segments = postprocessors[a]['segment'];
+                var resourceName = postprocessors[a]['resource'][0]['resname'][0];
+                var reportId = postprocessors[a]['metric'][0]['$']['id'];
+                var allSegmentCollection = {};
+                for (b in segments) { // Loop through segment sections
+                    var parts = segments[b]['part'];
+                    var segmentName = segments[b]['name'][0];
+                    var segmentCollection = {};
+                    var partCollection = {};
+                    for (c in parts) { // Loop through part sections
+                        var partName = parts[c]['name'];
+                        var varlist = parts[c]['var-list'];
+                        var table = parts[c]['table'];
+                        var fieldCollection = {};
+
+                        if (varlist) { // If part contains a list of variables
+                            var variables = varlist[0]['var'];
+                            for (d in variables) {
+                                fieldCollection[variables[d]['name'][0]] = variables[d]['value'][0];
+                            }
+                        }
+
+                        if (table) { // If part contains a table
+                            var tableColumnHeader = table[0]['column-headers'][0]['col'];
+                            var tableBody = table[0]['row'];
+                            var columnheadCollection = [];
+                            var finalTableReport = [];
+                            for (i in tableColumnHeader) {
+                                columnheadCollection[i] = tableColumnHeader[i]['_'];
+                            }
+
+                            if (tableBody !== undefined) { // If table is not empty
+                                for ( i in tableBody) {
+                                    var partTable = {}
+                                    for (j in columnheadCollection) {
+                                        partTable[columnheadCollection[j]] = tableBody[i]['col'][j];
+                                    }
+                                    finalTableReport.push(partTable);
+                                }
+                            }
+
+                            if (!varlist) { // If part contains only table and no var list
+                                fieldCollection = finalTableReport;
+                            } else {   
+                                fieldCollection["Table"] = finalTableReport;
+                            }
+                        }
+
+                        if (partName) { // If part already has a name 
+                            partCollection[partName] = fieldCollection;
+                        } else {
+                            partCollection['Info'] = fieldCollection;
+                        }
+                        if (segmentCollection) {
+                            allSegmentCollection[segmentName] = partCollection;
+                        } else {
+                            allSegmentCollection['Segment'] = partCollection;
+                        }
+                    }
+                }
+                singleReport['Report'] = postprocessors[a]['metric'][0]["description"][0];
+                singleReport["System"] = resourceName;
+                singleReport['Timestamp'] = postprocessors[a]['time-data'][0]['display-start'][0]['_'];
+                singleReport = {
+                    ...singleReport,
+                    ...allSegmentCollection
+                };
+
+                if (finalJSON[reportId]) {  // If report ID is already been used, push to array
+                    finalJSON[reportId].push(singleReport);
+                } else {  // If not, create array with initial value
+                    finalJSON[reportId] = [ singleReport ];
+                }
+            }
+            fn(finalJSON);
+        });
+    } catch (err) {// if parsing XML didn't went smooth
+        fn({msg: 'Err', error: err, data: data});// return the error 
+    }
+}

@@ -21,7 +21,39 @@ let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
 let grafanahttptype = Zconfig.grafanahttptype;
 const axios = require('axios');
+const { send } = require('process');
 const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
+
+
+
+// Zebra API ML cookie checker
+router.get('/apimlcookie',  function(req, res, next){
+  if (req.cookies.apimlAuthenticationToken == undefined){
+    res.send("No Cookie");
+  }else{
+    res.send(req.cookies.apimlAuthenticationToken);
+  }
+})
+
+router.post('/apimllogin',  function(req, res, next){
+  axios.post('https://localhost:10010/api/v1/gateway/auth/login', {
+    "username": req.body.username,
+    "password": req.body.password
+  })
+  .then(function (response) {
+    if(response.headers["set-cookie"]){
+      var res_head = response.headers["set-cookie"][0].split("=");
+      var token_split = res_head[1].split(";");
+      var token = token_split[0];
+      res.send(token);
+    }else{
+      res.send("error");
+    }
+  })
+  .catch(function (error) {
+    res.send("error");
+  });
+})
 
 // Zebra UI routers
 
@@ -34,39 +66,6 @@ var sessionChecker = (req, res, next) => {
   }    
 };
 
-/**
- * parameters function reads the parameters in the Zconfig file
- * @param {Object} fn - returns the parameters from Zconfig file and their value
- */
-function parameters(fn){
-  parms = {
-    ddsbaseurl: Zconfig.ddsbaseurl,
-    ddsbaseport: Zconfig.ddsbaseport,
-    rmf3filename: Zconfig.rmf3filename,
-    rmfppfilename: Zconfig.rmfppfilename,
-    mvsResource: Zconfig.mvsResource,
-    mongourl: Zconfig.mongourl,
-    dbinterval: Zconfig.dbinterval,
-    dbname: Zconfig.dbname,
-    appurl: Zconfig.appurl,
-    appport: Zconfig.appport,
-    mongoport: Zconfig.mongoport,
-    ppminutesInterval: Zconfig.ppminutesInterval,
-    rmf3interval: Zconfig.rmf3interval,
-    httptype: Zconfig.httptype,
-    useDbAuth: Zconfig.useDbAuth,
-    dbUser: Zconfig.dbUser,
-    dbPassword: Zconfig.dbPassword,
-    authSource: Zconfig.authSource,
-    useMongo: Zconfig.useMongo,
-    usePrometheus: Zconfig.usePrometheus,
-    https: Zconfig.https,
-    grafanaurl: Zconfig.grafanaurl,
-    grafanaport: Zconfig.grafanaport
-  }
-  fn(parms); //return the parameters
-}
-
 // router for getting new Access token using the refresh token on the UI Page
 router.post("/refreshT", sessionChecker, (req, res) => {
    Auth.formRefreshToken(req.body.refresh, req.session.name, function(data){ //Authenticate refresh token
@@ -77,9 +76,7 @@ router.post("/refreshT", sessionChecker, (req, res) => {
      }else{
        res.send(data)
      }
-     
    })
-  
 })
 
 //render swagger document
@@ -109,19 +106,6 @@ router.get('/mongo', (req, res) => {
   res.render("mongot");
 });
 
-// render the setting page
-router.get('/setting', sessionChecker, (req, res) => {
-  Auth.formToken(req.session.name, function(data){ //Authenticate user
-    if (data.Access){ // if data returned by the auhentication function contains an Access parameter
-      parameters(function(parms){ //get Zconfig parameters
-       res.render("settings", {fdata: data, fparms:parms}); // render the setting page with Access token and Zconfig parameters
-      })
-    }else{
-      res.send(data)
-    }
-  })
-});
-
 // logout routine
 router.use("/log_out", (req, res, next) => {
   if (req.cookies.user_sid && !req.session.user) { // if cookie is available
@@ -145,9 +129,6 @@ router.route('/log_in')
 // handle mongoDB data request
 router.post('/mongo', ctrlMongo.mongoReport);
 
-//addsetting 
-router.post('/addsetting', Auth.authenticateFormToken,  ctrlMain.addFormSettings) //call addsetting function in maincontroller
-
 //handes Password change using Zebra UI
 router.post("/UpdatePasswordForm", Auth.updatePasswordForm)
 
@@ -162,10 +143,6 @@ router.get('/api-doc',  function(req, res, next){
 router.get('/prommetric', (req, res) => {
     res.end(Prometheus.register.metrics()); //display metrics in prom-client register
 });
-
-router.get('/settings', Auth.authenticateToken, ctrlMain.settings) // call settings function
-
-router.post('/addsettings', Auth.authenticateToken,  ctrlMain.addSettings) //call add settings function
 
 router.post("/login", Auth.login) 
 
@@ -188,6 +165,73 @@ router.get("/logout", Auth.authenticateToken, (req,res) => {
       }
   });
 })
+
+
+/*
+// render the setting page
+router.get('/setting', (req, res) => {
+  res.render("settings");
+});
+
+router.get('/zsetting', (req, res) => {
+  res.render("zsetting");
+});
+
+router.get('/ddssetting', (req, res) => {
+  res.render("ddssetting");
+});
+
+//addsetting 
+router.post('/addsetting', Auth.authenticateFormToken,  ctrlMain.addFormSettings) //call addsetting function in maincontroller
+
+router.get('/settings', Auth.authenticateToken, ctrlMain.settings) // call settings function
+
+router.post('/addsettings', Auth.authenticateToken,  ctrlMain.addSettings) //call add settings function
+
+
+
+router.get('/setting', sessionChecker, (req, res) => {
+  Auth.formToken(req.session.name, function(data){ //Authenticate user
+    if (data.Access){ // if data returned by the auhentication function contains an Access parameter
+      parameters(function(parms){ //get Zconfig parameters
+       res.render("settings", {fdata: data, fparms:parms}); // render the setting page with Access token and Zconfig parameters
+      })
+    }else{
+      res.send(data)
+    }
+  })
+});
+
+ function parameters(fn){
+  parms = {
+    ddsbaseurl: Zconfig.ddsbaseurl,
+    ddsbaseport: Zconfig.ddsbaseport,
+    rmf3filename: Zconfig.rmf3filename,
+    rmfppfilename: Zconfig.rmfppfilename,
+    mvsResource: Zconfig.mvsResource,
+    mongourl: Zconfig.mongourl,
+    dbinterval: Zconfig.dbinterval,
+    dbname: Zconfig.dbname,
+    appurl: Zconfig.appurl,
+    appport: Zconfig.appport,
+    mongoport: Zconfig.mongoport,
+    ppminutesInterval: Zconfig.ppminutesInterval,
+    rmf3interval: Zconfig.rmf3interval,
+    httptype: Zconfig.httptype,
+    useDbAuth: Zconfig.useDbAuth,
+    dbUser: Zconfig.dbUser,
+    dbPassword: Zconfig.dbPassword,
+    authSource: Zconfig.authSource,
+    useMongo: Zconfig.useMongo,
+    usePrometheus: Zconfig.usePrometheus,
+    https: Zconfig.https,
+    grafanaurl: Zconfig.grafanaurl,
+    grafanaport: Zconfig.grafanaport
+  }
+  fn(parms); //return the parameters
+}
+
+*/
 
 module.exports = router;
  

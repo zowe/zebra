@@ -6,6 +6,8 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@zowe/cli": "^6.32.1",
+    "@zowe/imperative": "^4.13.4",
     "axios": "^0.20.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
@@ -32,6 +34,7 @@
     "readline": "0.0.x",
     "swagger-ui-express": "^4.1.4",
     "sweetalert": "^2.1.2",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.4.23",
+    "js-yaml": "^4.1.0"
   }
 }

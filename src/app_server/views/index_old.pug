@@ -1,0 +1,79 @@
+extends layout
+
+block content
+    .apis
+        br
+        ul
+            li Browse RMF data for real-time LPAR
+            li Browse RMF data real-time Workload
+            li Browse RMF data for historical CPU Reports (post-processor report)
+            li Browse RMF data for historical Workload Reports (post-processor report)
+    hr
+    .apis
+        h4(style={"margin-top":"20px"}) RMF Monitor III report
+        hr(style={"margin":"0"})
+        .row
+            .col-md-7
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF III Report In JSON
+            .col-md-5
+                form(class="form-inline float-right" action="/rmfm3")
+                    .form-group
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
+                        input(type="text" class="form-control" name="report" style={"margin-right": "10px"} value="CPC")
+                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
+        hr(style={"margin":"0"})
+        .row
+            .col-md-7
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF III Workload Report In JSON
+            .col-md-5
+                form(class="form-inline float-right" action="/rmfm3")
+                    .form-group
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
+                        input(type="text" class="form-control" name="reports" style={"margin-right": "10px"} value="SYSINFO")
+                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
+        hr(style={"margin":"0"})
+    .apis
+        h4(style={"margin-top":"20px"}) RMF Monitor I report
+        hr(style={"margin":"0"})
+        .row
+            .col-md-6
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF I Report In JSON
+            .col-md-6
+                form(class="form-inline float-right" action="/rmfpp")
+                    .form-group
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
+                        input(type="text" class="form-control" name="report" style={"margin-right": "10px"} value="CPU")
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Date
+                        input(type="text" class="form-control" name="date" style={"margin-right": "10px"} value="20201103,20201103")
+                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
+            
+        hr(style={"margin":"0"})
+    .apis
+        h4(style={"margin-top":"20px"}) RMF Static XML File
+        hr(style={"margin":"0"})
+        .row
+            .col-md-5
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Convert RMF Static XML file to JSON
+            .col-md-7
+                form(class="form-inline float-right" action="/upload" method="post" enctype="multipart/form-data")
+                    .form-group
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report File
+                        input(type="file" class="form-control" name="avatar_file" style={"margin-right": "10px"})
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Type
+                        input(type="text" class="form-control" name="type" style={"margin-right": "10px"} value="CPU")
+                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
+            
+        hr(style={"margin":"0"})
+    br
+    .apis
+        .row
+            .col-md-6
+                form(class="form-inline")
+                    .form-group
+                        img(src="/images/mongo.png", height="60", width="60")
+                        a.h6(style={"margin-left":"20px"}, href="/mongo") Browse RMF data from MongoDB
+            .col-md-6
+                form(class="form-inline" action="/mongo")
+                    .form-group
+                        img(src="/images/grafana.png", height="60", width="60")
+                        a.h6(style={"margin-left":"20px"}, href="/grafana") Browse RMF real-time data with Grafana

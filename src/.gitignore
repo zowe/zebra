@@ -10,6 +10,8 @@ my.dbrefresh
 
 # Zconfig file
 config/Zconfig.json
+config/dds.js
+config/Zconfig copy.json
 
 # SSL Certs
 sslcert/*.cert

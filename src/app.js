@@ -22,14 +22,30 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
+var ddsconfig = require("./config/Zconfig.json");
+
+var lpar_details = ddsconfig["dds"];
+var lpars = Object.keys(lpar_details);
+lpar_prom = [];
+lpar_mongo = [];
+for(i in lpars){
+    var lpar = lpars[i]
+    if (ddsconfig["dds"][lpar]["usePrometheus"] === 'true'){
+        lpar_prom.push(lpar);
+    }
+    if (ddsconfig["dds"][lpar]["useMongo"] === 'true'){
+      lpar_mongo.push(lpar);
+  }
+}
 
 require("./nedbAdmin");
-if (useMongo === 'true'){
-  require('./mongo');
+if(lpar_mongo.length > 0){
+  require('./mongoV1');
   require("./app_server/Models/db");
 }
-if (useProm === 'true'){
-  require('./cpuRealTimeMetrics');
+if(lpar_prom.length > 0){
+  //require('./cpuRealTimeMetrics');
+  require('./PromMetricsV1');
 }
 //require("./Eureka_conn");
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
@@ -38,7 +54,7 @@ var rmf3Router = require('./app_server/routes/rmf3Router');
 var rmfppRouter = require('./app_server/routes/rmfppRouter');
 //var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
-var apiRouter = require('./app_server/routes/apiRouter');
+var v1Router = require('./app_server/routes/v1Router');
 
 var app = express();
 
@@ -76,7 +92,7 @@ app.use('/rmfm3', rmf3Router);
 app.use('/static', staticRouter);
 //app.use('/upload', fileUploadRouter);
 app.use('/rmfpp', rmfppRouter);
-app.use('/api', apiRouter);
+app.use('/v1', v1Router);
 
 app.use(express.static('uploads'));
 

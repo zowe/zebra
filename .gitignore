@@ -1,0 +1,21 @@
+# Node Modules
+src/node_modules
+
+# Local Database
+src/db
+
+# DB
+src/my.db
+src/my.dbrefresh
+
+# Zconfig file
+src/config/Zconfig.json
+src/config/dds.js
+src/config/Zconfig copy.json
+
+# SSL Certs
+src/sslcert/*.cert
+src/sslcert/*.key
+
+# Prom Data
+data

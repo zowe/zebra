@@ -12,7 +12,15 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var Zconfig = require("./config/Zconfig");
+
+var Zconfig
+try {
+  Zconfig = require("./config/Zconfig");
+} catch(err) {
+  console.log("Missing Zconfig.json file. Make sure it is located in the 'config' subdirectory")
+  exit();
+}
+
 var useMongo = Zconfig["useMongo"];
 var useProm = Zconfig["usePrometheus"];
 var session = require('express-session');
@@ -54,6 +62,7 @@ var rmfppRouter = require('./app_server/routes/rmfppRouter');
 //var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
 var v1Router = require('./app_server/routes/v1Router');
+const { exit } = require('process');
 
 var app = express();
 

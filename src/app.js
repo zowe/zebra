@@ -31,8 +31,9 @@ const _ = require('lodash');
 var ddsconfig = require("./config/Zconfig.json");
 
 // Create empty metrics.json if it doesn't exist
-if (!fs.existsSync('./metrics.json')) {
-  fs.writeFileSync('./metrics.json', JSON.stringify({}), 'utf8');
+if (!fs.existsSync('./src/metrics.json')) {
+  fs.writeFileSync('./src/metrics.json', JSON.stringify({}), 'utf8');
+  console.log("Empty metrics.json generated");
 }
 
 var lpar_details = ddsconfig["dds"];

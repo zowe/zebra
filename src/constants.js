@@ -19,10 +19,25 @@ module.exports = {
             "WLMGL"
         ],
         RMFM3: [
+            "CHANNEL",
             "CPC",
+            "DELAY",
+            "DEV",
+            "DEVR",
+            "DSND",
+            "EADM",
+            "ENCLAVE",
+            "ENQ",
+            "HSM",
+            "JES",
+            "OPD",
             "PROC",
-            "USAGE",
-            "SYSINFO"
+            "PROCU",
+            "STOR",
+            "STORC",
+            "STORCR",
+            "SYSINFO",
+            "USAGE"
         ]
     }
 }

@@ -12,6 +12,7 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+const fs = require('fs');
 
 var Zconfig
 try {
@@ -21,8 +22,6 @@ try {
   exit();
 }
 
-var useMongo = Zconfig["useMongo"];
-var useProm = Zconfig["usePrometheus"];
 var session = require('express-session');
 
 const cors = require('cors');
@@ -30,6 +29,11 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
 var ddsconfig = require("./config/Zconfig.json");
+
+// Create empty metrics.json if it doesn't exist
+if (!fs.existsSync('./metrics.json')) {
+  fs.writeFileSync('./metrics.json', JSON.stringify({}), 'utf8');
+}
 
 var lpar_details = ddsconfig["dds"];
 var lpars = Object.keys(lpar_details);
@@ -51,8 +55,7 @@ if(lpar_mongo.length > 0){
   require("./app_server/Models/db");
 }
 if(lpar_prom.length > 0){
-  //require('./cpuRealTimeMetrics');
-  require('./PromMetricsV1');
+  require('./metrics');
 }
 //require("./Eureka_conn");
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;

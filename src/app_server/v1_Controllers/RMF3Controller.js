@@ -30,6 +30,7 @@ var apiml_auth = ddsconfig.apiml_auth_type;
     urlParams = urlParams.slice(0, urlParams.length - 1);
     //var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`;
     var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}${urlParams}`; //Dynamically create URL
+    //console.log(RMF3URL);
     if(ddsauth === 'true'){
       axios.get(RMF3URL, {
         auth: {
@@ -85,6 +86,8 @@ var apiml_auth = ddsconfig.apiml_auth_type;
   
     } 
 }
+
+module.exports.getDDS = RMFMonitor3getRequest;
 
 module.exports.RMFIIImetrics = async function (req, res) {
   if(req.params.lpar){

@@ -19,3 +19,4 @@ src/sslcert/*.key
 
 # Prom Data
 data
+src/metrics.json

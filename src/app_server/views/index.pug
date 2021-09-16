@@ -37,7 +37,7 @@ block content
                         select(class="form-control" name="rmf3_report" id="rmf3_report" style={"margin-right": "10px"} value="CPC")
                             each report in reports.RMFM3
                                 if report === "CPC"
-                                    option(value=report) #{report}
+                                    option(value=report selected) #{report}
                                 else 
                                     option(value=report) #{report}
                         a(href='javascript:rmfm3()' class='btn btn-primary' id="rmf3b") Try it

@@ -1,6 +1,10 @@
 const axios = require('axios');
 var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFMonitor3parser file
-var ddsconfig = require("../../config/Zconfig.json");
+try{
+  var ddsconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var ddsconfig = {}
+}
 var apiml_http_type = ddsconfig.apiml_http_type;
 var apiml_IP = ddsconfig.apiml_IP;
 var apiml_port = ddsconfig.apiml_port;

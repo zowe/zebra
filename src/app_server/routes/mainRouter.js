@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var  ctrlMain = require('../Controllers/mainController');
+var  ctrlConfig = require('../Controllers/config');
 var  ctrlMongo = require('../Controllers/mongohandler');
 const Prometheus = require('prom-client');
 var session = require('express-session');
@@ -16,7 +17,12 @@ let dbrefresh = nedb.dbrefresh;
 var  Auth = require('../../Auth');
 const path = require('path');
 const fs = require('fs');
-var Zconfig = require("../../config/Zconfig");
+//var Zconfig;
+try{
+  var Zconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var Zconfig = {};
+}
 let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
 let grafanahttptype = Zconfig.grafanahttptype;
@@ -24,6 +30,113 @@ const axios = require('axios');
 const { send } = require('process');
 const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
 
+
+function parameters(fn){
+  parms = {
+    ddsbaseurl: Zconfig.ddsbaseurl,
+    ddsbaseport: Zconfig.ddsbaseport,
+    rmf3filename: Zconfig.rmf3filename,
+    rmfppfilename: Zconfig.rmfppfilename,
+    mvsResource: Zconfig.mvsResource,
+    mongourl: Zconfig.mongourl,
+    dbinterval: Zconfig.dbinterval,
+    dbname: Zconfig.dbname,
+    appurl: Zconfig.appurl,
+    appport: Zconfig.appport,
+    mongoport: Zconfig.mongoport,
+    ppminutesInterval: Zconfig.ppminutesInterval,
+    rmf3interval: Zconfig.rmf3interval,
+    httptype: Zconfig.httptype,
+    useDbAuth: Zconfig.useDbAuth,
+    dbUser: Zconfig.dbUser,
+    dbPassword: Zconfig.dbPassword,
+    authSource: Zconfig.authSource,
+    useMongo: Zconfig.useMongo,
+    usePrometheus: Zconfig.usePrometheus,
+    https: Zconfig.https,
+    grafanaurl: Zconfig.grafanaurl,
+    grafanaport: Zconfig.grafanaport
+  }
+  fn(parms); //return the parameters
+}
+
+// Checks if user login session is available in browser
+var sessionChecker = (req, res, next) => {
+  if (req.session.name && req.cookies.user_sid) { //If user login session is available
+      next()
+  } else { 
+      res.redirect("/log_in") //redirect to login page if user is not logged in
+  }    
+};
+
+function ddsparm(fn){
+  fn(Zconfig.dds); //return the parameters
+}
+
+
+router.post('/updateconfig', ctrlConfig.updateconfig);
+
+router.post('/updatedds', ctrlConfig.updatedds);
+
+router.post('/deletedds', ctrlConfig.deletedds);
+
+router.post('/savedds', Auth.authenticateFormToken, ctrlConfig.savedds);
+
+router.get('/createZconfig', ctrlConfig.createZconfig);
+
+router.get('/setting', sessionChecker, (req, res) => {
+  if(Object.keys(Zconfig).length === 0){
+    res.render("settings",{msg: "No Zconfig"});
+  }else{
+    res.render("settings");
+  } 
+});
+
+router.get('/ddsconfig', (req, res) => {
+  //console.log(Zconfig.dds["RPRT"])
+  res.render("ddsconfig", {dds: Zconfig.dds});
+})
+
+router.get('/otherconfig', (req, res) => {
+  res.render("otherconfig", {fparms:Zconfig});
+})
+
+/*
+// render the setting page
+
+
+router.get('/zsetting', (req, res) => {
+  res.render("zsetting");
+});
+
+router.get('/ddssetting', (req, res) => {
+  res.render("ddssetting");
+});
+
+//addsetting 
+router.post('/addsetting', Auth.authenticateFormToken,  ctrlMain.addFormSettings) //call addsetting function in maincontroller
+
+router.get('/settings', Auth.authenticateToken, ctrlMain.settings) // call settings function
+
+router.post('/addsettings', Auth.authenticateToken,  ctrlMain.addSettings) //call add settings function
+
+
+
+router.get('/setting', sessionChecker, (req, res) => {
+  Auth.formToken(req.session.name, function(data){ //Authenticate user
+    if (data.Access){ // if data returned by the auhentication function contains an Access parameter
+      parameters(function(parms){ //get Zconfig parameters
+       res.render("settings", {fdata: data, fparms:parms}); // render the setting page with Access token and Zconfig parameters
+      })
+    }else{
+      res.send(data)
+    }
+  })
+});
+
+ 
+
+*/
 
 
 // Zebra API ML cookie checker
@@ -56,15 +169,6 @@ router.post('/apimllogin',  function(req, res, next){
 })
 
 // Zebra UI routers
-
-// Checks if user login session is available in browser
-var sessionChecker = (req, res, next) => {
-  if (req.session.name && req.cookies.user_sid) { //If user login session is available
-      next()
-  } else { 
-      res.redirect("/log_in") //redirect to login page if user is not logged in
-  }    
-};
 
 // router for getting new Access token using the refresh token on the UI Page
 router.post("/refreshT", sessionChecker, (req, res) => {
@@ -110,6 +214,7 @@ router.use("/log_out", (req, res, next) => {
   if (req.cookies.user_sid && !req.session.user) { // if cookie is available
       res.clearCookie('user_sid'); // delete cookie
   }
+  //res.clearCookie()
   res.redirect("/") //redirect to homepage
 });
 
@@ -164,72 +269,6 @@ router.get("/logout", Auth.authenticateToken, (req,res) => {
   });
 })
 
-
-/*
-// render the setting page
-router.get('/setting', (req, res) => {
-  res.render("settings");
-});
-
-router.get('/zsetting', (req, res) => {
-  res.render("zsetting");
-});
-
-router.get('/ddssetting', (req, res) => {
-  res.render("ddssetting");
-});
-
-//addsetting 
-router.post('/addsetting', Auth.authenticateFormToken,  ctrlMain.addFormSettings) //call addsetting function in maincontroller
-
-router.get('/settings', Auth.authenticateToken, ctrlMain.settings) // call settings function
-
-router.post('/addsettings', Auth.authenticateToken,  ctrlMain.addSettings) //call add settings function
-
-
-
-router.get('/setting', sessionChecker, (req, res) => {
-  Auth.formToken(req.session.name, function(data){ //Authenticate user
-    if (data.Access){ // if data returned by the auhentication function contains an Access parameter
-      parameters(function(parms){ //get Zconfig parameters
-       res.render("settings", {fdata: data, fparms:parms}); // render the setting page with Access token and Zconfig parameters
-      })
-    }else{
-      res.send(data)
-    }
-  })
-});
-
- function parameters(fn){
-  parms = {
-    ddsbaseurl: Zconfig.ddsbaseurl,
-    ddsbaseport: Zconfig.ddsbaseport,
-    rmf3filename: Zconfig.rmf3filename,
-    rmfppfilename: Zconfig.rmfppfilename,
-    mvsResource: Zconfig.mvsResource,
-    mongourl: Zconfig.mongourl,
-    dbinterval: Zconfig.dbinterval,
-    dbname: Zconfig.dbname,
-    appurl: Zconfig.appurl,
-    appport: Zconfig.appport,
-    mongoport: Zconfig.mongoport,
-    ppminutesInterval: Zconfig.ppminutesInterval,
-    rmf3interval: Zconfig.rmf3interval,
-    httptype: Zconfig.httptype,
-    useDbAuth: Zconfig.useDbAuth,
-    dbUser: Zconfig.dbUser,
-    dbPassword: Zconfig.dbPassword,
-    authSource: Zconfig.authSource,
-    useMongo: Zconfig.useMongo,
-    usePrometheus: Zconfig.usePrometheus,
-    https: Zconfig.https,
-    grafanaurl: Zconfig.grafanaurl,
-    grafanaport: Zconfig.grafanaport
-  }
-  fn(parms); //return the parameters
-}
-
-*/
 
 module.exports = router;
  

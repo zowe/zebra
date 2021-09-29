@@ -4,7 +4,11 @@ const router = express.Router();
 const { Console } = require('console');
 var cpu_lpar;
 const Prometheus = require('prom-client');
-var Zconfig = require("./config/Zconfig");
+try{
+    var Zconfig = require("./config/Zconfig.json");
+}catch(e){
+    var Zconfig = {};
+}
 let appbaseurl = Zconfig.appurl;
 let appbaseport = Zconfig.appport;
 let rmf3interval = Zconfig.rmf3interval;

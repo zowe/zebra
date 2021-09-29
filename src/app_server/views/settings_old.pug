@@ -3,6 +3,16 @@ extends layout
 block content
     .main   
         .apis
+            .row
+                .col-md-2
+                    p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"14px"}) Refresh Token
+                .col-md-10
+                    form( action="/refreshT" method="post")
+                        input(type="text" class="form-control form-control-sm" name="refresh" style={"margin-right": "10px", "margin-top":"6px","width":"100%"} value="${fdata.Refresh}")
+                        button(type='submit' class='btn btn-primary btn-sm float-right' id="rmf3b" style={ "margin-top":"6px"}) New Access Token
+                
+            hr(style={ "margin-top":"6px"})
+        .apis
             hr(style={"margin":"0"})
             .row
                 .col-md-2
@@ -78,4 +88,37 @@ block content
                 
             hr(style={ "margin-top":"6px"})
 
+                    form( action="/addsetting" method="post")
+                        .row(style={"width":"96%"})
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS HTTP Type
+                                input(type="text" class="form-control" name="dds_http" style={"margin-right": "10px"} value=`${fparms.ddsbaseurl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS IP Address
+                                input(type="text" class="form-control" name="ddsport" style={"margin-right": "10px"} value=`${fparms.ddsbaseport}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Port
+                                input(type="text" class="form-control" name="mongourl" style={"margin-right": "10px"} value=`${fparms.mongourl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use Authentication
+                                input(type="text" class="form-control" name="mongoport" style={"margin-right": "10px"} value=`${fparms.mongoport}`)
+                                
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF III FileName
+                                input(type="text" class="form-control" name="rmf3filename" style={"margin-right": "10px"} value=`${fparms.rmf3filename}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF PP FileName
+                                input(type="text" class="form-control" name="rmfppfilename" style={"margin-right": "10px"} value=`${fparms.rmfppfilename}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) MVS Resource
+                                input(type="text" class="form-control" name="mvsResource" style={"margin-right": "10px"} value=`${fparms.mvsResource}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Mainframe PCI
+                                input(type="text" class="form-control" name="rmf3interval" style={"margin-right": "10px"} value=`${fparms.rmf3interval}`)
+                                
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Username
+                                input(type="text" class="form-control" name="dbPassword" style={"margin-right": "10px"} value=`${fparms.dbPassword}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Password
+                                input(type="text" class="form-control" name="authSource" style={"margin-right": "10px"} value=`${fparms.authSource}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use MongoDB
+                                input(type="text" class="form-control" name="useMongo" style={"margin-right": "10px"} value=`${fparms.useMongo}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use Prometheus
+                                input(type="text" class="form-control" name="usePrometheus" style={"margin-right": "10px"} value=`${fparms.usePrometheus}`)
+                                
+                        button(type='submit' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%"}) Save
 

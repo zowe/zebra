@@ -1,6 +1,11 @@
 const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
-var ddsconfig = require("../../config/Zconfig.json");
+try{
+  var ddsconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var ddsconfig = {}
+}
+
 let lspr = 2091 //Zconfig.PCI
 const fs = require('fs');
 const yaml = require('js-yaml');

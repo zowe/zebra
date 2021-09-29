@@ -4,21 +4,27 @@ const router = express.Router();
 const { Console } = require('console');
 var cpu_lpar;
 const Prometheus = require('prom-client');
-var Zconfig = require("./config/Zconfig");
-var ddsconfig = require("./config/Zconfig.json");
+try{
+    var Zconfig = require("./config/Zconfig.json");
+    var ddsconfig = require("./config/Zconfig.json");
+
+    var lpar_details = ddsconfig["dds"];
+    var lpars = Object.keys(lpar_details);
+    lpar_prom = [];
+    for(i in lpars){
+        var lpar = lpars[i]
+        if (ddsconfig["dds"][lpar]["usePrometheus"] === 'true'){
+            lpar_prom.push(lpar);
+        }
+    }
+}catch(e){
+    var Zconfig = {};
+}
+
 let appbaseurl = Zconfig.appurl;
 let appbaseport = Zconfig.appport;
 let rmf3interval = Zconfig.rmf3interval; //needed this for timeinterval to work
 let httptype = Zconfig.zebra_httptype;
-var lpar_details = ddsconfig["dds"];
-var lpars = Object.keys(lpar_details);
-lpar_prom = [];
-for(i in lpars){
-    var lpar = lpars[i]
-    if (ddsconfig["dds"][lpar]["usePrometheus"] === 'true'){
-        lpar_prom.push(lpar);
-    }
-}
 console.log('cpu prom started');
 //console.log(lpar_prom.length);
 

@@ -1,0 +1,30 @@
+Topic: ZEBRA project meeting
+Date: Sep 16, 2021 8AM EST
+
+1. IBM Z Day ZEBRA session recap
+  - session vidoe/slides at :  https://ibmzday2021-vconf.bemyapp.com/#/conference/614138c45a8c18003239353b 
+  - great feedbacks from users at Australia 
+
+2. Project Status update and discussion
+  - ZOWE API ML authentication : Salisu
+  - Additional API updates : Justin/Salisu
+  - Zowe Desktop App - code repository
+  - Containerized Zebra
+
+  - V1 release discussion 
+  - toolchain integration for auto build/test
+
+3. Upcoming conferences
+   - OMP Summit 9/22-23
+   - Open Source Strategy Forum - London 10/4-5
+   - IBM TechU  10/25-28 
+   - GSE UK 11/11 
+
+4. Additional Topics
+
+   -  Zowe conformance badge
+   -  z/OS 2.5 SMF-Py /API updates
+   -  Zowe 21PI4 Planning Kickoff 10/4 10AM EST
+
+Prior Meeting Recording(9/2/2021):
+https://zoom.us/rec/share/QAO-csCkccw4OnLxmFf0j02SNMXab4_6l2Fb2HWBEsLobjojUvdFhuODMX14y2AO.bDqnM-d5X83VGeOn

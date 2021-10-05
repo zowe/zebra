@@ -40,15 +40,25 @@ var lpar_details = ddsconfig["dds"];
 var lpars = Object.keys(lpar_details);
 lpar_prom = [];
 lpar_mongo = [];
-for(i in lpars){
-    var lpar = lpars[i]
-    if (ddsconfig["dds"][lpar]["usePrometheus"] === 'true'){
-        lpar_prom.push(lpar);
+try{
+  var ddsconfig = require("./config/Zconfig.json");
+  var lpar_details = ddsconfig["dds"];
+  var lpars = Object.keys(lpar_details);
+
+  for(i in lpars){
+      var lpar = lpars[i]
+      if (ddsconfig["dds"][lpar]["usePrometheus"] === 'true'){
+          lpar_prom.push(lpar);
+      }
+      if (ddsconfig["dds"][lpar]["useMongo"] === 'true'){
+        lpar_mongo.push(lpar);
     }
-    if (ddsconfig["dds"][lpar]["useMongo"] === 'true'){
-      lpar_mongo.push(lpar);
   }
+
+}catch(e){
+  var Zconfig = {};
 }
+
 
 require("./nedbAdmin");
 if(lpar_mongo.length > 0){

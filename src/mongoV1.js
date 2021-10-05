@@ -6,7 +6,11 @@ let usagedoci = require("./app_server/Models/usagedocSchema");
 let usagedoc = usagedoci.usagedocs;
 let workloaddoci = require("./app_server/Models/workloaddocSchema");
 let workloaddoc = workloaddoci.wokloaddocs;
-var Zconfig = require("./config/Zconfig");
+try{
+    var Zconfig = require("./config/Zconfig.json");
+}catch(e){
+    var Zconfig = {};
+}
 let appbaseurl = Zconfig.appurl;
 let appbaseport = Zconfig.appport;
 let dbinterval = Zconfig.dbinterval;
@@ -15,17 +19,23 @@ const axios = require('axios');
 
 
 console.log('mongo started');
-var ddsconfig = require("./config/Zconfig.json");
-
-var lpar_details = ddsconfig["dds"];
-var lpars = Object.keys(lpar_details);
 lpar_mongo = [];
-for(i in lpars){
-    var lpar = lpars[i]
-    if (ddsconfig["dds"][lpar]["useMongo"] === 'true'){
-      lpar_mongo.push(lpar);
-  }
+try{
+    var ddsconfig = require("./config/Zconfig.json");
+
+    var lpar_details = ddsconfig["dds"];
+    var lpars = Object.keys(lpar_details);
+
+    for(i in lpars){
+        var lpar = lpars[i]
+        if (ddsconfig["dds"][lpar]["useMongo"] === 'true'){
+            lpar_mongo.push(lpar);
+        }
+    }
+}catch(e){
+    var Zconfig = {};
 }
+
 
 if(lpar_mongo.length > 0){
     setInterval(async () => { // Set interval function allows this routine to run at a specified intervals

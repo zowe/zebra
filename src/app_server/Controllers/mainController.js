@@ -1,10 +1,19 @@
 /* GET Homepage*/
 var fs = require('fs'); //importing the fs module
-var Zconfig = require("../../config/Zconfig");
+try{
+  var Zconfig = require("./config/Zconfig");
+}catch(e){
+  var Zconfig = {};
+}
 var path = require("path");
 var  Auth = require('../../Auth');
-var ddsconfig = require("../../config/Zconfig.json");
 const REPORTS = require("../../constants").REPORTS;
+try{
+  var ddsconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var ddsconfig = {};
+}
+
 
 /**
  * parameters function reads the parameters in the Zconfig file
@@ -44,13 +53,18 @@ const REPORTS = require("../../constants").REPORTS;
  * Endpoint does not take any parameter                                                        
  */
 module.exports.home = async function(req, res){ //Controller function for Index page/Home page
-  var lpar_details = ddsconfig["dds"];
-  var lpars = Object.keys(lpar_details);
-  if(req.session.name){ //Check if User login session is available
-    res.render("index",{msg:"Admin", lpar:lpars, reports:REPORTS}); // render the homepage wih Admin previledge
-  }else{ // if login session not available
-    res.render("index", {lpar:lpars, reports:REPORTS}); //render the homepage with user previledge
+  try{
+    var lpar_details = ddsconfig["dds"];
+    var lpars = Object.keys(lpar_details);
+    if(req.session.name){ //Check if User login session is available
+      res.render("index",{msg:"Admin", lpar:lpars, reports:REPORTS}); // render the homepage wih Admin previledge
+    }else{ // if login session not available
+      res.render("index", {lpar:lpars, reports:REPORTS}); //render the homepage with user previledge
+    }
+  }catch(e){
+    res.render("index", {lpar:[]});
   }
+  
 };
 
 /**  

@@ -6,7 +6,7 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/bootstrap/css/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    nav.navbar.navbar-expand-lg.navbar-dark.bg-primary(style={"color":"teal"})
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top(style={"color":"teal"})
       a.navbar-brand(href='#') 
         img(src="/images/Zebralogo.png", height="30", width="60")
         a.navbar-brand(href='/') ZEBRA
@@ -20,6 +20,8 @@ html
             a.nav-link(href='/apis') All API's
           li.nav-item.active
             a.nav-link(href='https://github.com/zowe/zebra/tree/main/Documentation') Documentation
+          li.nav-item.active
+            a.nav-link(href='/setting') Configuration
           li.nav-item.active
             a.nav-link(href='/about') About
       if(msg)

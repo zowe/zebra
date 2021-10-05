@@ -1,35 +1,75 @@
-extend layout
+extends layout
+
+block header
+    link(rel='stylesheet', href='/stylesheets/slider.css')
+    style.
+        .center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+
+        .container {
+            height: 200px;
+            position: relative;
+        }
+
 
 block content
     div(class="sidenav")
-        a(href="javascript:ddssetting()" class="daa") DDS
-        a(href="javascript:zsetting()" class="daa") Zconfig
+        a(href="javascript:dds()" class='btn btn-primary float-right' id="rmf3b" style={ "margin-top":"6px", "width":"100%"}) DDS Configuration
+        a(href="javascript:config()" class='btn btn-primary float-right' id="rmf3b" style={ "margin-top":"6px", "width":"100%"}) Other Configurations
 
     div(class="main", style={"overflow" : "auto"})
-        h4 Welcome to admin panel
+        if(msg)
+            h3(style={"margin-top":"5%", "text-align":"center"}) No Configuration file Available
+            h5(style={"text-align":"center"}) Please Click The Button Below to Create a Configuration File 
+            div(class="container")
+                div(class="center")
+                    a(href='javascript:createZconfig()' class='btn btn-primary' id="rmf3b", style={"margin":"0", "width":"100%", "color":"white"}) Create Zconfig File
+        else
+            h4 Welcome to Configuration panel
+            br
+            h6 DDS Configuration 
+            p Use this button to add one or more DDS details to ZEBRA 
+            br
+            h6 Other Configurations 
+            p Use this button to Add details for MongoDB, Grafana, Zowe API Mediation Layer and Other ZEBRA Specific Parameters.
 
-    
+            - for(key in dds)
+                h6 !{key}
+
 
 block scripts
     script(src='https://code.jquery.com/jquery-3.5.1.min.js')
     script(src='/stylesheets/bootstrap/js/bootstrap.min.js')
     script(src='/stylesheets/bootstrap/js/bootstrap.bundle.min.js')
     script.
-        function ddssetting(){
+        function dds(){
             $.ajax({
-                url: '/ddssetting',
+                url: '/ddsconfig',
             })
             .done(function(e){
                 $('.main').html(e);
             });
         }
-        function zsetting(){
+        function config(){
             $.ajax({
-                url: '/zsetting',
+                url: '/otherconfig',
             })
             .done(function(e){
                 $('.main').html(e);
             });   
         }
-
-    
+        function createZconfig(){
+            $.ajax({
+                url: '/createZconfig',
+            })
+            .done(function(e){
+                alert(e);
+                window.location.href =`/setting`;
+            });   
+        }

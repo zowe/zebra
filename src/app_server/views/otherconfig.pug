@@ -1,0 +1,105 @@
+block header
+    link(rel='stylesheet', href='/stylesheets/slider.css')
+    style.
+        form {
+            --background: white;
+            --border: rgba(0, 0, 0, 0.125);
+            --borderDark: rgba(0, 0, 0, 0.25);
+            --borderDarker: rgba(0, 0, 0, 0.5);
+            --bgColorH: 0;
+            --bgColorS: 0%;
+            --bgColorL: 98%;
+            --fgColorH: 210;
+            --fgColorS: 50%;
+            --fgColorL: 38%;
+            --shadeDark: 0.3;
+            --shadeLight: 0.7;
+            --shadeNormal: 0.5;
+            --borderRadius: 0.125rem;
+            --highlight: #306090;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--borderRadius);
+            box-shadow: 0 1rem 1rem -0.75rem var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topa{
+            width:80%;
+            margin: auto;
+            border: 1%;
+            padding: 10px;
+        }
+
+.salis(style={"width":"98%", "margin-top":"0px", "margin-bottom":"30px", "margin-left": "2%"})
+    .row
+        h5(class='hdd') Use this panel to Edit Other Config Parameters
+        hr
+    .row
+        div(class='topa', id='topa')
+            form(action="/updateothersetting" method="post")
+                .row(style={"width":"100%"})
+                    .col-md-4 
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) MongoDB IP Addres
+                        input(type="text" class="form-control" id="mongourl" style={"margin-right": "10px"} value=`${fparms.mongourl}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) MongoDB port
+                        input(type="text" class="form-control" id="mongoport" style={"margin-right": "10px"} value=`${fparms.mongoport}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Database Name
+                        input(type="text" class="form-control" id="dbname" style={"margin-right": "10px"} value=`${fparms.dbname}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Database Storage Interval(seconds)
+                        input(type="text" class="form-control" id="dbinterval" style={"margin-right": "10px"} value=`${fparms.dbinterval}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Use Database Authentication
+                        input(type="text" class="form-control" id="useDbAuth" style={"margin-right": "10px"} value=`${fparms.useDbAuth}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Database User ID
+                        input(type="text" class="form-control" id="dbUser" style={"margin-right": "10px"} value=`${fparms.dbUser}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Database Password
+                        input(type="password" class="form-control" id="dbPassword" style={"margin-right": "10px"} value=`${fparms.dbPassword}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Database for Authentication
+                        input(type="text" class="form-control" id="authSource" style={"margin-right": "10px"} value=`${fparms.authSource}`)
+                        
+                    .col-md-4 
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Zebra IP Address
+                        input(type="text" class="form-control" id="appurl" style={"margin-right": "10px"} value=`${fparms.appurl}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Zebra Port
+                        input(type="text" class="form-control" id="appport" style={"margin-right": "10px"} value=`${fparms.appport}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Zebra HTTP Type
+                        input(type="text" class="form-control" id="httptype" style={"margin-right": "10px"} value=`${fparms.zebra_httptype}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) RMF III Interval
+                        input(type="text" class="form-control" id="rmf3interval" style={"margin-right": "10px"} value=`${fparms.rmf3interval}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) RMF PP Interval
+                        input(type="text" class="form-control" id="ppminutesInterval" style={"margin-right": "10px"} value=`${fparms.ppminutesInterval}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Grafana HTTP Type
+                        input(type="text" class="form-control" id="grafanahttp" style={"margin-right": "10px"} value=`${fparms.grafanahttptype}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Grafana IP Address
+                        input(type="text" class="form-control" id="grafanaurl" style={"margin-right": "10px"} value=`${fparms.grafanaurl}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Grafana Port
+                        input(type="text" class="form-control" id="grafanaport" style={"margin-right": "10px"} value=`${fparms.grafanaport}`)
+                        
+                    .col-md-4 
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) Zebra Use Certificate
+                        input(type="text" class="form-control" id="usecert" style={"margin-right": "10px"} value=`${fparms.use_cert}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) API ML HTTP type
+                        input(type="text" class="form-control" id="apimlhttp" style={"margin-right": "10px"} value=`${fparms.apiml_http_type}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) API ML IP
+                        input(type="text" class="form-control" id="apimlIP" style={"margin-right": "10px"} value=`${fparms.apiml_IP}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) API ML Port
+                        input(type="text" class="form-control" id="apimlport" style={"margin-right": "10px"} value=`${fparms.apiml_port}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) API ML Authentication Type
+                        input(type="text" class="form-control" id="apimlauth" style={"margin-right": "10px"} value=`${fparms.apiml_auth_type}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) API ML Username
+                        input(type="text" class="form-control" id="apimluser" style={"margin-right": "10px"} value=`${fparms.apiml_username}`)
+                        p(style={"margin-top":"10px", "margin-right": "10px"}) API ML Password
+                        input(type="password" class="form-control" id="apimlpwd" style={"margin-right": "10px"} value=`${fparms.apiml_password}`)
+                        
+                .row 
+                    a(href='javascript:updateconfig()' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%", "color":"white"}) Update
+
+block scripts
+    script(src='https://code.jquery.com/jquery-3.5.1.min.js')
+    script(src='/stylesheets/bootstrap/js/bootstrap.min.js')
+    script(src='/javascripts/slider.js')
+    script(src='/stylesheets/bootstrap/js/bootstrap.bundle.min.js')

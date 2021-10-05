@@ -31,8 +31,8 @@ const _ = require('lodash');
 var ddsconfig = require("./config/Zconfig.json");
 
 // Create empty metrics.json if it doesn't exist
-if (!fs.existsSync('./src/metrics.json')) {
-  fs.writeFileSync('./src/metrics.json', JSON.stringify({}), 'utf8');
+if (!fs.existsSync(path.resolve(__dirname, 'metrics.json'))) {
+  fs.writeFileSync(path.resolve(__dirname, 'metrics.json'), JSON.stringify({}), 'utf8');
   console.log("Empty metrics.json generated");
 }
 
@@ -63,7 +63,7 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 var mainRouter = require('./app_server/routes/mainRouter');
 var rmf3Router = require('./app_server/routes/rmf3Router');
 var rmfppRouter = require('./app_server/routes/rmfppRouter');
-//var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
+var metricRouter = require('./app_server/routes/metricRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
 var v1Router = require('./app_server/routes/v1Router');
 const { exit } = require('process');
@@ -100,7 +100,7 @@ app.use(session({
 app.use('/', mainRouter);
 app.use('/rmfm3', rmf3Router);
 app.use('/static', staticRouter);
-//app.use('/upload', fileUploadRouter);
+app.use('/metrics', metricRouter);
 app.use('/rmfpp', rmfppRouter);
 app.use('/v1', v1Router);
 

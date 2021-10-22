@@ -4,13 +4,15 @@ const path = require('path');
 const { Validator } = require('jsonschema');
 const METRICS_PATH = path.resolve(__dirname, '../../metrics.json');
 
+const metrics = require('../../metrics');
 
 /**
  * Saves changes to JSON file containing metrics.
  * 
  * @param {fs.NoParamCallback} cb callback function
  */
-const saveMetrics = (metrics, cb) => {
+const saveMetrics = (cb) => {
+    console.log(metrics);
     fs.writeFile(METRICS_PATH, JSON.stringify(metrics), (err) => {
         if (err) {
             cb(err);
@@ -93,7 +95,6 @@ const validateBody = (body, cb) => {
  */
 module.exports.create = (req, res) => {
     try {
-        const metrics = require('../../metrics.json');
         const metricBody = req.body;
         const metricName = req.params.metric;
         if (!metricName) {
@@ -111,8 +112,8 @@ module.exports.create = (req, res) => {
                 return;
             }
             // Make changes
-            metrics[metricName] = metricBody[metricName];
-            saveMetrics(metrics, (err) => {
+            metrics[metricName] = metricBody;
+            saveMetrics((err) => {
                 if (err) {
                     delete metrics[metricName];
                     res.status(500).json({ msg: "Unable to save changes in metrics.", err: true })
@@ -138,7 +139,6 @@ module.exports.create = (req, res) => {
  */
 module.exports.retrieve = (req, res) => {
     try {
-        const metrics = require('../../metrics.json');
         if (!metrics) {
             res.status(404).json({ msg: "No metrics found.", err: true });
             return;
@@ -160,7 +160,6 @@ module.exports.retrieve = (req, res) => {
  */
 module.exports.retrieveOne = (req, res) => {
     try {
-        const metrics = require('../../metrics.json');
         const metricName = req.params.metric;
         if (!metrics || !metricName || !metrics[metricName]) {
             res.status(404).json({ msg: `Metric '${metricName}' not found.`, err: true });
@@ -183,7 +182,6 @@ module.exports.retrieveOne = (req, res) => {
  */
 module.exports.update = (req, res) => {
     try {
-        const metrics = require('../../metrics.json');
         const metricBody = req.body;
         const metricName = req.params.metric;
         if (!metrics || !metricName || !metrics[metricName]) {
@@ -200,8 +198,8 @@ module.exports.update = (req, res) => {
                 return;
             }
             const oldMetric = metrics[metricName];
-            metrics[metricName] = metricBody[metricName];
-            saveMetrics(metrics, (err) => {
+            metrics[metricName] = metricBody;
+            saveMetrics((err) => {
                 if (err) {
                     metrics[metricName] = oldMetric;
                     res.status(500).json({ msg: "Unable to save changes in metrics.", err: true })
@@ -226,7 +224,6 @@ module.exports.update = (req, res) => {
  */
 module.exports.delete = (req, res) => {
     try {
-        const metrics = require('../../metrics.json');
         const metricName = req.params.metric;
         if (!metrics || !metricName || !metrics[metricName]) {
             res.status(404).json({ msg: `Metric '${metricName}' does not exist.`, err: true });
@@ -234,7 +231,7 @@ module.exports.delete = (req, res) => {
         }
         const oldMetric = metrics[metricName];
         delete metrics[metricName];
-        saveMetrics(metrics, (err) => {
+        saveMetrics((err) => {
             if (err) {
                 metrics[metricName] = oldMetric;
                 res.status(500).json({ msg: "Unable to save changes in metrics.", err: true })

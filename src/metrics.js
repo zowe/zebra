@@ -9,12 +9,15 @@ const prometheus = require('prom-client');
 // Config
 const { appurl, appport, https, dds, rmf3interval } = require('./config/Zconfig.json');
 
+// Metrics in memory
+const metrics = require('./metrics.json');
+
 // Scrape Prometheus metrics every RMF3 interval
 setInterval(async () => {
     // Get LPARs in DDS that are set to usePrometheus = true
 
     // Load in metrics from JSON
-    const metrics = require('./metrics.json');
+    // const metrics = require('./metrics.json');
 
     const lpars = [];
     for (const lpar in dds) {
@@ -120,3 +123,5 @@ function isNumeric(str) {
     return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
+
+module.exports = metrics;

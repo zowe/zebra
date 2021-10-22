@@ -20,3 +20,6 @@ src/sslcert/*.key
 # Prom Data
 data
 src/metrics.json
+
+# Nodemon config
+src/nodemon.json

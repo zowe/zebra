@@ -65,6 +65,7 @@ var sessionChecker = (req, res, next) => {
   if (req.session.name && req.cookies.user_sid) { //If user login session is available
       next()
   } else { 
+      req.session.redirectUrl = req.url;
       res.redirect("/log_in") //redirect to login page if user is not logged in
   }    
 };

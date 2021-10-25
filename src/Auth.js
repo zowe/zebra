@@ -250,7 +250,9 @@ module.exports.formLogin  = async function (req, res, next){
                         req.session.name = req.body.name;
                         req.session.password = user.password;
                         //res.cookie(`ZAccToken`,`${accessToken}`);
-                        res.redirect("/");
+                        var redirectionUrl = req.session.redirectUrl;
+                        res.redirect(redirectionUrl);
+                        //next();
                     }else{
                         res.render("login", {lgmsg: "Login Failed"})
                         //res.send("Login Failed");

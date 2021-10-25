@@ -82,19 +82,26 @@ function savedds() {
 }
 
 function deletedds(key) {
-  var data = {sysid: key};
-  $.ajax({
-      type: 'post',
-      url: '/deletedds',
-      data: data
-  })
-  .done(function(e){
+  var txt;
+  var r = confirm(`Are you sure you want to delete ${key}`);
+  if (r == true) {
+    var data = {sysid: key};
     $.ajax({
-      url: '/ddsconfig',
+        type: 'post',
+        url: '/deletedds',
+        data: data
     })
     .done(function(e){
-        $('.main').html(e);
+      $.ajax({
+        url: '/ddsconfig',
+      })
+      .done(function(e){
+          $('.main').html(e);
+      });
+      alert(e);
     });
-    alert(e);
-  });
+  } else {
+    
+  }
+  
 }

@@ -23,3 +23,6 @@ metrics.json
 
 # Nodemon config
 src/nodemon.json
+
+# Tokens
+.env

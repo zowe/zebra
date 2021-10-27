@@ -4,7 +4,7 @@ const path = require('path');
 const { Validator } = require('jsonschema');
 const METRICS_PATH = path.resolve(__dirname, '../../metrics.json');
 
-const metrics = require('../../metrics');
+const metrics = require('../../metrics.json');
 
 /**
  * Saves changes to JSON file containing metrics.
@@ -13,7 +13,7 @@ const metrics = require('../../metrics');
  */
 const saveMetrics = (cb) => {
     console.log(metrics);
-    fs.writeFile(METRICS_PATH, JSON.stringify(metrics), (err) => {
+    fs.writeFile(METRICS_PATH, JSON.stringify(metrics, null, 2), (err) => {
         if (err) {
             cb(err);
         } else {

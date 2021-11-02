@@ -1,14 +1,15 @@
 # Node Modules
 node_modules
 
-# Local Database
+# Local Databases
 db
+data
 
 # DB
 my.db
 my.dbrefresh
 
-# Any config files
+# Zconfig file
 config/Zconfig.json
 config/dds.js
 config/Zconfig copy.json
@@ -16,3 +17,12 @@ config/Zconfig copy.json
 # SSL Certs
 sslcert/*.cert
 sslcert/*.key
+
+# Prometheus Metrics
+metrics.json
+
+# Nodemon config
+src/nodemon.json
+
+# Tokens
+.env

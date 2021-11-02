@@ -132,14 +132,16 @@ l.	http://localhost:3090/rmfm3?report=PROC&parm=PRCPSVCL
   
 2.	Post Processor  
 -	Workload  
-a.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731  
+a.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731
 b.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH  
 c.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH&Time=05.30.00  
 d.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&SvcCls=STCHIGH&duration=05.30.00,09.30.00  
 e.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO  
 f.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&Time=05.30.00  
 g.	http://localhost:3090/rmfpp?report=WLMGL&date=20200731,20200731&Wlkd=TSO&duration=04.00.00,07.30.00  
+h. http://localhost:3090/rmfpp?report=WLMGL&start=2020-07-31&end=2020-07-31  
 -	CPU  
-h.	http://localhost:3090/rmfpp?report=CPU&date=20200731,20200731  
+i.	http://localhost:3090/rmfpp?report=CPU&date=20200731,20200731  
+j. http://localhost:3090/rmfpp?report=CPU&start=2020-07-31&end=2020-07-31
 3.	Static  
-a.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU  
+k.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml&type=CPU  

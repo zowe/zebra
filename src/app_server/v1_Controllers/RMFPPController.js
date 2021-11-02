@@ -143,7 +143,17 @@ async function RMFIJSON(req, res, status){
         date = date.concat(`,${year}${month}${day}`);
         urlDate = date.toUpperCase();
       } else {
-        throw new SyntaxError("Must include either date parameter or both start and end parameters.");
+        // use current date as range if none provided
+        let date, year, month, day;
+        date = new Date();
+        month = '' + (date.getMonth() + 1);
+        day = '' + date.getDate();
+        year = date.getFullYear();
+        if (month.length < 2)
+          month = '0' + month;
+        if (day.length < 2)
+          day = '0' + day; 
+        urlDate = `${year}${month}${day},${year}${month}${day}`;
       }
       if (req.query.reportnumber) {
           urlReportNumber = (req.query.reportnumber).toUpperCase(); //variable for reportnumber parameter in the User Specified URL
@@ -163,59 +173,59 @@ async function RMFIJSON(req, res, status){
           timestart = cduration[0]; //timestart from user specified duration
           timeend = cduration[1]; //timeend from user specified duration  
       }
-      if (urlReport.length >= 3 && urlReport.slice(0,3) === "CPU") { //if user specified CPU as report name
-      RMFPPgetRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmfppfilename"], req.params.report, urlDate, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) { //A call to the getRequestpp function made with a callback function as parameter
-          if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
-          var string = encodeURIComponent(`${data}`);
-          res.redirect('/rmfpp/error?emsg=' + string);
-          }else{
-          RMFPPparser.bodyParserforRmfCPUPP(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
-              if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
-              var data = result["data"];
-              res.redirect(`/rmfpp/error?emsg=${data}`);
-              }else{
-              res.json(result); //Express display all the result returned by the call back function
-              }
-              //res.json(result); 
-          });
-          }
-      });
-      } else if (urlReport.length >= 5 && urlReport.slice(0,5) === "WLMGL") { //if user specified WLMGL as report name
-      RMFPPgetRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmfppfilename"], req.params.report, urlDate, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) { //A call to the getRequestpp function made with a callback function as parameter
-          if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
-          var string = encodeURIComponent(`${data}`);
-          res.redirect('/rmfpp/error?emsg=' + string);
-          }else{
+      //if (urlReport.length >= 3 && urlReport.slice(0,3) === "CPU") { //if user specified CPU as report name
+        RMFPPgetRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmfppfilename"], urlReport, urlDate, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) { //A call to the getRequestpp function made with a callback function as parameter
+            if (data === "DE" || data === "NE" || data === "UA" || data === "EOUT") { 
+              var string = encodeURIComponent(`${data}`);
+              res.redirect('/rmfpp/error?emsg=' + string);
+            } else{
+              RMFPPparser.parse(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
+                if (result["msg"]) { //Data Error from parser, when parser cannor parse the XML file it receives 
+                  var data = result["data"];
+                  res.redirect(`/rmfpp/error?emsg=${data}`);
+                } else{
+                  res.json(result); //Express display all the result returned by the call back function
+                }
+                //res.json(result); 
+            });
+            }
+        });
+      //}
+      /* } else if (urlReport.length >= 5 && urlReport.slice(0,5) === "WLMGL") { //if user specified WLMGL as report name
+        RMFPPgetRequest(lpar["ddshhttptype"], lpar["ddsbaseurl"], lpar["ddsbaseport"], lpar["rmfppfilename"], req.params.report, urlDate, lpar["ddsuser"], lpar["ddspwd"], lpar["ddsauth"], function (data) { //A call to the getRequestpp function made with a callback function as parameter
+          if (data === "DE" || data === "NE" || data === "UA" || data === "EOUT") { 
+            var string = encodeURIComponent(`${data}`);
+            res.redirect('/rmfpp/error?emsg=' + string);
+          } else {
           RMFPPparser.bodyParserforRmfWLMPP(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
-              if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
+            if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
               var data = result["data"];
               res.redirect(`/rmfpp/error?emsg=${data}`);
-              }else{
-              if (urlSvcCls != undefined) { //if user has specify value for the SvcCls(service classs) parameter
-                  try {
-                  var preSvcCls = 'Service Class '; //String
-                  filterClass(result, preSvcCls, urlSvcCls, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
-                      res.json(rdata); //Express Respond with the JSON returned by the filterClass function
-                  });
-                  } catch (err) { //catch error
-                  res.json(result);//Express Respond with the Error returned by the filterClass function
-                  }
-              } else if (urlWlkd) { //if user has specify value for the Wlkd(workload) parameter
-                  try {
-                  var preWlkd = 'Workload '; //String
-                  filterClass(result, preWlkd, urlWlkd, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
-                      res.json(rdata); //Express Respond with the JSON returned by the filterClass function
-                  });
-                  } catch (err) { //catch error
-                  res.json(result);//Express Respond with the Error returned by the filterClass function
-                  }
-              } else {
-                  res.json(result); //Express Respond with the full worload report if SvcCls or Wlkd parameters were not specified by user
+            } else {
+            if (urlSvcCls != undefined) { //if user has specify value for the SvcCls(service classs) parameter
+              try {
+              var preSvcCls = 'Service Class '; //String
+              filterClass(result, preSvcCls, urlSvcCls, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
+                res.json(rdata); //Express Respond with the JSON returned by the filterClass function
+              });
+              } catch (err) { //catch error
+                res.json(result);//Express Respond with the Error returned by the filterClass function
               }
-              }
+            } else if (urlWlkd) { //if user has specify value for the Wlkd(workload) parameter
+                try {
+                var preWlkd = 'Workload '; //String
+                filterClass(result, preWlkd, urlWlkd, urlTime, timestart, timeend, function (rdata) { //Call filterClass function
+                    res.json(rdata); //Express Respond with the JSON returned by the filterClass function
+                });
+                } catch (err) { //catch error
+                res.json(result);//Express Respond with the Error returned by the filterClass function
+                }
+            } else {
+                res.json(result); //Express Respond with the full worload report if SvcCls or Wlkd parameters were not specified by user
+            }
+            }
           });
-        }});
-      }
+        }}); */
       break;
     case "LOGIN FAILED" :
       res.json("Login to API ML Failed");

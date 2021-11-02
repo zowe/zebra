@@ -12,7 +12,15 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const fs = require('fs');
+
+var Zconfig
+try {
+  Zconfig = require("./config/Zconfig");
+} catch(err) {
+  console.log("Missing Zconfig.json file. Make sure it is located in the 'config' subdirectory")
+  exit();
+}
 
 var session = require('express-session');
 
@@ -20,6 +28,16 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
+var ddsconfig = require("./config/Zconfig.json");
+
+// Create empty metrics.json if it doesn't exist
+if (!fs.existsSync(path.resolve(__dirname, 'metrics.json'))) {
+  fs.writeFileSync(path.resolve(__dirname, 'metrics.json'), JSON.stringify({}), 'utf8');
+  console.log("Empty metrics.json generated");
+}
+
+var lpar_details = ddsconfig["dds"];
+var lpars = Object.keys(lpar_details);
 lpar_prom = [];
 lpar_mongo = [];
 try{
@@ -48,17 +66,17 @@ if(lpar_mongo.length > 0){
   require("./app_server/Models/db");
 }
 if(lpar_prom.length > 0){
-  //require('./cpuRealTimeMetrics');
-  require('./PromMetricsV1');
+  require('./metrics');
 }
 //require("./Eureka_conn");
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 var mainRouter = require('./app_server/routes/mainRouter');
 var rmf3Router = require('./app_server/routes/rmf3Router');
 var rmfppRouter = require('./app_server/routes/rmfppRouter');
-//var fileUploadRouter = require('./app_server/routes/fileUploadRouter');
+var metricRouter = require('./app_server/routes/metricRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
 var v1Router = require('./app_server/routes/v1Router');
+const { exit } = require('process');
 
 var app = express();
 
@@ -74,8 +92,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
-
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -94,7 +110,7 @@ app.use(session({
 app.use('/', mainRouter);
 app.use('/rmfm3', rmf3Router);
 app.use('/static', staticRouter);
-//app.use('/upload', fileUploadRouter);
+app.use('/metrics', metricRouter);
 app.use('/rmfpp', rmfppRouter);
 app.use('/v1', v1Router);
 

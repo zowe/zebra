@@ -1,0 +1,29 @@
+1) Dev team updates:
+
+ - Additional updates to Zebra core - Justin
+ - Zowe built-in app updates : Andrew (will be missed due to conflict)
+ - New version of APIs : Salisu
+
+2) 2Q summary of key milestones and 3Q PI planning session information
+
+More APIs are provided for RMF I and III reports (Workload report parameters, I/O etc)
+Zowe Built-in app making progress
+Preparing containerization (running on native s390x)
+
+3) Discuss new main release  -   want to wait until new API style? 
+
+
+4) Update on Collaborative works
+  - ISVs 
+  - ZOWE API ML team’s new metrics dashboard function :
+    https://github.com/zowe/api-layer/issues/820
+
+5) Upcoming events
+
+  - DevOps.com round table discussion for OMP: July’s topic - ZOWE
+  - OMP Summit Sept 22-23 https://events.linuxfoundation.org/open-mainframe-summit/ 
+ 			CFP Closes: Friday, July 16 at 11:59 PDT
+
+
+Previous meeting recording: https://zoom.us/rec/share/yP3S5uEhrSLRwKxKTQ9tPNd1_lewRFK9NGQqA5UFPKJSnUufQ26xDBT8-JTUvQFz.F-YiRjscWWDJipSD?startTime=1624376563000 
+

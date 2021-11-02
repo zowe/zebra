@@ -58,6 +58,8 @@ Copyright Contributors to the Zowe Project.
   ```
   npm install
   ```
+
+  - Make a copy of ```exampleZconfig.json``` and name it ```Zconfig.json```
    
   - Run Zebra using npm, pm2, nodemon or any other nodejs process manager
   
@@ -138,7 +140,7 @@ Copyright Contributors to the Zowe Project.
  
  15. **authSource**: MongoDB's authentication DB source. Default is 'admin'. E.g ***authSource : admin***
  
- 16. **useMongo**: true|fasle - option for Zebra to send data to MongoDB. E.g ***useMongo : true***
+ 16. **useMongo**: true|false - option for Zebra to send data to MongoDB. E.g ***useMongo : true***
  
  17. **grafanahttptype**: This is the hypertext transfer protocol type of the running Grafana instance. Its value is either http or https. E.g. ***grafanahttptype: http***
  

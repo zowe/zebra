@@ -10,17 +10,20 @@ block content
             li Browse RMF data for historical CPU Reports (post-processor report)
             li Browse RMF data for historical Workload Reports (post-processor report)
     hr
-    .row(style={"margin-right": "10px"})
-        .col-md-6
-            p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Select LPAR Name
-        .col-md-6
-            form
-                .form-group 
-                    select.custom-select(style={"margin-top":"10px", "margin-right": "10px", "min-width":"370px"}, name="lpar", id='lpar')
-                        option(selected='') Select LPAR
-                        - for(dat of lpar)
-                            option(value=`${dat}`) !{dat}
-    hr(style={"margin":"0"})
+    .apis 
+        h4(style={"margin-top":"20px"}) Select LPAR
+        hr(style={"margin":"0"})
+        .row
+            .col-md-9
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) LPAR Name
+            .col-md-3
+                form(class="form-inline float-right")
+                    .form-group
+                        select.custom-select(style={"margin-top":"10px", "margin-right": "10px"}, name="lpar", id='lpar')
+                            option(selected='') Select LPAR
+                            - for(dat of lpar)
+                                option(value=`${dat}`) !{dat}
+        hr(style={"margin":"0"})
     .apis
         h4(style={"margin-top":"20px"}) RMF Monitor III report
         hr(style={"margin":"0"})
@@ -31,7 +34,12 @@ block content
                 form(class="form-inline float-right")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
-                        input(type="text" class="form-control" name="rmf3_report" id="rmf3_report" style={"margin-right": "10px"} value="CPC")
+                        select(class="form-control" name="rmf3_report" id="rmf3_report" style={"margin-right": "10px"} value="CPC")
+                            each report in reports.RMFM3
+                                if report === "CPC"
+                                    option(value=report selected) #{report}
+                                else 
+                                    option(value=report) #{report}
                         a(href='javascript:rmfm3()' class='btn btn-primary' id="rmf3b") Try it
         hr(style={"margin":"0"})
     .apis
@@ -44,7 +52,12 @@ block content
                 form(class="form-inline float-right")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
-                        input(type="text" class="form-control" name="rmfpp_report" id="rmfpp_report" style={"margin-right": "10px"} value="CPU")
+                        select(class="form-control" name="rmfpp_report" id="rmfpp_report" style={"margin-right": "10px"})
+                            each report in reports.RMFPP 
+                                if report === "CPU"
+                                    option(value=report selected) #{report}
+                                else
+                                    option(value=report) #{report}
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Start Date
                         input(type="date" class="form-control" name="start" id="start" style={"margin-right": "10px"} value=currentDate() )
                         p(style={"margin-top":"10px", "margin-right": "10px"}) End Date

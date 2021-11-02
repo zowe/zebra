@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www",
+    "docker": "nodemon --inspect=0.0.0.0 --legacy-watch ./bin/www"
   },
   "dependencies": {
     "@zowe/cli": "^6.32.1",
@@ -22,7 +24,9 @@
     "express-session": "^1.17.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "js-yaml": "^4.1.0",
     "json2csv": "^5.0.1",
+    "jsonschema": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "mongoose": "^5.9.12",
@@ -34,7 +38,6 @@
     "readline": "0.0.x",
     "swagger-ui-express": "^4.1.4",
     "sweetalert": "^2.1.2",
-    "xml2js": "^0.4.23",
-    "js-yaml": "^4.1.0"
+    "xml2js": "^0.4.23"
   }
 }

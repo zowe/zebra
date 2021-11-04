@@ -81,7 +81,7 @@ Please document here
    -  rmf3interval: (RMF Monitor III Report Interval)  
       This is the Interval for which DDS Produce RMF III report. E.g. Every 100 seconds  
       http://localhost:3090/addsettings?rmf3interval=100
-   -  httptype: (http type of running Zebra App)
+   -  zebra_httptype: (http type of running Zebra App)
       This is the hypertext transfer protocol type of the running zebra app (after hosting). Its value is either http or https. E.g.  
       http://localhost:3090/addsettings?httptype=http
    -  useDbAuth: ( Use Database Authentication)

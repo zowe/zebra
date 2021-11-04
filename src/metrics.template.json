@@ -1,0 +1,62 @@
+{
+    "RPRT_QCK2_PTOU": {
+        "lpar": "RPRT",
+        "request": {
+            "report": "CPC",
+            "resource": ",RPRT,MVS_IMAGE"
+        },
+        "identifiers": [
+            {
+                "key": "CPCPPNAM",
+                "value": "QCK2"
+            }
+        ],
+        "field": "CPCPPTOU",
+        "desc": "Physical total utilization for the QCK2 partition."
+    },
+    "RPRT_TRNG_PTOU": {
+        "lpar": "RPRT",
+        "request": {
+            "report": "CPC",
+            "resource": ",RPRT,MVS_IMAGE"
+        },
+        "identifiers": [
+            {
+                "key": "CPCPPNAM",
+                "value": "TRNG"
+            }
+        ],
+        "field": "CPCPPTOU",
+        "desc": "Physical total utilization for the TRNG partition."
+    },
+    "RPRT_VIDVLP_PTOU": {
+        "lpar": "RPRT",
+        "request": {
+            "report": "CPC",
+            "resource": ",RPRT,MVS_IMAGE"
+        },
+        "identifiers": [
+            {
+                "key": "CPCPPNAM",
+                "value": "VIDVLP"
+            }
+        ],
+        "field": "CPCPPTOU",
+        "desc": "Physical total utilization for the VIDVLP partition."
+    },
+    "RPRT_VIRPT_PTOU": {
+        "lpar": "RPRT",
+        "request": {
+            "report": "CPC",
+            "resource": ",RPRT,MVS_IMAGE"
+        },
+        "identifiers": [
+            {
+                "key": "CPCPPNAM",
+                "value": "VIRPT"
+            }
+        ],
+        "field": "CPCPPTOU",
+        "desc": "Physical total utilization for the VIRPT partition."
+    }
+}

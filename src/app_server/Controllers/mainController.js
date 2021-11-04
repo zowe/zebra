@@ -1,14 +1,25 @@
 /* GET Homepage*/
 var fs = require('fs'); //importing the fs module
-var Zconfig = require("../../config/Zconfig");
+try{
+  var Zconfig = require("./config/Zconfig");
+}catch(e){
+  var Zconfig = {};
+}
 var path = require("path");
 var  Auth = require('../../Auth');
+const REPORTS = require("../../constants").REPORTS;
+try{
+  var ddsconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var ddsconfig = {};
+}
+
 
 /**
  * parameters function reads the parameters in the Zconfig file
  * @param {Object} fn - returns the parameters from Zconfig file and their value
  */
-function parameters(fn){
+/*function parameters(fn){
   parms = {
     ddsbaseurl: Zconfig.ddsbaseurl, 
     ddsbaseport: Zconfig.ddsbaseport,
@@ -23,30 +34,37 @@ function parameters(fn){
     mongoport: Zconfig.mongoport,
     ppminutesInterval: Zconfig.ppminutesInterval,
     rmf3interval: Zconfig.rmf3interval,
-    httptype: Zconfig.httptype,
+    httptype: Zconfig.zebra_httptype,
     useDbAuth: Zconfig.useDbAuth,
     dbUser: Zconfig.dbUser,
     dbPassword: Zconfig.dbPassword,
     authSource: Zconfig.authSource,
     useMongo: Zconfig.useMongo,
     usePrometheus: Zconfig.usePrometheus,
-    https: Zconfig.https,
+    use_cert: Zconfig.use_cert,
     grafanaurl: Zconfig.grafanaurl,
     grafanaport: Zconfig.grafanaport
   }
   fn(parms); //return the parameters
-}
+}*/
 /**  
  * home Function displays a welcome message                                                    
  * Endpoint: /                                                                                
  * Endpoint does not take any parameter                                                        
  */
 module.exports.home = async function(req, res){ //Controller function for Index page/Home page
-  if(req.session.name){ //Check if User login session is available
-    res.render("index",{msg:"Admin"}); // render the homepage wih Admin previledge
-  }else{ // if login session not available
-    res.render("index"); //render the homepage with user previledge
+  try{
+    var lpar_details = ddsconfig["dds"];
+    var lpars = Object.keys(lpar_details);
+    if(req.session.name){ //Check if User login session is available
+      res.render("index",{msg:"Admin", lpar:lpars, reports:REPORTS}); // render the homepage wih Admin previledge
+    }else{ // if login session not available
+      res.render("index", {lpar:lpars, reports:REPORTS}); //render the homepage with user previledge
+    }
+  }catch(e){
+    res.render("index", {lpar:[]});
   }
+  
 };
 
 /**  
@@ -54,9 +72,9 @@ module.exports.home = async function(req, res){ //Controller function for Index 
  * Endpoint: /settings                                                                         
  * Endpoint does not take any parameter                                                        
  */
-module.exports.settings = function(req,res){ //Controller Function for displaying App settings
+/*module.exports.settings = function(req,res){ //Controller Function for displaying App settings
   res.json(Zconfig); // Express returns JSON of the App settings from Zconfig.json file 
-}
+}*/
 
 /**  
  * addSetting Function controls adding/modifying settings used by the app in Zconfig.json file 
@@ -64,7 +82,7 @@ module.exports.settings = function(req,res){ //Controller Function for displayin
  * Example: /addSettings?appurl=salisuali.com&appport=3009                                     
  * Endpoint can take multiple parameters recognised by the addSettings Function                
  */
-module.exports.addSettings = function(req,res){ //Controller function for adding/editing App settings
+/*module.exports.addSettings = function(req,res){ //Controller function for adding/editing App settings
   var queryPrameterKeys = Object.keys(req.body); //make a array of the objects in request body
   for (i in queryPrameterKeys){ //loop through the array above
     var parameterKey = queryPrameterKeys[i]; // select the parameter from the array at index i
@@ -139,14 +157,14 @@ module.exports.addSettings = function(req,res){ //Controller function for adding
    }
   fs.writeFile("Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {}); // Save all new/modified settings to Zconfig file
   res.json(Zconfig); // Express returns JSON of the App settings from Zconfig.json file
-}
+}*/
 
 /**  
  * addFormSettings Function controls adding/modifying settings used by the app in Zconfig.json file from Zebra UI 
  * Endpoint: /addSetting                                                                                                         
  * Endpoint can take multiple parameters recognised by the addFormSettings Function                
  */
-module.exports.addFormSettings = function(req,res){ //Controller function for adding/editing App settings
+/*module.exports.addFormSettings = function(req,res){ //Controller function for adding/editing App settings
   var queryPrameterKeys = Object.keys(req.body); //make a array of the objects in request body
   for (i in queryPrameterKeys){ // loop through the array above
     var parameterKey = queryPrameterKeys[i]; // select the parameter from the array at index i
@@ -229,6 +247,6 @@ module.exports.addFormSettings = function(req,res){ //Controller function for ad
       res.send(data) // send the data returned by the authentication function
     }
   })
-}
+}*/
 
 

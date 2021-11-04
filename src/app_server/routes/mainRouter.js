@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var  ctrlMain = require('../Controllers/mainController');
+var  ctrlConfig = require('../Controllers/config');
 var  ctrlMongo = require('../Controllers/mongohandler');
 const Prometheus = require('prom-client');
 var session = require('express-session');
@@ -16,28 +17,20 @@ let dbrefresh = nedb.dbrefresh;
 var  Auth = require('../../Auth');
 const path = require('path');
 const fs = require('fs');
-var Zconfig = require("../../config/Zconfig");
+//var Zconfig;
+try{
+  var Zconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var Zconfig = {};
+}
 let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
 let grafanahttptype = Zconfig.grafanahttptype;
 const axios = require('axios');
+const { send } = require('process');
 const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
 
-// Zebra UI routers
 
-// Checks if user login session is available in browser
-var sessionChecker = (req, res, next) => {
-  if (req.session.name && req.cookies.user_sid) { //If user login session is available
-      next()
-  } else { 
-      res.redirect("/log_in") //redirect to login page if user is not logged in
-  }    
-};
-
-/**
- * parameters function reads the parameters in the Zconfig file
- * @param {Object} fn - returns the parameters from Zconfig file and their value
- */
 function parameters(fn){
   parms = {
     ddsbaseurl: Zconfig.ddsbaseurl,
@@ -67,6 +60,117 @@ function parameters(fn){
   fn(parms); //return the parameters
 }
 
+// Checks if user login session is available in browser
+var sessionChecker = (req, res, next) => {
+  if (req.session.name && req.cookies.user_sid) { //If user login session is available
+      next()
+  } else { 
+      req.session.redirectUrl = req.url;
+      res.redirect("/log_in") //redirect to login page if user is not logged in
+  }    
+};
+
+function ddsparm(fn){
+  fn(Zconfig.dds); //return the parameters
+}
+
+
+router.post('/updateconfig', ctrlConfig.updateconfig);
+
+router.post('/updatedds', ctrlConfig.updatedds);
+
+router.post('/deletedds', ctrlConfig.deletedds);
+
+router.post('/savedds', Auth.authenticateFormToken, ctrlConfig.savedds);
+
+router.get('/createZconfig', ctrlConfig.createZconfig);
+
+router.get('/setting', sessionChecker, (req, res) => {
+  if(Object.keys(Zconfig).length === 0){
+    res.render("settings",{msg: "No Zconfig"});
+  }else{
+    res.render("settings");
+  } 
+});
+
+router.get('/ddsconfig', (req, res) => {
+  //console.log(Zconfig.dds["RPRT"])
+  res.render("ddsconfig", {dds: Zconfig.dds});
+})
+
+router.get('/otherconfig', (req, res) => {
+  res.render("otherconfig", {fparms:Zconfig});
+})
+
+/*
+// render the setting page
+
+
+router.get('/zsetting', (req, res) => {
+  res.render("zsetting");
+});
+
+router.get('/ddssetting', (req, res) => {
+  res.render("ddssetting");
+});
+
+//addsetting 
+router.post('/addsetting', Auth.authenticateFormToken,  ctrlMain.addFormSettings) //call addsetting function in maincontroller
+
+router.get('/settings', Auth.authenticateToken, ctrlMain.settings) // call settings function
+
+router.post('/addsettings', Auth.authenticateToken,  ctrlMain.addSettings) //call add settings function
+
+
+
+router.get('/setting', sessionChecker, (req, res) => {
+  Auth.formToken(req.session.name, function(data){ //Authenticate user
+    if (data.Access){ // if data returned by the auhentication function contains an Access parameter
+      parameters(function(parms){ //get Zconfig parameters
+       res.render("settings", {fdata: data, fparms:parms}); // render the setting page with Access token and Zconfig parameters
+      })
+    }else{
+      res.send(data)
+    }
+  })
+});
+
+ 
+
+*/
+
+
+// Zebra API ML cookie checker
+router.get('/apimlcookie',  function(req, res, next){
+  if (req.cookies.apimlAuthenticationToken == undefined){
+    res.send("No Cookie");
+  }else{
+    res.send(req.cookies.apimlAuthenticationToken);
+  }
+})
+
+router.post('/apimllogin',  function(req, res, next){
+  axios.post('https://localhost:10010/api/v1/gateway/auth/login', {
+    "username": req.body.username,
+    "password": req.body.password
+  })
+  .then(function (response) {
+    if(response.headers["set-cookie"]){
+      var res_head = response.headers["set-cookie"][0].split("=");
+      var token_split = res_head[1].split(";");
+      var token = token_split[0];
+      res.send(token);
+    }else{
+      res.send("error");
+    }
+  })
+  .catch(function (error) {
+    res.send("error");
+  });
+})
+
+// Zebra UI routers
+
 // router for getting new Access token using the refresh token on the UI Page
 router.post("/refreshT", sessionChecker, (req, res) => {
    Auth.formRefreshToken(req.body.refresh, req.session.name, function(data){ //Authenticate refresh token
@@ -77,9 +181,7 @@ router.post("/refreshT", sessionChecker, (req, res) => {
      }else{
        res.send(data)
      }
-     
    })
-  
 })
 
 //render swagger document
@@ -109,24 +211,12 @@ router.get('/mongo', (req, res) => {
   res.render("mongot");
 });
 
-// render the setting page
-router.get('/setting', sessionChecker, (req, res) => {
-  Auth.formToken(req.session.name, function(data){ //Authenticate user
-    if (data.Access){ // if data returned by the auhentication function contains an Access parameter
-      parameters(function(parms){ //get Zconfig parameters
-       res.render("settings", {fdata: data, fparms:parms}); // render the setting page with Access token and Zconfig parameters
-      })
-    }else{
-      res.send(data)
-    }
-  })
-});
-
 // logout routine
 router.use("/log_out", (req, res, next) => {
   if (req.cookies.user_sid && !req.session.user) { // if cookie is available
       res.clearCookie('user_sid'); // delete cookie
   }
+  //res.clearCookie()
   res.redirect("/") //redirect to homepage
 });
 
@@ -145,9 +235,6 @@ router.route('/log_in')
 // handle mongoDB data request
 router.post('/mongo', ctrlMongo.mongoReport);
 
-//addsetting 
-router.post('/addsetting', Auth.authenticateFormToken,  ctrlMain.addFormSettings) //call addsetting function in maincontroller
-
 //handes Password change using Zebra UI
 router.post("/UpdatePasswordForm", Auth.updatePasswordForm)
 
@@ -162,10 +249,6 @@ router.get('/api-doc',  function(req, res, next){
 router.get('/prommetric', (req, res) => {
     res.end(Prometheus.register.metrics()); //display metrics in prom-client register
 });
-
-router.get('/settings', Auth.authenticateToken, ctrlMain.settings) // call settings function
-
-router.post('/addsettings', Auth.authenticateToken,  ctrlMain.addSettings) //call add settings function
 
 router.post("/login", Auth.login) 
 
@@ -188,6 +271,7 @@ router.get("/logout", Auth.authenticateToken, (req,res) => {
       }
   });
 })
+
 
 module.exports = router;
  

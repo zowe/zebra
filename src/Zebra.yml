@@ -14,7 +14,7 @@ services:
         - gatewayUrl: api/static
           serviceRelativeUrl: /static
       authentication:
-              scheme: httpBasicPassTicket
+              scheme: ZoweJwt
               applid: ZOWEAPPL
       apiInfo:
         - apiId: localhost.zebra.3090

@@ -10,6 +10,20 @@ block content
             li Browse RMF data for historical CPU Reports (post-processor report)
             li Browse RMF data for historical Workload Reports (post-processor report)
     hr
+    .apis 
+        h4(style={"margin-top":"20px"}) Select LPAR
+        hr(style={"margin":"0"})
+        .row
+            .col-md-9
+                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) LPAR Name
+            .col-md-3
+                form(class="form-inline float-right")
+                    .form-group
+                        select.custom-select(style={"margin-top":"10px", "margin-right": "10px"}, name="lpar", id='lpar')
+                            option(selected='') Select LPAR
+                            - for(dat of lpar)
+                                option(value=`${dat}`) !{dat}
+        hr(style={"margin":"0"})
     .apis
         h4(style={"margin-top":"20px"}) RMF Monitor III report
         hr(style={"margin":"0"})
@@ -17,21 +31,16 @@ block content
             .col-md-7
                 p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF III Report In JSON
             .col-md-5
-                form(class="form-inline float-right" action="/rmfm3")
+                form(class="form-inline float-right")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
-                        input(type="text" class="form-control" name="report" style={"margin-right": "10px"} value="CPC")
-                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
-        hr(style={"margin":"0"})
-        .row
-            .col-md-7
-                p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF III Workload Report In JSON
-            .col-md-5
-                form(class="form-inline float-right" action="/rmfm3")
-                    .form-group
-                        p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
-                        input(type="text" class="form-control" name="reports" style={"margin-right": "10px"} value="SYSINFO")
-                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
+                        select(class="form-control" name="rmf3_report" id="rmf3_report" style={"margin-right": "10px"} value="CPC")
+                            each report in reports.RMFM3
+                                if report === "CPC"
+                                    option(value=report selected) #{report}
+                                else 
+                                    option(value=report) #{report}
+                        a(href='javascript:rmfm3()' class='btn btn-primary' id="rmf3b") Try it
         hr(style={"margin":"0"})
     .apis
         h4(style={"margin-top":"20px"}) RMF Monitor I report
@@ -40,15 +49,20 @@ block content
             .col-md-3
                 p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Retrieve RMF I Report In JSON
             .col-md-9
-                form(class="form-inline float-right" action="/rmfpp")
+                form(class="form-inline float-right")
                     .form-group
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report Title
-                        input(type="text" class="form-control" name="report" style={"margin-right": "10px"} value="CPU")
+                        select(class="form-control" name="rmfpp_report" id="rmfpp_report" style={"margin-right": "10px"})
+                            each report in reports.RMFPP 
+                                if report === "CPU"
+                                    option(value=report selected) #{report}
+                                else
+                                    option(value=report) #{report}
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Start Date
-                        input(type="date" class="form-control" name="start" style={"margin-right": "10px"} value=currentDate() )
+                        input(type="date" class="form-control" name="start" id="start" style={"margin-right": "10px"} value=currentDate() )
                         p(style={"margin-top":"10px", "margin-right": "10px"}) End Date
-                        input(type="date" class="form-control" name="end" style={"margin-right": "10px"} value=currentDate() )
-                        button(type='submit' class='btn btn-primary' id="rmf3b") Try it
+                        input(type="date" class="form-control" name="end" id="end" style={"margin-right": "10px"} value=currentDate() )
+                        a(href='javascript:rmfpp()' class='btn btn-primary' id="rmf3b") Try it
             
         hr(style={"margin":"0"})
     .apis
@@ -78,3 +92,30 @@ block content
                     .form-group
                         img(src="/images/grafana.png", height="60", width="60")
                         a.h6(style={"margin-left":"20px"}, href="/grafana") Browse RMF real-time data with Grafana
+
+block scripts
+    script(src='https://code.jquery.com/jquery-3.5.1.min.js')
+    script.
+        function rmfm3() {
+            var url = '@Url.Action("Index", "Home")';
+            var lpar = $("#lpar").val();
+            if (lpar === "Select LPAR"){
+                alert("Please Select LPAR from which to retrieve the data");
+            }else{
+                var report = $('#rmf3_report').val();
+                window.location.href =`/v1/${lpar}/rmf3/${report}`;
+            }
+        }
+
+        function rmfpp() {
+            var url = '@Url.Action("Index", "Home")';
+            var lpar = $("#lpar").val();
+            if (lpar === "Select LPAR"){
+                alert("Please Select LPAR from which to retrieve the data");
+            }else{
+                var report = $('#rmfpp_report').val();
+                var start = $('#start').val();
+                var end = $('#end').val();
+                window.location.href =`/v1/${lpar}/rmfpp/${report}?start=${start}&end=${end}`; //'/v1/RPRT/rmfpp/wlmgl?date=20210627,20210627'
+            }
+        }

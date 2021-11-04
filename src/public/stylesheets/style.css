@@ -3,9 +3,13 @@
     margin-left: 2%;
 }
 
+body{
+    padding-top: 65px; 
+}
+
 .sidenav {
     height: 100%;
-    width: 10%;
+    width: 11%;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -15,23 +19,23 @@
 }
 
 .sidenav a {
-    padding: 6px 6px 6px 32px;
+    padding: 6px 6px 6px 6px;
     text-decoration: none;
-    font-size: 25px;
+    font-size: 16px;
     color: white;
     display: block;
 }
 
 .sidenav a:hover {
-    color: blue;
+    color: yellow;
 }
 
 .main {
     margin-top: 2%;
-    margin-left: 10%; /* Same as the width of the sidenav */
+    margin-left: 12%; 
 }
 
 @media screen and (max-height: 450px) {
     .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
+    .sidenav a {font-size: 12px;}
 }

@@ -1,6 +1,11 @@
 const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
-var Zconfig = require("../../config/Zconfig");
+//var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFPPparser file
+try{
+  var Zconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var Zconfig = {};
+}
 let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
 let rmf3filename = Zconfig.rmf3filename;

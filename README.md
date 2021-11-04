@@ -28,6 +28,8 @@ Copyright Contributors to the Zowe Project.
    - Grafana
    - Prometheus
    - MongoDB
+
+   **Docker:** The source code comes with a ```docker-compose.yml``` file that you can take advantage of to setup a containerized environment with all of the optional software included, you can run ```docker-compose up --build``` to create it. NOTE: you may have to edit the ```docker-compose.yml``` to properly configure the ports and volumes if there is a conflict on your machine.
    
 
 ![](/Documentation/Images/zhome.png)
@@ -188,6 +190,11 @@ h.	http://localhost:3090/v1/RPRT/rmfpp/cpu?start=2021-07-17&end=2021-07-17
 
 5.	Static  
 a.	http://localhost:3090/static?file=C:\Users\Salis\Desktop\rmfpp.xml  
+
+
+# Exposing ZEBRA Metrics to Prometheus (FOr use in Grafana)
+
+ZEBRA now comes built with an API that allows for the quick setup of Prometheus data. This data can be used for. Please check out the Swagger API page (ex: http://localhost:3090/apis) for documentation and examples!
 
 
 | Folder | Description |

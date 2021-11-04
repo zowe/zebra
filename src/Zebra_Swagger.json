@@ -15,6 +15,10 @@
     {
       "name": "RMF Monitor I",
       "description": "Convert RMF Monitor I Reports to JSON"
+    },
+    {
+      "name": "Prometheus Metrics",
+      "description": "Manages the ZEBRA metrics exposed to Prometheus"
     }
   ],
   "schemes": [
@@ -1049,6 +1053,272 @@
           }
         },
         "deprecated": false
+      }
+    },
+    "/v1/metrics/{name}": {
+      "get": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Retrieves specified or all metrics exposed to Prometheus",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name metric to retrieve. If empty, retrieves all metrics",
+            "required": false,
+            "type": "string",
+            "default": "RPRT_QCK2_PTOU",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Creates a metric to expose to Prometheus with the given name",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of metric to create",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "metric",
+            "in": "body",
+            "description": "Metric object to create",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/MetricBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Updates the metric with the given name",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of metric to update",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "metric",
+            "in": "body",
+            "description": "Updated metric",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/MetricBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Deletes the metric with the given name",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of metric to delete",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MetricBody": {
+      "type": "object",
+      "description": "Schema for selecting ZEBRA data to expose to Prometheus",
+      "required": [
+        "lpar",
+        "request",
+        "field"
+      ],
+      "properties": {
+        "lpar": { 
+          "type": "string",
+          "description": "The LPAR reporting the data"
+        },
+        "request": {
+          "type": "object",
+          "description": "ZEBRA request parameters",
+          "required": [
+            "report"
+          ],
+          "properties": {
+            "report": { 
+              "type": "string",
+              "description": "The type of RMF III report"
+            },
+            "resource": { 
+              "type": "string",
+              "description": "The resource of the request"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "List of Key-Value pairs that identify what entity to extract data from",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "ZEBRA field used as an ID"
+              },
+              "value": {
+                "type": "string",
+                "description": "Value of ZEBRA field used as ID"
+              }
+            }
+          }
+        },
+        "field": {
+          "type": "string",
+          "description": "The ZEBRA field to collect data from"
+        },
+        "desc": {
+          "type": "string",
+          "description": "Description of metric (helpful for identifying which metric does what)"
+        }
+      }
+    },
+    "MetricResponse": {
+      "type": "object",
+      "description": "Standard response of metric API",
+      "required": [
+        "msg",
+        "err"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Message that details the result of the API call"
+        },
+        "err": {
+          "type": "boolean",
+          "description": "Whether an error occured or not"
+        },
+        "data": {
+          "type": "any",
+          "description": "If any data is returned in function, it is within this property"
+        }
       }
     }
   }

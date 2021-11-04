@@ -110,7 +110,7 @@ app.use(session({
 app.use('/', mainRouter);
 app.use('/rmfm3', rmf3Router);
 app.use('/static', staticRouter);
-app.use('/metrics', metricRouter);
+app.use('/v1/metrics', metricRouter);
 app.use('/rmfpp', rmfppRouter);
 app.use('/v1', v1Router);
 

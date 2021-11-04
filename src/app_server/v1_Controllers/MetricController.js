@@ -98,7 +98,7 @@ module.exports.create = (req, res) => {
         const metricBody = req.body;
         const metricName = req.params.metric;
         if (!metricName) {
-            res.status(404).json({ msg: `Metric name not provided.`, err: true });
+            res.status(400).json({ msg: `Metric name not provided.`, err: true });
             return;
         }
         validateBody(metricBody, (valid, msg) => {
@@ -143,7 +143,7 @@ module.exports.retrieve = (req, res) => {
             res.status(404).json({ msg: "No metrics found.", err: true });
             return;
         }
-        res.status(200).json({ metrics, msg: "Metrics successfully retrieved.", err: false });
+        res.status(200).json({ data: metrics, msg: "Metrics successfully retrieved.", err: false });
         return;
     } catch(err) {
         res.status(500).json({ msg: "Something went wrong." });
@@ -165,7 +165,7 @@ module.exports.retrieveOne = (req, res) => {
             res.status(404).json({ msg: `Metric '${metricName}' not found.`, err: true });
             return;
         }
-        res.status(200).json({ metric: metrics[metricName], msg: `Metric '${metricName}' successfully retrieved`, err: false });
+        res.status(200).json({ data: metrics[metricName], msg: `Metric '${metricName}' successfully retrieved`, err: false });
         return;
     } catch(err) {
         res.status(500).json({ msg: "Something went wrong.", err: true });
@@ -185,7 +185,7 @@ module.exports.update = (req, res) => {
         const metricBody = req.body;
         const metricName = req.params.metric;
         if (!metrics || !metricName || !metrics[metricName]) {
-            res.status(404).json({ msg: `Metric '${metricName}' does not exist.`, err: true });
+            res.status(400).json({ msg: `Metric '${metricName}' does not exist.`, err: true });
             return;
         }
         validateBody(metricBody, (valid, msg) => {
@@ -194,7 +194,7 @@ module.exports.update = (req, res) => {
                 return;
             }
             if (!metrics[metricName]) {
-                res.status(404).json({ msg: `Metric '${metricName}' does not exist.'`, err: true });
+                res.status(400).json({ msg: `Metric '${metricName}' does not exist.'`, err: true });
                 return;
             }
             const oldMetric = metrics[metricName];
@@ -226,7 +226,7 @@ module.exports.delete = (req, res) => {
     try {
         const metricName = req.params.metric;
         if (!metrics || !metricName || !metrics[metricName]) {
-            res.status(404).json({ msg: `Metric '${metricName}' does not exist.`, err: true });
+            res.status(400).json({ msg: `Metric '${metricName}' does not exist.`, err: true });
             return;
         }
         const oldMetric = metrics[metricName];

@@ -8,9 +8,9 @@ WORKDIR /zebra
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install && npm install -g nodemon@2.0.0
+RUN npm install
 
 # Bundle app source
 COPY . .
 
-CMD [ "npm", "run", "docker" ]
+CMD [ "npm", "start" ]

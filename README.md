@@ -135,8 +135,6 @@ Grafana makes use of Prometheus to visualize ZEBRA metrics. Therefore, in order 
 After installing and running Grafana, follow [this guide](https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/) on how to add a Data Source. For the source, you want to use the Prometheus instance you sent up before this.
 
 **Note:** ZEBRA has to be [configured](#configure) to work with Grafana.
-
-   **Docker:** The source code comes with a ```docker-compose.yml``` file that you can take advantage of to setup a containerized environment with all of the optional software included, you can run ```docker-compose up --build``` to create it. NOTE: you may have to edit the ```docker-compose.yml``` to properly configure the ports and volumes if there is a conflict on your machine.
    
 # Installing ZEBRA
 

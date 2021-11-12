@@ -119,7 +119,7 @@ module.exports.create = (req, res) => {
                     res.status(500).json({ msg: "Unable to save changes in metrics.", err: true })
                     return;
                 }
-                res.status(201).json({ msg: "Metrics were successfully created.", err: false });
+                res.status(201).json({ msg: "Metric " + metricName + " was successfully created.", err: false });
                 return;
             });
         });
@@ -205,7 +205,7 @@ module.exports.update = (req, res) => {
                     res.status(500).json({ msg: "Unable to save changes in metrics.", err: true })
                     return;
                 }
-                res.status(201).json({ msg: "Metrics were successfully created.", err: false });
+                res.status(201).json({ msg: "Metric " + metricName + " was successfully updated.", err: false });
                 return;
             });
         });

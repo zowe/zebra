@@ -6,7 +6,7 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/bootstrap/css/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top(style={"color":"teal"})
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top.mb-0(style={"color":"teal"})
       a.navbar-brand(href='#') 
         img(src="/images/Zebralogo.png", height="30", width="60")
         a.navbar-brand(href='/') ZEBRA
@@ -16,12 +16,16 @@ html
     
       .collapse.navbar-collapse(id='navbarButton')
         ul.navbar-nav.mr-auto
-          li.nav-item.active
-            a.nav-link(href='/apis') All API's
-          li.nav-item.active
-            a.nav-link(href='https://github.com/zowe/zebra/tree/main/Documentation') Documentation
-          li.nav-item.active
-            a.nav-link(href='/setting') Configuration
+          li.nav-item.active.dropdown
+            a.nav-link.dropdown-toggle#docsDropdownMenuLink(href='#', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Documentation
+            div.dropdown-menu.bg-primary.border-0.rounded-0(aria-labelledby='docsDropdownMenuLink')
+              a.dropdown-item.text-light.bg-transparent(href='/apis') API (Swagger) 
+              a.dropdown-item.text-light.bg-transparent(href='https://github.com/zowe/zebra/tree/main/Documentation') README (GitHub)
+          li.nav-item.active.dropdown
+            a.nav-link.dropdown-toggle#configDropdownMenuLink(href='#', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Config
+            div.dropdown-menu.bg-primary.border-0.rounded-0(aria-labelledby='configDropdownMenuLink')
+              a.dropdown-item.text-light.bg-transparent(href='/config/settings') Settings 
+              // a.dropdown-item.text-light.bg-transparent.disabled(href='/config/metrics') Prometheus Metrics
           li.nav-item.active
             a.nav-link(href='/about') About
       if(msg)
@@ -38,3 +42,4 @@ body
   
   block scripts
   script(src='https://code.jquery.com/jquery-3.5.1.min.js')
+  script(src='/bootstrap/js/bootstrap.bundle.js')

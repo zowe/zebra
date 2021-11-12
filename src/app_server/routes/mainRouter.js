@@ -85,7 +85,7 @@ router.post('/savedds', Auth.authenticateFormToken, ctrlConfig.savedds);
 
 router.get('/createZconfig', ctrlConfig.createZconfig);
 
-router.get('/setting', sessionChecker, (req, res) => {
+router.get('/config/settings', sessionChecker, (req, res) => {
   if(Object.keys(Zconfig).length === 0){
     res.render("settings",{msg: "No Zconfig"});
   }else{

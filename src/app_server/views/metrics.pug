@@ -1,0 +1,256 @@
+extends layout
+
+block header
+    link(rel='stylesheet', href='/stylesheets/slider.css')
+    style.
+        .center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+
+        .container {
+            height: 200px;
+            position: relative;
+        }
+
+        form {
+            --background: white;
+            --border: rgba(0, 0, 0, 0.125);
+            --borderDark: rgba(0, 0, 0, 0.25);
+            --borderDarker: rgba(0, 0, 0, 0.5);
+            --bgColorH: 0;
+            --bgColorS: 0%;
+            --bgColorL: 98%;
+            --fgColorH: 210;
+            --fgColorS: 50%;
+            --fgColorL: 38%;
+            --shadeDark: 0.3;
+            --shadeLight: 0.7;
+            --shadeNormal: 0.5;
+            --borderRadius: 0.125rem;
+            --highlight: #306090;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--borderRadius);
+            box-shadow: 0 1rem 1rem -0.75rem var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+            width:80%;
+        }
+
+        .topa{
+            width:80%;
+            margin: auto;
+            border: 1%;
+            padding: 10px;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 96%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+
+block content
+    div(class="sidefm")
+        .salis(style={"width":"96%", "margin-top":"0px", "margin-bottom":"30px", "margin-left": "10%"})
+            .row
+                h5(class='hdd') Add Custom Metrics
+                hr
+            .row
+                form()
+                    .row
+                        .col-md-6
+                            label(style={"margin-top":"5px", "margin-right": "10px", "font-size":"12px"} for=`sysid`) SYSID
+                            select.custom-select(class="form-control-sm" name="lpar" id="lpar" style={"margin-right": "10px"})
+                                option(selected='') Select LPAR
+                                - for(dat of lpars)
+                                    option(value=`${dat}`) !{dat}
+                        .col-md-6
+                            label(style={"margin-top":"5px", "margin-right": "10px", "font-size":"12px"} for=`rpt`) Report
+                            select.custom-select(class="form-control-sm" name="rpt" id="rpt" style={"margin-right": "10px"} onchange="getrpt()")
+                                option(selected='') Select 
+                                each report in reports
+                                    option(value=report) #{report}   
+                    label(style={"margin-top":"5px", "margin-right": "10px"} for="mid") Unique Metric id
+                    input(type="text" class="form-control-sm" id=`umi` style={"margin-right": "10px"} placeholder=`e.g TOU for Total utilization`)
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Resource
+                    select.custom-select(class="form-control-sm" name="rst" id="rst" style={"margin-right": "10px"})
+                        option(selected='') Select Resource
+                        - for(dt of resources)
+                            option(value=`${dt}`) !{dt}
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Key
+                    select.custom-select(class="form-control-sm" name="prm" id="nid" style={"margin-right": "10px"} onchange="getnvl()")
+                        option(selected='') Select
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Value
+                    select.custom-select(class="form-control-sm" name="nvl" id="snvl" style={"margin-right": "10px"})
+                        option(selected='*') ALL
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Field
+                    select.custom-select(class="form-control-sm" name="vrm" id="vid" style={"margin-right": "10px"})
+                        option(selected='') Select
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Metric Description
+                    input(type="text" class="form-control-sm" id=`umd` style={"margin-right": "10px"} placeholder=`A simple metrics description`)
+
+                    a(href='javascript:savemtr()' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%", "color":"white"}) Save
+                    
+
+    div(class="mainfm", style={"overflow" : "auto"})
+        h5 Add Custom Metrics Page
+        p Use the form to add customize ZEBRA Prometheus Metrics. Note, you will need to first configure ZEBRA and have a working internet connection 
+        br 
+        p Full information on how the form works can be found in the ZEBRA documentation.
+        br
+        h5 Metrics Added
+        div(style={"overflow":"auto", "max-height":"50vh"})
+            table(id="sctable")
+                tr 
+                    th Metric
+                    th SYSID 
+                    th Report
+                    th Resource 
+                    th Identifier Name 
+                    th Identifier Value 
+                    th field 
+                    th Action
+        
+
+
+block scripts
+    script(src='https://code.jquery.com/jquery-3.5.1.min.js')
+    script(src='/stylesheets/bootstrap/js/bootstrap.min.js')
+    script(src='/stylesheets/bootstrap/js/bootstrap.bundle.min.js')
+    script.
+
+        function gettbl(){
+            $.ajax({
+                dataType: "json",
+                type: 'get',
+                url: '/mtrfile'
+            })
+            .done(function(e){
+                //window.reloadTable("sctable");
+                $.each(e.mtr, function(i){
+                    var len = $("#sctable tr").toArray().length;
+                    var newRow = "<tr class='tabrow closed'>"
+                    +"<td>"+ e.mtr[i] +"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["lpar"]+"</td>"
+                    +"<td>"+ e.jsn[e.mtr[i]]["request"]["report"] +"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["request"]["resource"]+"</td>"
+                    +"<td>"+ e.jsn[e.mtr[i]]["identifiers"][0]["key"] +"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["identifiers"][0]["value"]+"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["field"]+"</td>"
+                    +`<td><div><a href='javascript:delmtr("${e.mtr[i]}")' class='btn btn-danger' style={'color':'white'}>Delete</a></div></td>`
+                    +"</tr>";
+                    $(newRow).appendTo("#sctable");
+                })
+            });
+        }
+
+        window.onload = function () {
+            gettbl();
+        }
+
+        function delmtr(a) {
+            var data = {ky: `${a}`};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/delmtr',
+                data: data,
+            })
+            .done(function(e){
+                gettbl();
+                alert(e);
+                
+            });
+        }
+
+        function getrpt() {
+            var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val()};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/getrpt',
+                data: data,
+            })
+            .done(function(e){
+                //alert(e.sc);
+                //window.reloadTable("nid");
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("nid");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("vid");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+            });
+        }
+
+        function getnvl() {
+            var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val(), nid: $("#nid").val()};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/getnvl',
+                data: data,
+            })
+            .done(function(e){
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("snvl");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+            });
+        }
+
+        function savemtr() {
+            var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val(), nid: $("#nid").val(), umi: $("#umi").val(), umd: $("#umd").val(), snvl: $("#snvl").val(), vid: $("#vid").val(), rst: $("#rst").val() };
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/savemtr',
+                data: data,
+                complete:   function(data) {
+                    var c = `${$("#lpar").val()}_${$("#snvl").val()}_${$("#umi").val()}`
+                    var newRow = "<tr class='tabrow closed'>"
+                    +"<td>"+ $("#lpar").val()+"_"+$("#snvl").val()+"_"+$("#umi").val() +"</td>"
+                    +"<td>"+$("#lpar").val()+"</td>"
+                    +"<td>"+ $("#rpt").val()+"</td>"
+                    +"<td>"+$("#rst").val()+"</td>"
+                    +"<td>"+ $("#snvl").val() +"</td>"
+                    +"<td>"+$("#nid").val()+"</td>"
+                    +"<td>"+$("#umd").val()+"</td>"
+                    +`<td><div><a href='javascript:delmtr("${c}")' class='btn btn-danger' style={'color':'white'}>Delete</a></div></td>`
+                    +"</tr>";
+                    $(newRow).appendTo("#sctable");
+                    alert(data.status);
+                }
+            })
+            //.done(function(e){
+            //    alert(e);
+            //});
+        }

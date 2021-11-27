@@ -39,3 +39,36 @@ body{
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 12px;}
 }
+
+.sidefm {
+    height: 100%;
+    width: 25%;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    background-color:grey;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.sidefm a {
+    padding: 6px 6px 6px 6px;
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    display: block;
+}
+
+.sidefm a:hover {
+    color: yellow;
+}
+
+.mainfm {
+    margin-top: 2%;
+    margin-left: 27%; 
+}
+
+@media screen and (max-height: 450px) {
+    .sidefm {padding-top: 15px;}
+    .sidefm a {font-size: 12px;}
+}

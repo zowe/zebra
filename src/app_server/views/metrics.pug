@@ -175,12 +175,19 @@ block scripts
                 type: 'post',
                 url: '/delmtr',
                 data: data,
+                complete:   function(data) {
+                    if(data.status === 200){
+                        alert(`Metric Deleted Successfully`);
+                    }else{
+                        alert(`Deleting Metric Failed`);
+                    }
+                    location.reload();
+                }
             })
-            .done(function(e){
-                gettbl();
-                alert(e);
-                
-            });
+            //.done(function(e){
+            //    gettbl();
+            //    alert(e);  
+            //});
         }
 
         function getrpt() {
@@ -236,18 +243,15 @@ block scripts
                 data: data,
                 complete:   function(data) {
                     var c = `${$("#lpar").val()}_${$("#snvl").val()}_${$("#umi").val()}`
-                    var newRow = "<tr class='tabrow closed'>"
-                    +"<td>"+ $("#lpar").val()+"_"+$("#snvl").val()+"_"+$("#umi").val() +"</td>"
-                    +"<td>"+$("#lpar").val()+"</td>"
-                    +"<td>"+ $("#rpt").val()+"</td>"
-                    +"<td>"+$("#rst").val()+"</td>"
-                    +"<td>"+ $("#snvl").val() +"</td>"
-                    +"<td>"+$("#nid").val()+"</td>"
-                    +"<td>"+$("#umd").val()+"</td>"
-                    +`<td><div><a href='javascript:delmtr("${c}")' class='btn btn-danger' style={'color':'white'}>Delete</a></div></td>`
-                    +"</tr>";
-                    $(newRow).appendTo("#sctable");
-                    alert(data.status);
+                    
+                    if(data.status === 200){
+                        alert(`${c} Metric Saved Successfully`);
+                    }else{
+                        alert(`Saving Metric Failed`);
+                    }
+
+                    location.reload();
+                    
                 }
             })
             //.done(function(e){

@@ -66,6 +66,16 @@ function parameters(fn){
   fn(parms); //return the parameters
 }
 
+// Checks if user login session is available in browser
+var sessionChecker = (req, res, next) => {
+  if (req.session.name && req.cookies.user_sid) { //If user login session is available
+      next()
+  } else { 
+      req.session.redirectUrl = req.url;
+      res.redirect("/log_in") //redirect to login page if user is not logged in
+  }    
+};
+
 router.get('/mtrfile', (req, res) => {
   fs.readFile('metrics.json', (err, data) => {
     if (err) throw err;
@@ -179,7 +189,8 @@ router.post('/getrpt', (req, res) => {
   }
   
 })
-router.get('/metrics', (req, res) => {
+
+router.get('/metrics', sessionChecker, (req, res) => {
   //console.log(Zconfig.dds["RPRT"])
   resource = [];
   var lpar_details = Zconfig["dds"];
@@ -190,15 +201,7 @@ router.get('/metrics', (req, res) => {
   //console.log(c);
   res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
 })
-// Checks if user login session is available in browser
-var sessionChecker = (req, res, next) => {
-  if (req.session.name && req.cookies.user_sid) { //If user login session is available
-      next()
-  } else { 
-      req.session.redirectUrl = req.url;
-      res.redirect("/log_in") //redirect to login page if user is not logged in
-  }    
-};
+
 
 function ddsparm(fn){
   fn(Zconfig.dds); //return the parameters

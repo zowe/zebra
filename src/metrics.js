@@ -58,7 +58,7 @@ setInterval(async () => {
                             for (i in result['table']) { // loop through the entities
                                 var mtrid = metricName.split("_")[2] // get the metric identifier provided by the user
                                 var JSONBody = result['table'][i];
-                                var name = `lpar_${JSONBody[metric.identifiers[0].key]}_${mtrid}`; //append TOU(Total Utilization) to lpar name
+                                var name = `${lpar}_${JSONBody[metric.identifiers[0].key]}_${mtrid}`; //append TOU(Total Utilization) to lpar name
                                 var value = JSONBody[metric.field];
                                 try {
                                     (new prometheus.Gauge({

@@ -208,7 +208,12 @@ async function RMFIIIJSON(req, res, status){
   switch(status){
     case "OK" : // If the flow is Okay, No Obstruction
       var lpar = ddsconfig["dds"][req.params.lpar];
-      var lspr = lpar["PCI"];
+      try{
+        var lspr = lpar["PCI"];
+      }catch(err){
+        var lspr = 0;
+      }
+      
       var urlReport = req.params.report
       var urlResource = lpar["mvsResource"];
       var ulrParm; //variable for parm parameter in the User Specified URL

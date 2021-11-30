@@ -142,7 +142,7 @@ function refreshtokendb(fn){
 }
 
 function generateAccessToken(user){
-    return jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn: "1m"})
+    return jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn: "15m"})
 }
 
 module.exports.authenticateToken =function (req,res, next) {

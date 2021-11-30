@@ -53,31 +53,54 @@ setInterval(async () => {
                     const result = response.data;
                     for (const metricName in metrics) {
                         var metric = metrics[metricName];
-                        if (metric.request.report === report && metric.request.resource === resource) {
-                            // Get value of metric
-                            var value = getValue(result, metric);
-                            // If no match, log error and continue
-                            if (!value) {
-                                // console.log(`WARNING: Could not find field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}'. Field could be missing because its value is 0, but make sure field is valid key.`);
-                                continue;
+                        // Check if users want data from all records in the JSON table having the metrics key
+                        if(metric.identifiers[0].value === "ALL"){
+                            for (i in result['table']) { // loop through the entities
+                                var mtrid = metricName.split("_")[2] // get the metric identifier provided by the user
+                                var JSONBody = result['table'][i];
+                                var name = `${lpar}_${JSONBody[metric.identifiers[0].key]}_${mtrid}`; //append TOU(Total Utilization) to lpar name
+                                var value = JSONBody[metric.field];
+                                try {
+                                    (new prometheus.Gauge({
+                                        name: name,
+                                        help: metric.desc,
+                                        labelNames: ['parm']
+                                    })).set({
+                                        parm: metric.field
+                                    }, parseFloat(value));
+                                } catch (err) { 
+                                    //console.log(err);
+                                }
                             }
-                            // If non numeric value is chosen, log error and continue
-                            if (!isNumeric(value)) {
-                                console.log(`ERROR: Non-numeric error - the field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}' is not numeric.`);
-                                continue;
-                            }
-                            try{
-                                (new prometheus.Gauge({
-                                    name: metricName,
-                                    help: metric.desc,
-                                    labelNames: ['parm']
-                                })).set({
-                                    parm: metric.field
-                                }, parseFloat(value));
-                            } catch(err) {
-                                console.log(err);
+
+                        }else{
+                            if (metric.request.report === report && metric.request.resource === resource) {
+                                // Get value of metric
+                                var value = getValue(result, metric);
+                                // If no match, log error and continue
+                                if (!value) {
+                                    // console.log(`WARNING: Could not find field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}'. Field could be missing because its value is 0, but make sure field is valid key.`);
+                                    continue;
+                                }
+                                // If non numeric value is chosen, log error and continue
+                                if (!isNumeric(value)) {
+                                    console.log(`ERROR: Non-numeric error - the field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}' is not numeric.`);
+                                    continue;
+                                }
+                                try{
+                                    (new prometheus.Gauge({
+                                        name: metricName,
+                                        help: metric.desc,
+                                        labelNames: ['parm']
+                                    })).set({
+                                        parm: metric.field
+                                    }, parseFloat(value));
+                                } catch(err) {
+                                    console.log(err);
+                                }
                             }
                         }
+                            
                     }
                 })
                 .catch((err) => {

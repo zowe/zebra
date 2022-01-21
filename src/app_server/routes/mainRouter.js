@@ -151,6 +151,7 @@ router.post('/getnvl', (req, res) => {
         c.push(dat["table"][i][nid])
       }
       //console.log(c);
+      c = [...new Set(c)]; // distinct values
       res.send({sc:c});
       //console.log(response.data);
       //res.json({sc:["columnhead"]});

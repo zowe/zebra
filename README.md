@@ -53,6 +53,8 @@ Copyright Contributors to the Zowe Project.
 
 ZEBRA (Zowe Embedded Browser for RMF and APIs) is an open source incubator project for the Open Mainframe Project&copy;'s [Zowe](https://www.zowe.org/). The main goal of this project is to provide reusable and industry-compliant RMF data in JSON format. The benefit of using JSON is that it is a modern standard that is very attractive to developers. Because of this, there are many applications and use cases for third-party analysis and visualization tools to harvest ZEBRA's metrics.
 
+---
+
 # System Requirements
 
 ### Distributed Data Server (DDS)
@@ -66,6 +68,8 @@ ZEBRA makes use of the [Node.js](https://nodejs.org/download/release/v8.11.4/) r
 ### Docker (optional)
 
 If you want to get ZEBRA set up as quick as possible, we recommend making use of containerization with [Docker](https://www.docker.com/). More information below on how to run and build the containerized version of ZEBRA.
+
+---
 
 # Built-in Third Party Support
 
@@ -135,7 +139,9 @@ Grafana makes use of Prometheus to visualize ZEBRA metrics. Therefore, in order 
 After installing and running Grafana, follow [this guide](https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/) on how to add a Data Source. For the source, you want to use the Prometheus instance you sent up before this.
 
 **Note:** ZEBRA has to be [configured](#configure) to work with Grafana.
-   
+
+---
+
 # Installing ZEBRA
 
 There are currently two ways that you can install ZEBRA: Manual or Docker. We recommend using Docker for the simplest and fastest experience. See below for more details.
@@ -280,6 +286,8 @@ volumes:
 
 where ```[ZEBRA_PORT]```, ```[MONGO_PORT]```, ```[PROMETHEUS_PORT]```, and ```[GRAFANA_PORT]``` are your desired ports for ZEBRA, MongoDB, Prometheus, and Grafana, respectively.
 
+---
+
 # Configuring ZEBRA's Settings
 
 You can configure ZEBRA in two ways: editing the ```Zconfig.json``` file directly, or making use of the Settings page interface once you get the application running.
@@ -415,6 +423,8 @@ Alternatively, you can go to the page directly using the link ```http://localhos
 On this page, you can input and edit the same configuration fields as described previously for both [General Settings](#configure-general) and [DDS Settings](#configure-dds).
 
 **NOTE:** If you make configuration changes through this method, a restart of ZEBRA is **not required**.
+
+---
 
 # ZEBRA API
 
@@ -782,6 +792,8 @@ To delete a custom Prometheus metric, make a ```DELETE``` request to ```/v1/metr
     "err": false
 }
 ```
+
+---
 
 # Support
 

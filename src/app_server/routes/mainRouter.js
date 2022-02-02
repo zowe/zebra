@@ -26,9 +26,15 @@ try{
 let grafanabaseurl = Zconfig.grafanaurl;
 let grafanabaseport = Zconfig.grafanaport;
 let grafanahttptype = Zconfig.grafanahttptype;
+let zhttp = Zconfig.zebra_httptype;
+let appurl = Zconfig.appurl;
+let appport = Zconfig.appport;
 const axios = require('axios');
 const { send } = require('process');
 const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
+
+const REPORTS = require("../../constants").REPORTS;
+const { keys } = require('lodash');
 
 
 function parameters(fn){
@@ -70,6 +76,134 @@ var sessionChecker = (req, res, next) => {
   }    
 };
 
+router.get('/mtrfile', (req, res) => {
+  fs.readFile('metrics.json', (err, data) => {
+    if (err) throw err;
+    let metricsfile = JSON.parse(data);
+    let keyss = Object.keys(metricsfile);
+    res.send({mtr: keyss, jsn:metricsfile});
+  });
+});
+
+router.post('/delmtr', (req, res) => {
+  fs.readFile('metrics.json', (err, data) => {
+    if (err) throw err;
+    let metricsfile = JSON.parse(data);
+    delete metricsfile[req.body.ky]; 
+    fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
+      res.send("Metric Deleted Successfully");
+    }); 
+  });
+});
+
+router.post('/savemtr', (req, res) => {
+  try{
+    var lpar = req.body.lpar;
+    var rpt = req.body.rpt;
+    var nid = req.body.nid;
+    var snvl = req.body.snvl;
+    var vid = req.body.vid;
+    var umi = req.body.umi;
+    var umd = req.body.umd;
+    var rst = req.body.rst;
+    var key = `${lpar}_${snvl}_${umi}`;
+    var mtr = JSON.parse(`{
+        "lpar": "${lpar}",
+        "request": {
+            "report": "${rpt}",
+            "resource": "${rst}"
+        },
+        "identifiers": [
+            {
+                "key": "${nid}",
+                "value": "${snvl}"
+            }
+        ],
+        "field": "${vid}",
+        "desc": "${umd}"
+       }`)
+    fs.readFile('metrics.json', (err, data) => {
+      if (err) throw err;
+      let metricsfile = JSON.parse(data);
+      metricsfile[`${key}`] = mtr
+      fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
+        res.send("Metric Added Successfully");
+      }); 
+    });
+    
+  }catch(err){
+    res.send("error")
+  }
+})
+
+router.post('/getnvl', (req, res) => {
+  try{
+    var lpar = req.body.lpar;
+    var rpt = req.body.rpt;
+    var nid = req.body.nid;
+    var c = [];
+    var RMF3URL = `${zhttp}://${appurl}:${appport}/v1/${lpar}/rmf3/${rpt}`; //Dynamically create URL
+    axios.get(RMF3URL)
+    .then(function (response) {
+      // handle success
+      var dat = response.data
+      for(i in dat["table"]){
+        c.push(dat["table"][i][nid])
+      }
+      //console.log(c);
+      c = [...new Set(c)]; // distinct values
+      res.send({sc:c});
+      //console.log(response.data);
+      //res.json({sc:["columnhead"]});
+    })
+    .catch(function (error) {
+      // handle error
+      res.send("error")
+    })
+  }catch(err){
+    res.send("error")
+
+  }
+  
+})
+
+router.post('/getrpt', (req, res) => {
+  try{
+    var lpar = req.body.lpar;
+    var rpt = req.body.rpt;
+    var RMF3URL = `${zhttp}://${appurl}:${appport}/v1/${lpar}/rmf3/${rpt}`; //Dynamically create URL
+    axios.get(RMF3URL)
+    .then(function (response) {
+      // handle success
+      var columns = response.data
+      res.send({sc:columns["columnhead"]});
+      //console.log(response.data);
+      //res.json({sc:["columnhead"]});
+    })
+    .catch(function (error) {
+      // handle error
+      res.send("error")
+    })
+  }catch(err){
+    res.send("error")
+
+  }
+  
+})
+
+router.get('/metrics', sessionChecker, (req, res) => {
+  //console.log(Zconfig.dds["RPRT"])
+  resource = [];
+  var lpar_details = Zconfig["dds"];
+  var lpar = Object.keys(lpar_details);
+  for(i in lpar){
+    resource.push(lpar_details[lpar[i]]["mvsResource"])
+  }
+  //console.log(c);
+  res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
+})
+
+
 function ddsparm(fn){
   fn(Zconfig.dds); //return the parameters
 }
@@ -85,7 +219,7 @@ router.post('/savedds', Auth.authenticateFormToken, ctrlConfig.savedds);
 
 router.get('/createZconfig', ctrlConfig.createZconfig);
 
-router.get('/setting', sessionChecker, (req, res) => {
+router.get('/config/settings', sessionChecker, (req, res) => {
   if(Object.keys(Zconfig).length === 0){
     res.render("settings",{msg: "No Zconfig"});
   }else{

@@ -36,6 +36,7 @@ module.exports = {
             "STOR",
             "STORC",
             "STORCR",
+            "STORM",
             "SYSINFO",
             "USAGE"
         ]

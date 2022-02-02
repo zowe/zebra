@@ -7,7 +7,7 @@ const axios = require('axios');
 const prometheus = require('prom-client');
 
 // Config
-const { appurl, appport, https, dds, rmf3interval } = require('./config/Zconfig.json');
+const { appurl, appport, use_cert, dds, rmf3interval } = require('./config/Zconfig.json');
 
 // Metrics in memory
 const metrics = require('./metrics.json');
@@ -47,7 +47,7 @@ setInterval(async () => {
         for (const request in requests) {
             var [ report, resource ] = request.split(" ")
             // Get XML data from DDS (this method is more efficient than calling our own API with axios)
-            await axios.get(`${https}://${appurl}:${appport}/v1/${lpar}/rmf3/${report}?resource=${resource}`)
+            await axios.get(`${use_cert}://${appurl}:${appport}/v1/${lpar}/rmf3/${report}?resource=${resource}`)
                 .then((response) => {
                     // Loop through metrics using this report
                     const result = response.data;

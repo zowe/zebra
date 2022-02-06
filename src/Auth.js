@@ -307,7 +307,9 @@ module.exports.updatePasswordForm = async function(req, res){
                             })
                             req.session.name = req.body.name;
                             req.session.password = newpassword;
-                            res.redirect("/");
+                            var redirectionUrl = req.session.redirectUrl;
+                            res.redirect(redirectionUrl);
+                            //res.redirect("/");
                         }
                     });
                 }catch(err) {

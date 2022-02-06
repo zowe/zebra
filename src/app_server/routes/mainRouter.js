@@ -200,7 +200,11 @@ router.get('/metrics', sessionChecker, (req, res) => {
     resource.push(lpar_details[lpar[i]]["mvsResource"])
   }
   //console.log(c);
-  res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
+  if(req.session.name){ //Check if User login session is available
+    res.render("metrics",{msg:"Admin", resources:resource, lpars:lpar, reports:REPORTS.RMFM3}); // render the metrics page wih Admin previledge
+  }else{
+    res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
+  }
 })
 
 
@@ -221,10 +225,11 @@ router.get('/createZconfig', ctrlConfig.createZconfig);
 
 router.get('/config/settings', sessionChecker, (req, res) => {
   if(Object.keys(Zconfig).length === 0){
-    res.render("settings",{msg: "No Zconfig"});
+    res.render("settings",{nozmsg: "No Zconfig"});
   }else{
-    res.render("settings");
+    res.render("settings",{msg: "Admin"});
   } 
+  
 });
 
 router.get('/ddsconfig', (req, res) => {
@@ -356,7 +361,12 @@ router.use("/log_out", (req, res, next) => {
 
 //render the about page
 router.get("/about", (req, res)=> {
-  res.render("about");
+  if(req.session.name){ //Check if User login session is available
+    res.render("about",{msg:"Admin"}); // render the about page wih Admin previledge
+  }else{
+    res.render("about");
+  }
+  
 })
 
 //render the login page and authorise login

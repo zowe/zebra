@@ -36,6 +36,14 @@ block header
             margin-top: 10vh;
         }
 
+        .topa2{
+            width:600px;
+            margin: auto;
+            border: 5px;
+            padding: 10px;
+            margin-top: 10vh;
+        }
+
         @media screen and (max-width: 720px) {
             body{margin:0px;}
             .topa{
@@ -49,36 +57,53 @@ block header
 
 block content
     if(data)
-        div(class='topa')
+        div(class='topa2')
             if(cpmsg)
                 div(class="alert alert-danger" role="alert") Passwords do not Match
             form( action=`/UpdatePasswordForm` method="post")
                 legend
                     center
                         h2
-                            b(style={'font-family': 'Calisto MT'}) Change Password
-                div(class="form-group")
-                    label(for="name") Username
-                    div(class="input-group mb-2")
-                        div(class="input-group-prepend")
-                            div(class="input-group-text") 
-                                i(class="fas fa-user")
-                        input(type="text" class="form-control" name='name' id="name" placeholder="Username")
-                div(class="form-group")
-                    label(for="password") Password
-                    div(class="input-group mb-2")
-                        div(class="input-group-prepend")
-                            div(class="input-group-text") 
-                                i(class="fas fa-key")
-                        input(type="password" class="form-control" name='newpassword' id="newpassword" placeholder="Password")
-                div(class="form-group")
-                    label(for="password") Password
-                    div(class="input-group mb-2")
-                        div(class="input-group-prepend")
-                            div(class="input-group-text") 
-                                i(class="fas fa-key")
-                        input(type="password" class="form-control" name='cpassword' id="cpassword" placeholder="Password")
-                
+                            b(style={'font-family': 'Calisto MT'}) Change Password and Token Secret
+                .row 
+                    .col-md-6 
+                        div(class="form-group")
+                            label(for="name") Username
+                            div(class="input-group mb-2")
+                                div(class="input-group-prepend")
+                                    div(class="input-group-text") 
+                                        i(class="fas fa-user")
+                                input(type="text" class="form-control" name='name' id="name" placeholder="Username")
+                        div(class="form-group")
+                            label(for="password") Password
+                            div(class="input-group mb-2")
+                                div(class="input-group-prepend")
+                                    div(class="input-group-text") 
+                                        i(class="fas fa-key")
+                                input(type="password" class="form-control" name='newpassword' id="newpassword" placeholder="Password")
+                        div(class="form-group")
+                            label(for="password") Comfirm Password
+                            div(class="input-group mb-2")
+                                div(class="input-group-prepend")
+                                    div(class="input-group-text") 
+                                        i(class="fas fa-key")
+                                input(type="password" class="form-control" name='cpassword' id="cpassword" placeholder="Comfirm Password")
+                    .col-md-6 
+                        p Please enter ACCESS and REFRESH token secret of your choice. This is needed for JWT used by ZEBRA
+                        div(class="form-group")
+                            label(for="act") ACCESS TOKEN SECRET
+                            div(class="input-group mb-2")
+                                div(class="input-group-prepend")
+                                    div(class="input-group-text") 
+                                        i(class="fas fa-key")
+                                input(type="text" class="form-control" name='act' id="act" placeholder="Access Token")
+                        div(class="form-group")
+                            label(for="rft") REFRESH TOKEN SECRET
+                            div(class="input-group mb-2")
+                                div(class="input-group-prepend")
+                                    div(class="input-group-text") 
+                                        i(class="fas fa-key")
+                                input(type="text" class="form-control" name='rft' id="rft" placeholder="Refresh Token")
                 button(type='submit' class='btn btn-primary' id="rmf3b", style={"margin-top":"7px", "width":"100%"}) Change
     else 
         div(class='topa')

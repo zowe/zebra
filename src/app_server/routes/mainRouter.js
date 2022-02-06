@@ -66,6 +66,10 @@ function parameters(fn){
   fn(parms); //return the parameters
 }
 
+router.get('/pwdd', (req, res) => { //remember to delete
+  res.render("login", {data: "pwd"})
+})
+
 // Checks if user login session is available in browser
 var sessionChecker = (req, res, next) => {
   if (req.session.name && req.cookies.user_sid) { //If user login session is available

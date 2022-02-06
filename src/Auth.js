@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 var nedb = require("./nedbAdmin")
 let db = nedb.db;
 let dbrefresh = nedb.dbrefresh;
+var fs = require('fs'); //importing the fs module
 //var Zconfig = require("./config/");
 
 /*function parameters(fn){
@@ -145,6 +146,10 @@ function generateAccessToken(user){
     return jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn: "15m"})
 }
 
+function generateAccessToken1(user, act){
+    return jwt.sign(user, act, {expiresIn: "15m"})
+}
+
 module.exports.authenticateToken =function (req,res, next) {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -267,6 +272,15 @@ module.exports.formLogin  = async function (req, res, next){
     }); 
 }
 
+function wenv(act, rft, fn){ //write to .env file
+    fs.writeFile(".env", `ACCESS_TOKEN = ${act} \nREFRESH_TOKEN = ${rft}`, 'utf-8', function(err, data) {
+        if (err){
+            fn("error")
+        } else {
+            fn("Success")
+        }
+    })
+}
 //Update Paasword Form
 module.exports.updatePasswordForm = async function(req, res){
     db.find({ }, async function (err, users) {
@@ -284,36 +298,44 @@ module.exports.updatePasswordForm = async function(req, res){
                     const Salt = bcrypt.genSaltSync()
                     const hashedpassword = bcrypt.hashSync(newpassword, Salt)
                     //const user = {name: data.name, password: hashedpassword}
-                    db.update({ password: user.password }, {$set: { password: hashedpassword}}, {}, function (err, numReplaced) {
-                        if(err){
-                            res.render("login", {data: "pwd"})
-                        } else {
-                            const username = {name: req.body.name};
-                            const accessToken = generateAccessToken(username);
-                            const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN);
-                            dbrefresh.find({}, function(err, tokens){
+                    //Update ENV here
+                    wenv(req.body.act, req.body.rft, function(data){
+                        if(data === "Success"){
+                            db.update({ password: user.password }, {$set: { password: hashedpassword}}, {}, function (err, numReplaced) {
                                 if(err){
-                                    res.render("login", {data: "pwd"});
-                                }else{
-                                    if (tokens.length >= 1){
-                                        dbrefresh.remove({}, {multi: true}, err => {
-                                            if (err) {
-                                                res.render("login", {data: "pwd"});
+                                    res.render("login", {data: "pwd"})
+                                } else {
+                                    const username = {name: req.body.name};
+                                    const accessToken = generateAccessToken1(username, req.body.act);
+                                    const refreshToken = jwt.sign(username, req.body.rft);//process.env.REFRESH_TOKEN);
+                                    dbrefresh.find({}, function(err, tokens){
+                                        if(err){
+                                            res.render("login", {data: "pwd", cpmsg: "Failed to get data from dbrefresh"});
+                                        }else{
+                                            if (tokens.length >= 1){
+                                                dbrefresh.remove({}, {multi: true}, err => {
+                                                    if (err) {
+                                                        res.render("login", {data: "pwd", cpmsg: "Failed to remove data from dbrefresh"});
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
-                                    dbrefresh.insert({refreshToken: refreshToken, accessToken: accessToken });
+                                            dbrefresh.insert({refreshToken: refreshToken, accessToken: accessToken });
+                                        }
+                                    })
+                                    req.session.name = req.body.name;
+                                    req.session.password = newpassword;
+                                    var redirectionUrl = req.session.redirectUrl;
+                                    res.redirect(redirectionUrl);
+                                    //res.redirect("/");
                                 }
-                            })
-                            req.session.name = req.body.name;
-                            req.session.password = newpassword;
-                            var redirectionUrl = req.session.redirectUrl;
-                            res.redirect(redirectionUrl);
-                            //res.redirect("/");
+                            });
+                        }else{
+                            res.render("login", {data: "pwd", cpmsg: "Failed to save data to .env file"})
                         }
-                    });
+                    })
+                            
                 }catch(err) {
-                    res.render("login", {data: "pwd"})
+                    res.render("login", {data: "pwd", cpmsg: err})
                 }
             }else{
                 res.render("login", {data: "pwd", cpmsg: "Password mismatch"})

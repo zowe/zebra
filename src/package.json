@@ -8,8 +8,6 @@
     "docker": "nodemon --inspect=0.0.0.0 --legacy-watch ./bin/www"
   },
   "dependencies": {
-    "@zowe/cli": "^6.32.1",
-    "@zowe/imperative": "^4.13.4",
     "axios": "^0.20.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",

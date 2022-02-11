@@ -48,10 +48,10 @@ jobs:
           node-version: 8.11.4
 
       - name: '[Build] Nodejs project build'
-        run: npm run build
+        run: npm --prefix src run build
 
       - name: '[Test] Nodejs project unit test'
-        run: npm run test
+        run: npm --prefix src run test
 
   deploy:
     runs-on: ubuntu-latest

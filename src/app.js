@@ -8,11 +8,9 @@
   Copyright Contributors to the Zowe Project.
 **/
 
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-const fs = require('fs');
+/* var createError = require('http-errors');
+
+
 
 var Zconfig
 try {
@@ -22,13 +20,18 @@ try {
   exit();
 }
 
+
+var ddsconfig = require("./config/Zconfig.json"); */
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+const fs = require('fs');
 var session = require('express-session');
 
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
-var ddsconfig = require("./config/Zconfig.json");
 
 // Create empty metrics.json if it doesn't exist
 if (!fs.existsSync(path.resolve(__dirname, 'metrics.json'))) {
@@ -36,8 +39,8 @@ if (!fs.existsSync(path.resolve(__dirname, 'metrics.json'))) {
   console.log("Empty metrics.json generated");
 }
 
-var lpar_details = ddsconfig["dds"];
-var lpars = Object.keys(lpar_details);
+//var lpar_details = ddsconfig["dds"];
+//var lpars = Object.keys(lpar_details);
 lpar_prom = [];
 lpar_mongo = [];
 try{

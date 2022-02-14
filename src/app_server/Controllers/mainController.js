@@ -62,7 +62,7 @@ module.exports.home = async function(req, res){ //Controller function for Index 
       res.render("index", {lpar:lpars, reports:REPORTS}); //render the homepage with user previledge
     }
   }catch(e){
-    res.render("index", {lpar:[]});
+    res.render("index", {lpar:[], reports:REPORTS});
   }
   
 };

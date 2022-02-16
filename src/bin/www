@@ -7,12 +7,16 @@
 var app = require('../app');
 var debug = require('debug')('zebra:server');
 var http = require('http');
-var Zconfig = require("../config/Zconfig");
-var httpsparm = Zconfig["https"];
+try{
+  var Zconfig = require("../config/Zconfig.json");
+}catch(e){
+  var Zconfig = {};
+}
+var httpsparm = Zconfig["use_cert"];
 var pfx = "undefined" //Zconfig["pfx"];
 var pass = "None" //Zconfig["passhrase"];
 var config;
-var port = normalizePort(process.env.PORT || 3090 );
+var port = normalizePort( Zconfig["appport"] || process.env.PORT || 3090 );
 
 /**
  * Get port from environment and store in Express.

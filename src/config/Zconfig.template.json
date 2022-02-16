@@ -1,0 +1,49 @@
+{
+    "mongourl":"localhost",
+    "dbinterval":"100",
+    "dbname":"zebraDB",
+    "appurl":"localhost",
+    "appport":"3090",
+    "mongoport":"27017",
+    "ppminutesInterval":"30",
+    "rmf3interval":"100",
+    "zebra_httptype":"https",
+    "useDbAuth":"true",
+    "dbUser":"user",
+    "dbPassword":"pass",
+    "authSource":"admin",
+    "use_cert": "false",
+    "grafanaurl":"localhost",
+    "grafanaport":"9000",
+    "grafanahttptype": "http",
+    "dds": {
+        "SLSU": {
+            "ddshhttptype":"https",
+            "ddsbaseurl":"salisu.com",
+            "ddsbaseport":"8803",
+            "ddsauth":"true",
+            "ddsuser":"user",
+            "ddspwd":"pass",
+            "rmf3filename":"rmfm3.xml",
+            "rmfppfilename":"rmfpp.xml",
+            "mvsResource":",SLSU,MVS_IMAGE",
+            "PCI": 3340,
+            "usePrometheus":"true",
+            "useMongo": "false"
+        },
+        "JSTN": {
+            "ddshhttptype":"http",
+            "ddsbaseurl":"justin.com",
+            "ddsbaseport":"8803",
+            "ddsauth":"true",
+            "ddsuser":"user",
+            "ddspwd":"pass",
+            "rmf3filename":"rmfm3.xml",
+            "rmfppfilename":"rmfpp.xml",
+            "mvsResource":",JSTN,MVS_IMAGE",
+            "PCI": 3340,
+            "usePrometheus":"false",
+            "useMongo": "true"
+        }
+    }
+}

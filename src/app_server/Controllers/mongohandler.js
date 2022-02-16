@@ -6,7 +6,11 @@ let wkldoc = require("../Models/workloaddocSchema")
 var MongoClient = require('mongodb').MongoClient;
 //var mongoose = require( 'mongoose' );
 //var url = "mongodb://localhost:27017/";
-var Zconfig = require("../../config/Zconfig");
+try{
+    var Zconfig = require("../../config/Zconfig.json");
+}catch(e){
+    var Zconfig = {};
+}
 var mongourl = Zconfig['mongourl'] ;
 var mongoport = Zconfig['mongoport'] ;
 var dbname = Zconfig['dbname'];

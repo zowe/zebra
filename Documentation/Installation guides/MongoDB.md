@@ -1,5 +1,5 @@
 ## MongoDB install is optional and make sure read MongoDB’s terms and conditions!
-## MongoDB github Repo: https://github.com/mongodb/mongo
+#### MongoDB github Repo: https://github.com/mongodb/mongo
 
 # Install MongoDB on Windows
 ## Procedure
@@ -8,9 +8,9 @@ Follow these steps to install MongoDB Community Edition using the MongoDB Instal
 1. Download the installer.
 Download the MongoDB Community .msi installer from the following link:
 https://www.mongodb.com/try/download/community?tck=docs_server
-- In the Version dropdown, select the version of MongoDB to download.
-- In the Platform dropdown, select Windows.
-- In the Package dropdown, select msi.
+  - In the Version dropdown, select the version of MongoDB to download.
+  - In the Platform dropdown, select Windows.
+  - In the Package dropdown, select msi.
 Click Download.
 2. Run the MongoDB installer.
 For example, from the Windows Explorer/File Explorer:  
@@ -18,8 +18,8 @@ Go to the directory where you downloaded the MongoDB installer (.msi file). By d
 Double-click the .msi file.  
 3. Follow the MongoDB Community Edition installation wizard.  
 The wizard steps you through the installation of MongoDB and MongoDB Compass.
-- Choose Setup Type
-  You can choose either the Complete (recommended for most users) or Custom setup type. The Complete setup option installs MongoDB and the MongoDB tools to the default location. The Custom setup option allows you to specify which executables are installed and where.
+  - Choose Setup Type
+    You can choose either the Complete (recommended for most users) or Custom setup type. The Complete setup option installs MongoDB and the MongoDB tools to the default location. The Custom setup option allows you to specify which executables are installed and where.
 
 4. Install MongoDB Compass
   Optional. To have the wizard install MongoDB Compass, select Install MongoDB Compass (Default).

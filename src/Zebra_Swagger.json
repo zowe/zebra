@@ -17,8 +17,8 @@
       "description": "Convert RMF Monitor I Reports to JSON"
     },
     {
-      "name": "Static XML File",
-      "description": "Convert Monitor I Static XML File Reports to JSON"
+      "name": "Prometheus Metrics",
+      "description": "Manages the ZEBRA metrics exposed to Prometheus"
     }
   ],
   "schemes": [
@@ -26,7 +26,7 @@
   ],
   "produces": ["application/json;charset=UTF-8"],
   "paths": {
-    "/rmfm3?report={title}": {
+    "/v1/{lpar}/rmf3/{report}/apiml": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -38,9 +38,18 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF III Report to retrieve",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "CPC",
@@ -67,7 +76,7 @@
         "deprecated": false
       }
     },
-    "/rmfm3?report={title}&parm={value}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?parm={value}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -79,9 +88,18 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF III Report to retrieve",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "CPC",
@@ -117,7 +135,7 @@
         "deprecated": false
       }
     },
-    "/rmfm3?report={title}&lpar_parms={value}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?lpar_parms={value}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -129,9 +147,18 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF III Report to retrieve",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "CPC",
@@ -167,7 +194,7 @@
         "deprecated": false
       }
     },
-    "/rmfm3?report={title}&parm={value1}&lpar_parms={value2}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?parm={value1}&lpar_parms={value2}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -179,9 +206,18 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF III Report to retrieve",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "CPC",
@@ -226,7 +262,7 @@
         "deprecated": false
       }
     },
-    "/rmfm3?report={title}&job={value}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?job={value}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -238,9 +274,18 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF III Report to retrieve",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "PROC",
@@ -276,7 +321,7 @@
         "deprecated": false
       }
     },
-    "/rmfm3?reports={title}": {
+    "/v1/{lpar}/rmf3/{report}/apiml?resource={resource}": {
       "get": {
         "tags": [
           "RMF Monitor III"
@@ -288,12 +333,30 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF III Report to retrieve",
+            "description": "LPAR from which to retrieve RMF III Report",
             "required": true,
             "type": "string",
-            "default": "CPC",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
+            "required": true,
+            "type": "string",
+            "default": "SYSSUM",
+            "format": "string"
+          },
+          {
+            "name": "resource",
+            "in": "path",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": ",,SYSPLEX",
             "format": "string"
           }
         ],
@@ -317,7 +380,116 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}": {
+    "/v1/{lpar}/rmf3?id={id}&resource={resource}": {
+      "get": {
+        "tags": [
+          "RMF Monitor III"
+        ],
+        "summary": "Get RMF Metrics by ID and resource value",
+        "operationId": "G1",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lpar",
+            "in": "path",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report title",
+            "required": true,
+            "type": "string",
+            "default": "LIST",
+            "format": "string"
+          },
+          {
+            "name": "resource",
+            "in": "path",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": ",,SYSPLEX",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "JSON"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v1/{lpar}/rmf3?id={id}": {
+      "get": {
+        "tags": [
+          "RMF Monitor III"
+        ],
+        "summary": "Get RMF Metrics by ID value",
+        "operationId": "H1",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lpar",
+            "in": "path",
+            "description": "LPAR from which to retrieve RMF III Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Report title",
+            "required": true,
+            "type": "string",
+            "default": "8D0160",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "JSON"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -329,21 +501,39 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
             "required": true,
             "type": "string",
-            "default": "WLMGL",
+            "default": "RPRT",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "report",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "Report title",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "CPU",
+            "format": "string"
+          },
+          {
+            "name": "value1",
+            "in": "path",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
             "format": "string"
           }
         ],
@@ -367,7 +557,7 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}&SvcCls={value2}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&SvcCls={value3}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -379,25 +569,43 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "WLMGL",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "value1",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "2021-07-12",
             "format": "string"
           },
           {
             "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value3",
             "in": "path",
             "description": "Service Class Name to retrieve",
             "required": true,
@@ -426,7 +634,7 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}&SvcCls={value2}&Time={value3}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&SvcCls={value3}&Time={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -438,25 +646,43 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "WLMGL",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "value1",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "2021-07-12",
             "format": "string"
           },
           {
             "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value3",
             "in": "path",
             "description": "Service Class Name to retrieve",
             "required": true,
@@ -465,7 +691,7 @@
             "format": "string"
           },
           {
-            "name": "value3",
+            "name": "value4",
             "in": "path",
             "description": "Exact time of Service Class Information to retrieve",
             "required": true,
@@ -494,7 +720,7 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}&SvcCls={value2}&duration={value3}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&SvcCls={value3}&duration={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -506,25 +732,43 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "WLMGL",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "value1",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "2021-07-12",
             "format": "string"
           },
           {
             "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value3",
             "in": "path",
             "description": "Service Class Name to retrieve",
             "required": true,
@@ -533,7 +777,7 @@
             "format": "string"
           },
           {
-            "name": "value3",
+            "name": "value4",
             "in": "path",
             "description": "The start and end time(range) of Service Class Information to retrieve",
             "required": true,
@@ -562,7 +806,7 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}&Wlkd={value2}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&Wlkd={value3}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -574,25 +818,43 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "WLMGL",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "value1",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "2021-07-12",
             "format": "string"
           },
           {
             "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value3",
             "in": "path",
             "description": "Workload Class Name to retrieve",
             "required": true,
@@ -621,7 +883,7 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}&Wlkd={value2}&Time={value3}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&Wlkd={value3}&Time={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -633,25 +895,43 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "WLMGL",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "value1",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "2021-07-12",
             "format": "string"
           },
           {
             "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value3",
             "in": "path",
             "description": "Service Class Name to retrieve",
             "required": true,
@@ -660,7 +940,7 @@
             "format": "string"
           },
           {
-            "name": "value3",
+            "name": "value4",
             "in": "path",
             "description": "Exact time of Workload Class Information to retrieve",
             "required": true,
@@ -689,7 +969,7 @@
         "deprecated": false
       }
     },
-    "/rmfpp?report={title}&date={value}&Wlkd={value2}&duration={value3}": {
+    "/v1/{lpar}/rmfpp/{report}/apiml?start={value1}&end={value2}&Wlkd={value3}&duration={value4}": {
       "get": {
         "tags": [
           "RMF Monitor I"
@@ -701,25 +981,43 @@
         ],
         "parameters": [
           {
-            "name": "title",
+            "name": "lpar",
             "in": "path",
-            "description": "Title of RMF I Report to retrieve",
+            "description": "LPAR from which to retrieve RMF I Report",
+            "required": true,
+            "type": "string",
+            "default": "RPRT",
+            "format": "string"
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "description": "Report title",
             "required": true,
             "type": "string",
             "default": "WLMGL",
             "format": "string"
           },
           {
-            "name": "value",
+            "name": "value1",
             "in": "path",
-            "description": "Start and End date of the Report to retrieve",
+            "description": "start date parameter to retrieve from RMF I Report(if Available)",
             "required": true,
             "type": "string",
-            "default": "20200831,20200901",
+            "default": "2021-07-12",
             "format": "string"
           },
           {
             "name": "value2",
+            "in": "path",
+            "description": "end date parameter to retrieve from RMF I Report(if Available)",
+            "required": true,
+            "type": "string",
+            "default": "2021-07-12",
+            "format": "string"
+          },
+          {
+            "name": "value3",
             "in": "path",
             "description": "Service Class Name to retrieve",
             "required": true,
@@ -728,7 +1026,7 @@
             "format": "string"
           },
           {
-            "name": "value3",
+            "name": "value4",
             "in": "path",
             "description": "The start and end time(range) of Workload Class Information to retrieve",
             "required": true,
@@ -757,33 +1055,24 @@
         "deprecated": false
       }
     },
-    "/static?file={path}&type={reportType}": {
+    "/v1/metrics/{name}": {
       "get": {
         "tags": [
-          "Static XML File"
+          "Prometheus Metrics"
         ],
-        "summary": "Parse RMF I Report from a Static XMl File",
+        "summary": "Retrieves specified or all metrics exposed to Prometheus",
         "operationId": "N",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "path",
+            "name": "name",
             "in": "path",
-            "description": "Path of the static XML file to parse",
-            "required": true,
+            "description": "Name metric to retrieve. If empty, retrieves all metrics",
+            "required": false,
             "type": "string",
-            "default": "/home/salis/rmfpp.xml",
-            "format": "string"
-          },
-          {
-            "name": "reportType",
-            "in": "path",
-            "description": "type of the report contained in the xml file(CPU or WLM)",
-            "required": true,
-            "type": "string",
-            "default": "WLM",
+            "default": "RPRT_QCK2_PTOU",
             "format": "string"
           }
         ],
@@ -791,20 +1080,245 @@
           "200": {
             "description": "OK",
             "schema": {
-              "type": "JSON"
+              "$ref": "#/definitions/MetricResponse"
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
           "404": {
-            "description": "Not Found"
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Creates a metric to expose to Prometheus with the given name",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of metric to create",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "metric",
+            "in": "body",
+            "description": "Metric object to create",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/MetricBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Updates the metric with the given name",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of metric to update",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "metric",
+            "in": "body",
+            "description": "Updated metric",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/MetricBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Prometheus Metrics"
+        ],
+        "summary": "Deletes the metric with the given name",
+        "operationId": "N",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of metric to delete",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/MetricResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MetricBody": {
+      "type": "object",
+      "description": "Schema for selecting ZEBRA data to expose to Prometheus",
+      "required": [
+        "lpar",
+        "request",
+        "field"
+      ],
+      "properties": {
+        "lpar": { 
+          "type": "string",
+          "description": "The LPAR reporting the data"
+        },
+        "request": {
+          "type": "object",
+          "description": "ZEBRA request parameters",
+          "required": [
+            "report"
+          ],
+          "properties": {
+            "report": { 
+              "type": "string",
+              "description": "The type of RMF III report"
+            },
+            "resource": { 
+              "type": "string",
+              "description": "The resource of the request"
+            }
           }
         },
-        "deprecated": false
+        "identifiers": {
+          "type": "array",
+          "description": "List of Key-Value pairs that identify what entity to extract data from",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "ZEBRA field used as an ID"
+              },
+              "value": {
+                "type": "string",
+                "description": "Value of ZEBRA field used as ID"
+              }
+            }
+          }
+        },
+        "field": {
+          "type": "string",
+          "description": "The ZEBRA field to collect data from"
+        },
+        "desc": {
+          "type": "string",
+          "description": "Description of metric (helpful for identifying which metric does what)"
+        }
+      }
+    },
+    "MetricResponse": {
+      "type": "object",
+      "description": "Standard response of metric API",
+      "required": [
+        "msg",
+        "err"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Message that details the result of the API call"
+        },
+        "err": {
+          "type": "boolean",
+          "description": "Whether an error occured or not"
+        },
+        "data": {
+          "type": "any",
+          "description": "If any data is returned in function, it is within this property"
+        }
       }
     }
   }

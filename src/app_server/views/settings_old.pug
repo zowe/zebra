@@ -1,0 +1,124 @@
+extends layout
+
+block content
+    .main   
+        .apis
+            .row
+                .col-md-2
+                    p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"14px"}) Refresh Token
+                .col-md-10
+                    form( action="/refreshT" method="post")
+                        input(type="text" class="form-control form-control-sm" name="refresh" style={"margin-right": "10px", "margin-top":"6px","width":"100%"} value="${fdata.Refresh}")
+                        button(type='submit' class='btn btn-primary btn-sm float-right' id="rmf3b" style={ "margin-top":"6px"}) New Access Token
+                
+            hr(style={ "margin-top":"6px"})
+        .apis
+            hr(style={"margin":"0"})
+            .row
+                .col-md-2
+                    p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Refresh Token
+                .col-md-10
+                    form( action="/refreshT" method="post")
+                        input(type="text" class="form-control" name="refresh" style={"margin-right": "10px", "margin-top":"6px","width":"100%"} value=`${fdata.Refresh}`)
+                        button(type='submit' class='btn btn-primary float-right' id="rmf3b" style={ "margin-top":"6px"}) New Access Token
+                
+            hr(style={ "margin-top":"6px"})
+
+            hr(style={ "margin-top":"15px"})
+        .salis(style={"width":"98%","max-height": "65vh","overflow" : "auto", "margin-top":"10px", "margin-bottom":"30px", "margin-left": "2%"})
+            .row
+                .col-md-2
+                    p(style={"margin-top":"10px", "margin-right": "10px", "margin-left":"30px", "font-size":"18px"}) Access Token
+                .col-md-10(style={"width":"96%"})
+                    form( action="/addsetting" method="post")
+                        if(acmsg)
+                            div(class="alert alert-danger" role="alert") Access Token Verification Fail...Generate New
+                        if(scmsg)
+                            div(class="alert alert-primary" role="alert") ZConfig Updated Successfully. App will restart and you will lose your login session
+                        input(type="text" class="form-control" name="access" style={"margin-right": "10px", "margin-top":"6px","width":"99%"} value=`${fdata.Access}`)
+                        .row(style={"width":"96%"})
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS IP Address
+                                input(type="text" class="form-control" name="ddsurl" style={"margin-right": "10px"} value=`${fparms.ddsbaseurl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Port
+                                input(type="text" class="form-control" name="ddsport" style={"margin-right": "10px"} value=`${fparms.ddsbaseport}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) MongoDB IP Addres
+                                input(type="text" class="form-control" name="mongourl" style={"margin-right": "10px"} value=`${fparms.mongourl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) MongoDB port
+                                input(type="text" class="form-control" name="mongoport" style={"margin-right": "10px"} value=`${fparms.mongoport}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Database Name
+                                input(type="text" class="form-control" name="dbname" style={"margin-right": "10px"} value=`${fparms.dbname}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Database Storage Interval(seconds)
+                                input(type="text" class="form-control" name="dbinterval" style={"margin-right": "10px"} value=`${fparms.dbinterval}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Zebra IP Address
+                                input(type="text" class="form-control" name="appurl" style={"margin-right": "10px"} value=`${fparms.appurl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Zebra Port
+                                input(type="text" class="form-control" name="appport" style={"margin-right": "10px"} value=`${fparms.appport}`)
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF III FileName
+                                input(type="text" class="form-control" name="rmf3filename" style={"margin-right": "10px"} value=`${fparms.rmf3filename}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF PP FileName
+                                input(type="text" class="form-control" name="rmfppfilename" style={"margin-right": "10px"} value=`${fparms.rmfppfilename}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) MVS Resource
+                                input(type="text" class="form-control" name="mvsResource" style={"margin-right": "10px"} value=`${fparms.mvsResource}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF III Interval
+                                input(type="text" class="form-control" name="rmf3interval" style={"margin-right": "10px"} value=`${fparms.rmf3interval}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF PP Interval
+                                input(type="text" class="form-control" name="ppminutesInterval" style={"margin-right": "10px"} value=`${fparms.ppminutesInterval}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) HTTP Type
+                                input(type="text" class="form-control" name="httptype" style={"margin-right": "10px"} value=`${fparms.httptype}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use Database Authentication
+                                input(type="text" class="form-control" name="useDbAuth" style={"margin-right": "10px"} value=`${fparms.useDbAuth}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Database User ID
+                                input(type="text" class="form-control" name="dbUser" style={"margin-right": "10px"} value=`${fparms.dbUser}`)
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Database Password
+                                input(type="text" class="form-control" name="dbPassword" style={"margin-right": "10px"} value=`${fparms.dbPassword}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Database for Authentication
+                                input(type="text" class="form-control" name="authSource" style={"margin-right": "10px"} value=`${fparms.authSource}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use MongoDB
+                                input(type="text" class="form-control" name="useMongo" style={"margin-right": "10px"} value=`${fparms.useMongo}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use Prometheus
+                                input(type="text" class="form-control" name="usePrometheus" style={"margin-right": "10px"} value=`${fparms.usePrometheus}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Grafana IP Address
+                                input(type="text" class="form-control" name="grafanaurl" style={"margin-right": "10px"} value=`${fparms.grafanaurl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Grafana Port
+                                input(type="text" class="form-control" name="grafanaport" style={"margin-right": "10px"} value=`${fparms.grafanaport}`)
+                        button(type='submit' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%"}) Save
+                
+            hr(style={ "margin-top":"6px"})
+
+                    form( action="/addsetting" method="post")
+                        .row(style={"width":"96%"})
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS HTTP Type
+                                input(type="text" class="form-control" name="dds_http" style={"margin-right": "10px"} value=`${fparms.ddsbaseurl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS IP Address
+                                input(type="text" class="form-control" name="ddsport" style={"margin-right": "10px"} value=`${fparms.ddsbaseport}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Port
+                                input(type="text" class="form-control" name="mongourl" style={"margin-right": "10px"} value=`${fparms.mongourl}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use Authentication
+                                input(type="text" class="form-control" name="mongoport" style={"margin-right": "10px"} value=`${fparms.mongoport}`)
+                                
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF III FileName
+                                input(type="text" class="form-control" name="rmf3filename" style={"margin-right": "10px"} value=`${fparms.rmf3filename}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) RMF PP FileName
+                                input(type="text" class="form-control" name="rmfppfilename" style={"margin-right": "10px"} value=`${fparms.rmfppfilename}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) MVS Resource
+                                input(type="text" class="form-control" name="mvsResource" style={"margin-right": "10px"} value=`${fparms.mvsResource}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Mainframe PCI
+                                input(type="text" class="form-control" name="rmf3interval" style={"margin-right": "10px"} value=`${fparms.rmf3interval}`)
+                                
+                            .col-md-4
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Username
+                                input(type="text" class="form-control" name="dbPassword" style={"margin-right": "10px"} value=`${fparms.dbPassword}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) DDS Password
+                                input(type="text" class="form-control" name="authSource" style={"margin-right": "10px"} value=`${fparms.authSource}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use MongoDB
+                                input(type="text" class="form-control" name="useMongo" style={"margin-right": "10px"} value=`${fparms.useMongo}`)
+                                p(style={"margin-top":"10px", "margin-right": "10px"}) Use Prometheus
+                                input(type="text" class="form-control" name="usePrometheus" style={"margin-right": "10px"} value=`${fparms.usePrometheus}`)
+                                
+                        button(type='submit' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%"}) Save
+

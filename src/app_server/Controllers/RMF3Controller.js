@@ -1,6 +1,11 @@
 const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
-var Zconfig = require("../../config/Zconfig");
+//var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFPPparser file
+try{
+  var Zconfig = require("../../config/Zconfig.json");
+}catch(e){
+  var Zconfig = {};
+}
 let baseurl = Zconfig.ddsbaseurl;
 let baseport = Zconfig.ddsbaseport;
 let rmf3filename = Zconfig.rmf3filename;
@@ -24,6 +29,9 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //
   //Use backtick for URL string formatting
   var urlParams = "?";
   for (const param in params) {
+    if (!params[param]) {
+      continue;
+    }
     urlParams = urlParams.concat(`${param}=${params[param]}&`);
   }
   urlParams = urlParams.slice(0, urlParams.length - 1);
@@ -156,6 +164,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
   var urlLpar_parms; //variable for lpar_parms parameter in the User Specified URL
   var urlJobParm; //variable for job parameter in the User Specified URL
   var urlResource = mvsResource; // default resource
+  var urlRange;
   if(req.query.report){
     urlReport = (req.query.report).toUpperCase(); //variable for report parameter in the User Specified URL
   }
@@ -170,6 +179,9 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
   }
   if (req.query.resource) { // checks if user has specify a value for resource parameter
     urlResource = req.query.resource;
+  }
+  if (req.query.range) {
+    urlRange = req.query.range;
   }
   // querying specific field
   if (req.query.id && req.query.id.toUpperCase() !== "LIST") {
@@ -286,7 +298,7 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         // //Express respond with the result returned from displayUSAGE function
       });
     } else{ //Any other report
-      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: urlResource }, function (data) {
+      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: urlResource, range: urlRange }, function (data) {
         //res.json(data);
         if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
           var string = encodeURIComponent(`${data}`);

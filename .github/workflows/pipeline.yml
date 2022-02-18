@@ -69,6 +69,6 @@ jobs:
             cd /root/zebra
             git pull origin main
             npm --prefix src install
-            forever --uid prod restart
+            forever restart prod
 
 

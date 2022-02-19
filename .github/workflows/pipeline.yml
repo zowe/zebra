@@ -47,16 +47,17 @@ jobs:
         with:
           node-version: 8.11.4
 
-      - name: '[Pre-Build] Install build dependencies'
-        run: npm install --include=dev 
+      - name: '[Pre-Build] Install dependencies'
+        run: npm run prebuild
 
-      - name: '[Build] Nodejs project build'
+
+      - name: '[Build] Node.js project build'
         run: npm run build
 
       - name: '[Lint] Ensure consistent code styling'
-        run: npm lint
+        run: npm run lint
 
-      - name: '[Test] Nodejs project unit test'
+      - name: '[Test] Node.js project unit tests'
         run: npm test
 
   deploy:

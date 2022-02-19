@@ -47,6 +47,9 @@ jobs:
         with:
           node-version: 8.11.4
 
+      - name: '[Pre-Build] Install build dependencies'
+        run: npm install --include=dev 
+
       - name: '[Build] Nodejs project build'
         run: npm run build
 

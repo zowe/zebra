@@ -56,11 +56,11 @@ jobs:
       - name: '[Build] Node.js project build'
         run: npm run build
 
-      - name: '[Lint] Ensure consistent code styling'
-        run: npm run lint
-
       - name: '[Test] Node.js project unit tests'
         run: npm test
+
+      - name: '[Lint] Check if code has any warnings/errors/non-standard styling'
+        run: npm run check-lint
 
   deploy:
     runs-on: ubuntu-latest

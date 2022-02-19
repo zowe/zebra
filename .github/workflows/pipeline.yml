@@ -45,10 +45,12 @@ jobs:
       - name: '[Prep 3] Setup Node'
         uses: actions/setup-node@v2
         with:
-          node-version: 8.11.4
+          node-version: lts/gallium
 
       - name: '[Pre-Build] Install dependencies'
-        run: npm run prebuild
+        run: |
+          export HUSKY_SKIP_INSTALL=true
+          npm run prebuild
 
 
       - name: '[Build] Node.js project build'

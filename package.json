@@ -4,8 +4,8 @@
   "description": "Top-level package for ZEBRA packages",
   "main": "index.js",
   "scripts": {
-    "build": "foreach -g \"./packages/**/package.json\" -x \"npm run --prefix #{dir} build\" --concurrent",
-    "test": "foreach -g \"./packages/**/package.json\" -x \"npm test --prefix #{dir}\" --concurrent",
+    "build": "foreach -g \"./packages/**/package.json\" -x \"npm install --prefix #{dir} && npm run --prefix #{dir} build\"",
+    "test": "foreach -g \"./packages/**/package.json\" -x \"npm test --prefix #{dir}\"",
     "prepare": "husky install",
     "lint": "pretty-quick --staged && lint-staged"
   },

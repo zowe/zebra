@@ -1,4 +1,0 @@
----
-applications:
-- name: Zebra
-  memory: 256M

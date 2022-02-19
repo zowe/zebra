@@ -1,0 +1,39 @@
+{
+  "name": "zebra-parser",
+  "version": "1.0.0",
+  "description": "ZEBRA package that handles parsing RMF reports",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "test": "jest dist/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zowe/zebra.git"
+  },
+  "keywords": [
+    "zowe",
+    "zebra",
+    "z/os",
+    "rmf",
+    "smf",
+    "parser",
+    "json",
+    "performance",
+    "metrics",
+    "mainframe",
+    "ibm",
+    "omp"
+  ],
+  "author": "Zowe",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/zowe/zebra/issues"
+  },
+  "homepage": "https://github.com/zowe/zebra#readme",
+  "dependencies": {
+    "axios": "^0.26.0"
+  }
+}

@@ -1,0 +1,8 @@
+# Node Modules
+node_modules/
+
+# Compiled JavaScript
+dist/
+
+# Old JavaScript source files
+old

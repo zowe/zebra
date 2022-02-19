@@ -48,10 +48,13 @@ jobs:
           node-version: 8.11.4
 
       - name: '[Build] Nodejs project build'
-        run: npm --prefix src run build
+        run: npm run build
+
+      - name: '[Lint] Ensure consistent code styling'
+        run: npm lint
 
       - name: '[Test] Nodejs project unit test'
-        run: npm --prefix src run test
+        run: npm test
 
   deploy:
     runs-on: ubuntu-latest

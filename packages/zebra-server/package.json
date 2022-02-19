@@ -1,0 +1,34 @@
+{
+  "name": "zebra-server",
+  "version": "1.0.0",
+  "description": "Server that provides REST API for retrieving RMF data in ZEBRA format",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "test": "jest dist/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zowe/zebra.git"
+  },
+  "keywords": [
+    "zowe",
+    "zebra",
+    "z/os",
+    "rmf",
+    "smf",
+    "json",
+    "performance",
+    "metrics",
+    "mainframe",
+    "ibm"
+  ],
+  "author": "Zowe",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/zowe/zebra/issues"
+  },
+  "homepage": "https://github.com/zowe/zebra#readme"
+}

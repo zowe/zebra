@@ -1,0 +1,57 @@
+{
+  "name": "zebra",
+  "version": "1.0.0",
+  "description": "Top-level package for ZEBRA packages",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "npm install --include=dev && foreach -g \"./packages/*/package.json\" -x \"npm install --prefix #{dir} --include=dev\" --concurrent",
+    "build": "foreach -g \"./packages/*/package.json\" -x \"npm run --prefix #{dir} build\" --concurrent",
+    "test": "foreach -g \"./packages/*/package.json\" -x \"npm test --prefix #{dir}\" --concurrent",
+    "prepare": "husky install",
+    "lint": "pretty-quick --staged && lint-staged",
+    "check-lint": "npx eslint packages --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zowe/zebra.git"
+  },
+  "keywords": [
+    "zowe",
+    "zebra",
+    "rmf",
+    "smf",
+    "json",
+    "z/os",
+    "performance",
+    "metrics",
+    "ibm",
+    "mainframe"
+  ],
+  "author": "Zowe",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/zowe/zebra/issues"
+  },
+  "homepage": "https://github.com/zowe/zebra#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "foreach-cli": "^1.8.1",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "lint-staged": "^12.3.4",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.3",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5"
+  },
+  "lint-staged": {
+    "packages/**/*.ts": "eslint --cache --fix"
+  }
+}

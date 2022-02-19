@@ -45,13 +45,22 @@ jobs:
       - name: '[Prep 3] Setup Node'
         uses: actions/setup-node@v2
         with:
-          node-version: 8.11.4
+          node-version: lts/gallium
 
-      - name: '[Build] Nodejs project build'
-        run: npm --prefix src run build
+      - name: '[Pre-Build] Install dependencies'
+        run: |
+          export HUSKY_SKIP_INSTALL=true
+          npm run prebuild
 
-      - name: '[Test] Nodejs project unit test'
-        run: npm --prefix src run test
+
+      - name: '[Build] Node.js project build'
+        run: npm run build
+
+      - name: '[Test] Node.js project unit tests'
+        run: npm test
+
+      - name: '[Lint] Check if code has any warnings/errors/non-standard styling'
+        run: npm run check-lint
 
   deploy:
     runs-on: ubuntu-latest

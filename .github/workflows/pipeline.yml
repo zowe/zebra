@@ -71,6 +71,7 @@ jobs:
             npm --prefix src install
             npm install -g forever
             forever stopall
-            forever start src/bin/www
+            cd src
+            forever start bin/www
 
 

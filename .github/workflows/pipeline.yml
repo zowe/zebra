@@ -69,14 +69,14 @@ jobs:
             sudo apt -y install curl
             curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
             source ~/.profile
-            nvm install v8
-            nvm use v8
+            nvm install v8.11.4
+            nvm use v8.11.4
             cd /root/zebra
             git pull origin main
             cd src
             npm install
-            npm install -g pm2
-            pm2 stop all
-            pm2 start bin/www
+            npm install -g forever@4.0.3
+            forever stopall
+            forever start bin/www
 
 

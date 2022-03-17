@@ -2,7 +2,7 @@ name: Build and Test Workflow
 on:
   push:
     branches:
-      - main 
+      - build_test 
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
@@ -69,10 +69,10 @@ jobs:
             sudo apt -y install curl
             curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
             source ~/.profile
-            nvm install v8.11.4
-            nvm use v8.11.4
-            cd /root/zebra
-            git pull origin main
+            nvm install v8
+            nvm use v8
+            cd /root/zebra_build_test
+            git pull origin build_test
             cd src
             npm install
             npm install -g forever@4.0.3

@@ -69,6 +69,7 @@ jobs:
             sudo apt -y install curl
             curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
             source ~/.profile
+            export NVM_DIR="$HOME/.nvm"
             nvm install v8
             nvm use v8
             cd /root/zebra_build_test/zebra

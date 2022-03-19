@@ -73,7 +73,7 @@ jobs:
            # nvm use v8
             cd /root/zebra_build_test
             git pull origin build_test
-            cd src
+            cd zebra/src
             npm install
             node start bin/www
             #npm install -g forever@4.0.3

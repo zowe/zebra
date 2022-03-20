@@ -76,6 +76,7 @@ jobs:
             # nvm use v8
              cd /root/zebra_build_test/zebra
              which node
+             ls -altr
             # git pull  build_test
             # cd src
             # npm install

@@ -69,7 +69,7 @@ jobs:
 
             # sudo apt -y install curl
             # curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-            # source ~/.profile
+             source ~/.profile
             # whoami
             # export NVM_DIR="$HOME/.nvm"
             /usr/local/bin/nvm install v8

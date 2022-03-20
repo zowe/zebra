@@ -68,7 +68,7 @@ jobs:
           script: |
 
             # sudo apt -y install curl
-            # curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+             curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
              source ~/.profile
             # whoami
             # export NVM_DIR="$HOME/.nvm"

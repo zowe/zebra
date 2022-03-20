@@ -72,8 +72,8 @@ jobs:
             # source ~/.profile
             # whoami
             # export NVM_DIR="$HOME/.nvm"
-            # nvm install v8
-            # nvm use v8
+            /usr/local/bin/nvm install v8
+            /usr/local/bin/nvm use v8
              cd /root/zebra_build_test/zebra
              which node
              ls -altr

@@ -66,9 +66,10 @@ jobs:
           username: ${{ secrets.DEMO_SERVER_USERNAME }}
           key: ${{ secrets.DEMO_SERVER_KEY }}
           script: |
+        
             bash
-            # apt -y install curl
-            # curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+            sudo apt -y install curl
+            curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
              source ~/.bashrc
              export PATH="/root/.nvm/versions/node/v8.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
             # whoami

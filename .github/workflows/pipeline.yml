@@ -76,14 +76,14 @@ jobs:
             pwd
             export NVM_DIR="$HOME/.nvm"
             /usr/local/bin/nvm install v8
-            #/usr/local/bin/nvm use v8
-            # cd /root/zebra_build_test/zebra
+            /usr/local/bin/nvm use v8
+            cd /root/zebra_build_test/zebra
             # which node
              ls -altr
-            # git pull  build_test
-            # cd src
-            # npm install
-            # node start bin/www
+            git pull  build_test
+            cd src
+            npm install
+            node start bin/www
             # #npm install -g forever@4.0.3
             # #forever stopall
             # #forever start bin/www

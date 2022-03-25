@@ -83,7 +83,7 @@ jobs:
             git pull  build_test
             cd src
             npm install
-            #node bin/www
+            node bin/www
             # #npm install -g forever@4.0.3
-            forever stopall
-            forever start bin/www
+            #forever stopall
+            #forever start bin/www

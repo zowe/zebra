@@ -66,9 +66,10 @@ jobs:
           username: ${{ secrets.DEMO_SERVER_USERNAME }}
           key: ${{ secrets.DEMO_SERVER_KEY }}
           script: |
-             sudo apt -y install curl
-             curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-             source ~/.bashrc
+
+           #  sudo apt -y install curl
+           #  curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+           #  source ~/.profile
             # whoami
             cd
             pwd

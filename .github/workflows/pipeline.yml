@@ -67,9 +67,9 @@ jobs:
           key: ${{ secrets.DEMO_SERVER_KEY }}
           script: |
 
-            apt -y install curl
+            # apt -y install curl
             # curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-           #  source ~/.profile
+             source ~/.profile
             # whoami
             cd
             pwd
@@ -86,5 +86,3 @@ jobs:
             # #npm install -g forever@4.0.3
             # #forever stopall
             # #forever start bin/www
-
-

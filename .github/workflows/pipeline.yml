@@ -75,8 +75,8 @@ jobs:
             cd
             pwd
             export NVM_DIR="$HOME/.nvm"
-            /usr/local/bin/nvm install v8
-            /usr/local/bin/nvm use v8
+            /usr/local/bin/nvm install v8.17.0
+            /usr/local/bin/nvm use v8.17.0
             cd /root/zebra_build_test/zebra
             # which node
              ls -altr

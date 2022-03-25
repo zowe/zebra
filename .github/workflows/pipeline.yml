@@ -70,11 +70,11 @@ jobs:
             # apt -y install curl
             # curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
              source ~/.bashrc
-             export PATH = "/root/.nvm/versions/node/v8.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+             export PATH="/root/.nvm/versions/node/v8.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
             # whoami
             cd
             pwd
-            # export NVM_DIR="$HOME/.nvm"
+            export NVM_DIR="$HOME/.nvm"
             /usr/local/bin/nvm install v8
             #/usr/local/bin/nvm use v8
             # cd /root/zebra_build_test/zebra

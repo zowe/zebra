@@ -84,6 +84,6 @@ jobs:
             cd src
             npm install
             node bin/www
-            npm install -g forever@4.0.3
+            #npm install -g forever@4.0.3
             #forever stopall
             #forever start bin/www

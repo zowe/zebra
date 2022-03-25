@@ -79,7 +79,7 @@ jobs:
             /usr/local/bin/nvm use v8.17.0
             cd /root/zebra_build_test/zebra
             # which node
-             ls -altr
+            ls -altr
             git pull  build_test
             cd src
             npm install

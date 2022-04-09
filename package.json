@@ -42,8 +42,7 @@
   },
   "lint-staged": {
     "packages/*/src/*.{ts,tsx}": [
-      "npx eslint --fix",
-      "git add"
+      "npx eslint --fix"
     ]
   }
 }

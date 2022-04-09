@@ -7,8 +7,8 @@
 [![code style: airbnb](https://img.shields.io/badge/code%20style-airbnb-FF5A5F.svg?style=flat)](https://github.com/airbnb/javascript)
 [![build](https://img.shields.io/github/workflow/status/zowe/zebra/Build%20and%20Test%20Workflow/main)](https://github.com/zowe/zebra/actions)
 
-<p style="text-align: center;">
-  <img alt="Zebra logo" src="images/zebra.png" style="width: 60%">
+<p align="center">
+  <img alt="ZEBRA logo" src="images/zebra.png" style="width: 60%">
 </p>
 
 - [About](#about)

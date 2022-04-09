@@ -1,0 +1,37 @@
+{
+  "name": "@zebra-omp/parser",
+  "version": "0.0.0",
+  "description": "RMF parsing functions for ZEBRA project",
+  "keywords": [
+    "rmf",
+    "parser",
+    "metrics",
+    "zos"
+  ],
+  "author": "Justin Santer <jdsaint27@icloud.com>",
+  "homepage": "https://github.com/zowe/zebra/tree/main/packages/parser#readme",
+  "license": "EPL-2.0",
+  "main": "lib/parser.js",
+  "typings": "lib/parser.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zowe/zebra.git"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/zowe/zebra/issues"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@zebra-omp/server",
+  "version": "0.0.0",
+  "description": "REST API for accessing ZEBRA metrics",
+  "keywords": [
+    "rmf",
+    "zos",
+    "json",
+    "api",
+    "metrics"
+  ],
+  "author": "Justin Santer <jdsaint27@icloud.com>",
+  "homepage": "https://github.com/zowe/zebra/tree/main/packages/server#readme",
+  "license": "EPL-2.0",
+  "main": "lib/server.js",
+  "typings": "lib/server.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zowe/zebra.git"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/zowe/zebra/issues"
+  }
+}

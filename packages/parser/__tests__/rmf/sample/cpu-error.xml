@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="include/ddsml-pp.xsl"?>
+<ddsml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:noNamespaceSchemaLocation="include/ddsml.xsd">
+<server>
+<name>RMF-DDS-Server</name>
+<version>ZOSV2R5</version>
+<functionality>3500</functionality>
+<platform>z/OS</platform>
+</server>
+<postprocessor>
+<message id="GPM0739E">
+<description>Invalid DDS request parameter 'DATE'</description>
+<severity>3</severity>
+</message>
+</postprocessor>
+</ddsml>

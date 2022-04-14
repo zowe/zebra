@@ -1,0 +1,777 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="include/ddsml-pp.xsl"?>
+<ddsml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:noNamespaceSchemaLocation="include/ddsml.xsd">
+    <server>
+        <name>RMF-DDS-Server</name>
+        <version>ZOSV2R5</version>
+        <functionality>3500</functionality>
+        <platform>z/OS</platform>
+    </server>
+    <postprocessor>
+        <metric id="CPU">
+            <description>CPU Activity Report</description>
+            <type>Interval</type>
+        </metric>
+        <version>
+            <smf-data>z/OS V2R5</smf-data>
+            <rmf-report>z/OS V2R5</rmf-report>
+        </version>
+        <resource>
+            <resname>RPRT</resname>
+            <restype>SYSTEM</restype>
+        </resource>
+        <time-data>
+            <display-start locale="en-us">04/12/2022-00.00.00</display-start>
+            <display-end locale="en-us">04/12/2022-00.30.00</display-end>
+            <report-interval unit="minutes">29:59:997</report-interval>
+            <cycle unit="milliseconds">1000</cycle>
+        </time-data>
+        <segment id="1">
+            <name>CPU Activity</name>
+            <part id="2">
+                <var-list id="3">
+                    <var>
+                        <name>CPU</name>
+                        <value>8562</value>
+                    </var>
+                    <var>
+                        <name>Model</name>
+                        <value>Z02</value>
+                    </var>
+                    <var>
+                        <name>H/W Model</name>
+                        <value>T02</value>
+                    </var>
+                    <var>
+                        <name>Sequence Code</name>
+                        <value>000000000005ED28</value>
+                    </var>
+                    <var>
+                        <name>HiperDispatch</name>
+                        <value>YES</value>
+                    </var>
+                    <var>
+                        <name>CPC Capacity</name>
+                        <value>413</value>
+                    </var>
+                    <var>
+                        <name>Change Reason</name>
+                        <value>NONE</value>
+                    </var>
+                    <var>
+                        <name>Boost Type</name>
+                        <value>NONE</value>
+                    </var>
+                    <var>
+                        <name>Boost Class</name>
+                        <value>NONE</value>
+                    </var>
+                </var-list>
+                <table id="4">
+                    <column-headers>
+                        <col type="T">CPU Number</col>
+                        <col type="T">CPU Type</col>
+                        <col type="N">Time% Online</col>
+                        <col type="N">Time% LPAR Busy</col>
+                        <col type="N">Time% MVS Busy</col>
+                        <col type="N">Time% Parked</col>
+                        <col type="N">LOG PROC Share%</col>
+                        <col type="T">HiperDispatch Priority</col>
+                        <col type="N">I/O Interrupts Rate</col>
+                        <col type="N">I/O Interrupts% via TPI</col>
+                    </column-headers>
+                    <row refno="1">
+                        <col>0</col>
+                        <col>CP</col>
+                        <col>100.00</col>
+                        <col>1.36</col>
+                        <col>1.33</col>
+                        <col>0.00</col>
+                        <col>92.9</col>
+                        <col>MED</col>
+                        <col>25.37</col>
+                        <col>0.59</col>
+                    </row>
+                    <row refno="2">
+                        <col>1</col>
+                        <col>CP</col>
+                        <col>100.00</col>
+                        <col>0.42</col>
+                        <col>0.42</col>
+                        <col>0.00</col>
+                        <col>0.0</col>
+                        <col>LOW</col>
+                        <col>4.17</col>
+                        <col>0.51</col>
+                    </row>
+                    <row refno="3" type="SUM">
+                        <col>TOTAL/AVERAGE</col>
+                        <col>CP</col>
+                        <col/>
+                        <col>0.89</col>
+                        <col>0.88</col>
+                        <col/>
+                        <col>92.9</col>
+                        <col/>
+                        <col>29.54</col>
+                        <col>0.58</col>
+                    </row>
+                </table>
+            </part>
+            <part id="5">
+                <name>System Address Space Analysis</name>
+                <table id="6">
+                    <column-headers>
+                        <col type="T">Type</col>
+                        <col type="N">Number of Address Spaces: MIN</col>
+                        <col type="N">Number of Address Spaces: MAX</col>
+                        <col type="N">Number of Address Spaces: AVG</col>
+                    </column-headers>
+                    <row refno="1">
+                        <col>IN Queue</col>
+                        <col>70</col>
+                        <col>78</col>
+                        <col>72.3</col>
+                    </row>
+                    <row refno="2">
+                        <col>IN READY Queue</col>
+                        <col>0</col>
+                        <col>2</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="3">
+                        <col>OUT READY Queue</col>
+                        <col>0</col>
+                        <col>0</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="4">
+                        <col>OUT WAIT Queue</col>
+                        <col>0</col>
+                        <col>0</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="5">
+                        <col>LOGICAL OUT READY Queue</col>
+                        <col>0</col>
+                        <col>1</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="6">
+                        <col>LOGICAL OUT WAIT Queue</col>
+                        <col>26</col>
+                        <col>61</col>
+                        <col>51.0</col>
+                    </row>
+                    <row refno="7">
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                    </row>
+                    <row refno="8">
+                        <col>BATCH Address Spaces</col>
+                        <col>0</col>
+                        <col>0</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="9">
+                        <col>STC Address Spaces</col>
+                        <col>75</col>
+                        <col>107</col>
+                        <col>98.0</col>
+                    </row>
+                    <row refno="10">
+                        <col>TSO Address Spaces</col>
+                        <col>0</col>
+                        <col>0</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="11">
+                        <col>ASCH Address Spaces</col>
+                        <col>0</col>
+                        <col>0</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="12">
+                        <col>OMVS Address Spaces</col>
+                        <col>25</col>
+                        <col>28</col>
+                        <col>25.2</col>
+                    </row>
+                </table>
+            </part>
+            <part id="7">
+                <name>Distribution of In-ready Work Unit Queue</name>
+                <var-list id="8">
+                    <var>
+                        <name>Avg Number of Processors Online and Unparked (N)</name>
+                        <value>2.0</value>
+                    </var>
+                </var-list>
+                <table id="9">
+                    <column-headers>
+                        <col type="T">Number of Work Units</col>
+                        <col type="N">% of Samples</col>
+                    </column-headers>
+                    <row refno="1" percent="99">
+                        <col>&lt;=N</col>
+                        <col>99.7</col>
+                    </row>
+                    <row refno="2" percent="0">
+                        <col>=N+1</col>
+                        <col>0.1</col>
+                    </row>
+                    <row refno="3" percent="0">
+                        <col>=N+2</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="4" percent="0">
+                        <col>=N+3</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="5" percent="0">
+                        <col>&lt;=N+5</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="6" percent="0">
+                        <col>&lt;=N+10</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="7" percent="0">
+                        <col>&lt;=N+15</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="8" percent="0">
+                        <col>&lt;=N+20</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="9" percent="0">
+                        <col>&lt;=N+30</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="10" percent="0">
+                        <col>&lt;=N+40</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="11" percent="0">
+                        <col>&lt;=N+60</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="12" percent="0">
+                        <col>&lt;=N+80</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="13" percent="0">
+                        <col>&lt;=N+100</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="14" percent="0">
+                        <col>&lt;=N+120</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="15" percent="0">
+                        <col>&lt;=N+150</col>
+                        <col>0.0</col>
+                    </row>
+                    <row refno="16" percent="0">
+                        <col>&gt;N+150</col>
+                        <col>0.0</col>
+                    </row>
+                </table>
+            </part>
+            <part id="10">
+                <name>Work Unit Analysis</name>
+                <table id="11">
+                    <column-headers>
+                        <col type="T">CPU Type</col>
+                        <col type="N">Number of Work Units: MIN</col>
+                        <col type="N">Number of Work Units: MAX</col>
+                        <col type="N">Number of Work Units: AVG</col>
+                    </column-headers>
+                    <row refno="1">
+                        <col>CP</col>
+                        <col>0</col>
+                        <col>9</col>
+                        <col>0.1</col>
+                    </row>
+                </table>
+            </part>
+            <part id="12">
+                <name>Blocked Workload Analysis</name>
+                <var-list id="13">
+                    <var>
+                        <name>OPT Parameter: BLWLTRPCT (%)</name>
+                        <value>0.5</value>
+                    </var>
+                    <var>
+                        <name>OPT Parameter: BLWLINTHD</name>
+                        <value>20</value>
+                    </var>
+                    <var>
+                        <name>Promote Rate Defined</name>
+                        <value>27</value>
+                    </var>
+                    <var>
+                        <name>Promote Rate Used(%)</name>
+                        <value>0</value>
+                    </var>
+                    <var>
+                        <name>Avg Waiters for Promote</name>
+                        <value>0.000</value>
+                    </var>
+                    <var>
+                        <name>Peak Waiters for Promote</name>
+                        <value>0</value>
+                    </var>
+                </var-list>
+            </part>
+        </segment>
+        <segment id="14">
+            <name>Partition Data Report</name>
+            <part id="15">
+                <var-list id="16">
+                    <var>
+                        <name>MVS Partition Name</name>
+                        <value>VIRPT</value>
+                    </var>
+                    <var>
+                        <name>Image Capacity</name>
+                        <value>413</value>
+                    </var>
+                    <var>
+                        <name>Number of Configured Partitions</name>
+                        <value>11</value>
+                    </var>
+                    <var>
+                        <name>Wait Completion</name>
+                        <value>NO</value>
+                    </var>
+                    <var>
+                        <name>Dispatch Interval</name>
+                        <value>DYNAMIC</value>
+                    </var>
+                    <var>
+                        <name>Group Name</name>
+                        <value>N/A</value>
+                    </var>
+                    <var>
+                        <name>Group Limit</name>
+                        <value>N/A</value>
+                    </var>
+                    <var>
+                        <name>Group Capacity Available</name>
+                        <value>N/A</value>
+                    </var>
+                    <var>
+                        <name>Initial Capping</name>
+                        <value>NO</value>
+                    </var>
+                    <var>
+                        <name>LPAR Hardware Capping</name>
+                        <value>YES</value>
+                    </var>
+                    <var>
+                        <name>Hardware Group Capping</name>
+                        <value>NO</value>
+                    </var>
+                    <var>
+                        <name>Absolute MSU Capping</name>
+                        <value>NO</value>
+                    </var>
+                </var-list>
+            </part>
+            <part id="17">
+                <name>Number of Physical Processors</name>
+                <table id="18">
+                    <column-headers>
+                        <col type="T">Type</col>
+                        <col type="N">Number</col>
+                    </column-headers>
+                    <row refno="1">
+                        <col>General purpose processor (CP)</col>
+                        <col>2</col>
+                    </row>
+                    <row refno="2">
+                        <col>Application Assist Processor (zAAP)</col>
+                        <col>0</col>
+                    </row>
+                    <row refno="3">
+                        <col>Integrated Information Processor (zIIP)</col>
+                        <col>0</col>
+                    </row>
+                    <row refno="4">
+                        <col>Internal Coupling Facility (ICF) processor</col>
+                        <col>1</col>
+                    </row>
+                    <row refno="5">
+                        <col>Integrated Facility for Linux (IFL) processor</col>
+                        <col>4</col>
+                    </row>
+                    <row refno="6" type="SUM">
+                        <col>Total</col>
+                        <col>7</col>
+                    </row>
+                </table>
+            </part>
+            <part id="19">
+                <name>Partition Data</name>
+                <table id="20">
+                    <column-headers>
+                        <col type="T">Partition Name</col>
+                        <col type="T">Partition Status</col>
+                        <col type="T">Boost Type</col>
+                        <col type="N">Partition Weight</col>
+                        <col type="N">MSU Defined</col>
+                        <col type="N">MSU Actual</col>
+                        <col type="T">Capping Defined</col>
+                        <col type="N">Capping WLM%</col>
+                        <col type="N">Num of LOG PROCs</col>
+                        <col type="T">PROC Type</col>
+                        <col type="T">Effective Dispatch Time</col>
+                        <col type="T">Total Dispatch Time</col>
+                        <col type="N">Avg Util%: LOG PROC Effective</col>
+                        <col type="N">Avg Util%: LOG PROC Total</col>
+                        <col type="N">Avg Util%: PHYS PROC LPAR MGMT</col>
+                        <col type="N">Avg Util%: PHYS PROC Effective</col>
+                        <col type="N">Avg Util%: PHYS PROC Total</col>
+                    </column-headers>
+                    <row refno="1">
+                        <col>VIRPT</col>
+                        <col>Active</col>
+                        <col>None</col>
+                        <col>52</col>
+                        <col>0</col>
+                        <col>4</col>
+                        <col>N Y N</col>
+                        <col>0.0</col>
+                        <col>2</col>
+                        <col>CP</col>
+                        <col>00.00.30.899</col>
+                        <col>00.00.32.055</col>
+                        <col>0.86</col>
+                        <col>0.89</col>
+                        <col>0.03</col>
+                        <col>0.86</col>
+                        <col>0.89</col>
+                    </row>
+                    <row refno="2">
+                        <col>QCK2</col>
+                        <col>Active</col>
+                        <col>None</col>
+                        <col>25</col>
+                        <col>0</col>
+                        <col>1</col>
+                        <col>N N N</col>
+                        <col>0.0</col>
+                        <col>2</col>
+                        <col>CP</col>
+                        <col>00.00.08.407</col>
+                        <col>00.00.09.233</col>
+                        <col>0.23</col>
+                        <col>0.26</col>
+                        <col>0.02</col>
+                        <col>0.23</col>
+                        <col>0.26</col>
+                    </row>
+                    <row refno="3">
+                        <col>TRNG</col>
+                        <col>Active</col>
+                        <col>None</col>
+                        <col>10</col>
+                        <col>0</col>
+                        <col>1</col>
+                        <col>N N N</col>
+                        <col>0.0</col>
+                        <col>2</col>
+                        <col>CP</col>
+                        <col>00.00.08.011</col>
+                        <col>00.00.08.896</col>
+                        <col>0.22</col>
+                        <col>0.25</col>
+                        <col>0.02</col>
+                        <col>0.22</col>
+                        <col>0.25</col>
+                    </row>
+                    <row refno="4">
+                        <col>VIDVLP</col>
+                        <col>Active</col>
+                        <col>None</col>
+                        <col>25</col>
+                        <col>0</col>
+                        <col>2</col>
+                        <col>N N N</col>
+                        <col>0.0</col>
+                        <col>2</col>
+                        <col>CP</col>
+                        <col>00.00.14.658</col>
+                        <col>00.00.15.573</col>
+                        <col>0.41</col>
+                        <col>0.43</col>
+                        <col>0.03</col>
+                        <col>0.41</col>
+                        <col>0.43</col>
+                    </row>
+                    <row refno="5">
+                        <col>*PHYSICAL*</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col>CP</col>
+                        <col/>
+                        <col>00.00.07.832</col>
+                        <col/>
+                        <col/>
+                        <col>0.22</col>
+                        <col/>
+                        <col>0.22</col>
+                    </row>
+                    <row refno="6" type="SUM">
+                        <col>TOTAL</col>
+                        <col/>
+                        <col/>
+                        <col>112</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col>CP</col>
+                        <col>00.01.01.978</col>
+                        <col>00.01.13.591</col>
+                        <col/>
+                        <col/>
+                        <col>0.32</col>
+                        <col>1.72</col>
+                        <col>2.04</col>
+                    </row>
+                    <row refno="7">
+                        <col>KVMOCP1</col>
+                        <col>Active</col>
+                        <col/>
+                        <col>100</col>
+                        <col/>
+                        <col/>
+                        <col>N N N</col>
+                        <col/>
+                        <col>4</col>
+                        <col>IFL</col>
+                        <col>00.21.21.720</col>
+                        <col>00.21.53.780</col>
+                        <col>17.80</col>
+                        <col>18.25</col>
+                        <col>0.45</col>
+                        <col>17.80</col>
+                        <col>18.25</col>
+                    </row>
+                    <row refno="8">
+                        <col>KVMOCP2</col>
+                        <col>Active</col>
+                        <col/>
+                        <col>50</col>
+                        <col/>
+                        <col/>
+                        <col>N N N</col>
+                        <col/>
+                        <col>4</col>
+                        <col>IFL</col>
+                        <col>00.00.03.630</col>
+                        <col>00.00.03.674</col>
+                        <col>0.05</col>
+                        <col>0.05</col>
+                        <col>0.00</col>
+                        <col>0.05</col>
+                        <col>0.05</col>
+                    </row>
+                    <row refno="9">
+                        <col>ZVMPROD</col>
+                        <col>Active</col>
+                        <col/>
+                        <col>100</col>
+                        <col/>
+                        <col/>
+                        <col>N N N</col>
+                        <col/>
+                        <col>4</col>
+                        <col>IFL</col>
+                        <col>00.00.58.683</col>
+                        <col>00.01.00.309</col>
+                        <col>0.82</col>
+                        <col>0.84</col>
+                        <col>0.02</col>
+                        <col>0.82</col>
+                        <col>0.84</col>
+                    </row>
+                    <row refno="10">
+                        <col>*PHYSICAL*</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col>IFL</col>
+                        <col/>
+                        <col>00.00.44.066</col>
+                        <col/>
+                        <col/>
+                        <col>0.61</col>
+                        <col/>
+                        <col>0.61</col>
+                    </row>
+                    <row refno="11" type="SUM">
+                        <col>TOTAL</col>
+                        <col/>
+                        <col/>
+                        <col>250</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col>IFL</col>
+                        <col>00.22.24.033</col>
+                        <col>00.23.41.831</col>
+                        <col/>
+                        <col/>
+                        <col>1.08</col>
+                        <col>18.67</col>
+                        <col>19.75</col>
+                    </row>
+                    <row refno="12">
+                        <col>ICF1LP7</col>
+                        <col>Active</col>
+                        <col/>
+                        <col>50</col>
+                        <col/>
+                        <col/>
+                        <col>N N N</col>
+                        <col/>
+                        <col>1</col>
+                        <col>ICF</col>
+                        <col>00.00.00.018</col>
+                        <col>00.00.00.023</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                    </row>
+                    <row refno="13">
+                        <col>ICF2LP8</col>
+                        <col>Active</col>
+                        <col/>
+                        <col>50</col>
+                        <col/>
+                        <col/>
+                        <col>N N N</col>
+                        <col/>
+                        <col>1</col>
+                        <col>ICF</col>
+                        <col>00.00.00.018</col>
+                        <col>00.00.00.023</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                        <col>0.00</col>
+                    </row>
+                    <row refno="14">
+                        <col>*PHYSICAL*</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col>ICF</col>
+                        <col/>
+                        <col>00.00.18.885</col>
+                        <col/>
+                        <col/>
+                        <col>1.05</col>
+                        <col/>
+                        <col>1.05</col>
+                    </row>
+                    <row refno="15" type="SUM">
+                        <col>TOTAL</col>
+                        <col/>
+                        <col/>
+                        <col>100</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col>ICF</col>
+                        <col>00.00.00.036</col>
+                        <col>00.00.18.932</col>
+                        <col/>
+                        <col/>
+                        <col>1.05</col>
+                        <col>0.00</col>
+                        <col>1.05</col>
+                    </row>
+                    <row refno="16">
+                        <col>VISSC1</col>
+                        <col>Deactivated</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                    </row>
+                    <row refno="17">
+                        <col>ZVMVIN</col>
+                        <col>Deactivated</col>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                    </row>
+                </table>
+            </part>
+        </segment>
+    </postprocessor>
+    <rmf-mfpmsg>
+        <mfpmsg id="ERB103I"> PPS: OPTIONS IN EFFECT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   NODELTA  -- DEFAULT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   NOEXITS  -- DEFAULT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   ETOD(0000,2400)  -- DEFAULT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   STOD(0000,2400)  -- DEFAULT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   RTOD(0000,2400)  -- DEFAULT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   SYSOUT(A)  -- DEFAULT</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   NOSUMMARY  -- SYSIN</mfpmsg>
+        <mfpmsg id="ERB103I"> PPS:   REPORTS(CPU)  -- SYSIN</mfpmsg>
+        <mfpmsg id="ERB103I">  PPS:   DATE(04122022,04122022) -- SYSIN</mfpmsg>
+    </rmf-mfpmsg>
+</ddsml>

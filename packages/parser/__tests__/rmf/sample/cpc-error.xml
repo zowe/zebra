@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="include/ddsml-m3.xsl"?>
+<ddsml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:noNamespaceSchemaLocation="include/ddsml.xsd">
+<server>
+<name>RMF-DDS-Server</name>
+<version>ZOSV2R5</version>
+<functionality>3500</functionality>
+<platform>z/OS</platform>
+</server>
+<report>
+<metric id="CPC">
+<description>CPC (Central Processor Complex)</description>
+<format>report</format>
+<numcols>2</numcols>
+</metric>
+<resource>
+<reslabel>,DVLP,MVS_IMAGE</reslabel>
+<restype>MVS_IMAGE</restype>
+<reslabelurl>%2CDVLP%2CMVS_IMAGE</reslabelurl>
+</resource>
+<time-data>
+<local-start>20220412002320</local-start>
+<local-end>20220412002500</local-end>
+<utc-start>20220412042320</utc-start>
+<utc-end>20220412042500</utc-end>
+<local-prev>20220412002230</local-prev>
+<local-next>20220412002550</local-next>
+<display-start locale="en-us">04/12/2022 00:23:20</display-start>
+<display-end locale="en-us">04/12/2022 00:25:00</display-end>
+<gatherer-interval unit="seconds">100</gatherer-interval>
+<data-range unit="seconds">100</data-range>
+</time-data>
+<message id="GPM0731I">
+<description>The specified system 'DVLP' is not a member of the sysplex</description>
+<severity>3</severity>
+</message>
+</report>
+</ddsml>

@@ -97,95 +97,95 @@ export interface IPostprocessor {
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed CACHE report in ZEBRA format.
    */
-  cache(params: PostprocessorRequestParams): Promise<object>;
+  cache(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a CF Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed CF report in ZEBRA format.
    */
-  cf(params: PostprocessorRequestParams): Promise<object>;
+  cf(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a CHAN Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed CHAN report in ZEBRA format.
    */
-  chan(params: PostprocessorRequestParams): Promise<object>;
+  chan(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a CPU Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed CPU report in ZEBRA format.
    */
-  cpu(params: PostprocessorRequestParams): Promise<object>;
+  cpu(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a CRYPTO Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed CRYPTO report in ZEBRA format.
    */
-  crypto(params: PostprocessorRequestParams): Promise<object>;
+  crypto(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a DEVICE Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed DEVICE report in ZEBRA format.
    */
-  device(params: PostprocessorRequestParams): Promise<object>;
+  device(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a EADM Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed EADM report in ZEBRA format.
    */
-  eadm(params: PostprocessorRequestParams): Promise<object>;
+  eadm(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a HFS Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed HFS report in ZEBRA format.
    */
-  hfs(params: PostprocessorRequestParams): Promise<object>;
+  hfs(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a IOQ Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed IOQ report in ZEBRA format.
    */
-  ioq(params: PostprocessorRequestParams): Promise<object>;
+  ioq(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a OMVS Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed OMVS report in ZEBRA format.
    */
-  omvs(params: PostprocessorRequestParams): Promise<object>;
+  omvs(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a PAGESP Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed PAGESP report in ZEBRA format.
    */
-  pagesp(params: PostprocessorRequestParams): Promise<object>;
+  pagesp(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a PAGING Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed PAGING report in ZEBRA format.
    */
-  paging(params: PostprocessorRequestParams): Promise<object>;
+  paging(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a SDELAY Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed SDELAY report in ZEBRA format.
    */
-  sdelay(params: PostprocessorRequestParams): Promise<object>;
+  sdelay(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a VSTOR Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed VSTOR report in ZEBRA format.
    */
-  vstor(params: PostprocessorRequestParams): Promise<object>;
+  vstor(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a WLMGL Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed WLMGL report in ZEBRA format.
    */
-  wlmgl(params: PostprocessorRequestParams): Promise<object>;
+  wlmgl(params?: PostprocessorRequestParams): Promise<object>;
   /**
    * Retrieves and parses a XCF Postprocessor report from the RMF DDS into ZEBRA format.
    * @param params Additional parameters for the request to the RMF DDS.
    * @returns Parsed XCF report in ZEBRA format.
    */
-  xcf(params: PostprocessorRequestParams): Promise<object>;
+  xcf(params?: PostprocessorRequestParams): Promise<object>;
 }

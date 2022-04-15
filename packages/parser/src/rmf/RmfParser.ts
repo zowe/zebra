@@ -27,7 +27,7 @@ export default abstract class RmfParser {
    */
   public abstract getReport(
     report: string,
-    params: RmfRequestParams
+    params?: RmfRequestParams
   ): Promise<object>;
 
   /**
@@ -50,7 +50,7 @@ export default abstract class RmfParser {
    */
   public async ddsRequest(
     report: string,
-    params: RmfRequestParams
+    params?: RmfRequestParams
   ): Promise<string> {
     // Get DDS enpdoint for given request, including report name and additional parameters
     const ddsEndpoint = this.buildRequestEndpoint(report, params);

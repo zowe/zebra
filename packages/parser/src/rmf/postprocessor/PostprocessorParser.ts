@@ -93,73 +93,73 @@ export default class PostprocessorParser
 
   public async getReport(
     report: string,
-    params: RmfRequestParams
+    params?: RmfRequestParams
   ): Promise<object> {
     const xml = await this.ddsRequest(report, params);
     return parsePostprocessorReport(xml);
   }
 
-  public async cache(params: PostprocessorRequestParams): Promise<object> {
+  public async cache(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("CACHE", params);
   }
 
-  public async cf(params: PostprocessorRequestParams): Promise<object> {
+  public async cf(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("CF", params);
   }
 
-  public async chan(params: PostprocessorRequestParams): Promise<object> {
+  public async chan(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("CHAN", params);
   }
 
-  public async cpu(params: PostprocessorRequestParams): Promise<object> {
+  public async cpu(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("CPU", params);
   }
 
-  public async crypto(params: PostprocessorRequestParams): Promise<object> {
+  public async crypto(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("CRYPTO", params);
   }
 
-  public async device(params: PostprocessorRequestParams): Promise<object> {
+  public async device(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("DEVICE", params);
   }
 
-  public async eadm(params: PostprocessorRequestParams): Promise<object> {
+  public async eadm(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("EADM", params);
   }
 
-  public async hfs(params: PostprocessorRequestParams): Promise<object> {
+  public async hfs(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("HFS", params);
   }
 
-  public async ioq(params: PostprocessorRequestParams): Promise<object> {
+  public async ioq(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("IOQ", params);
   }
 
-  public async omvs(params: PostprocessorRequestParams): Promise<object> {
+  public async omvs(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("OMVS", params);
   }
 
-  public async pagesp(params: PostprocessorRequestParams): Promise<object> {
+  public async pagesp(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("PAGESP", params);
   }
 
-  public async paging(params: PostprocessorRequestParams): Promise<object> {
+  public async paging(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("PAGING", params);
   }
 
-  public async sdelay(params: PostprocessorRequestParams): Promise<object> {
+  public async sdelay(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("SDELAY", params);
   }
 
-  public async vstor(params: PostprocessorRequestParams): Promise<object> {
+  public async vstor(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("VSTOR", params);
   }
 
-  public async wlmgl(params: PostprocessorRequestParams): Promise<object> {
+  public async wlmgl(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("WLMGL", params);
   }
 
-  public async xcf(params: PostprocessorRequestParams): Promise<object> {
+  public async xcf(params?: PostprocessorRequestParams): Promise<object> {
     return this.getReport("XCF", params);
   }
 }

@@ -1,3 +1,14 @@
+export interface RmfAuth {
+  /**
+   * Username for RMF Distributed Data Server.
+   */
+  username: string;
+  /**
+   * Password for RMF Distributed Data Server.
+   */
+  password: string;
+}
+
 export interface RmfOptions {
   /**
    * The filename that contains the data in the RMF request
@@ -7,19 +18,16 @@ export interface RmfOptions {
    * The interval between reports, in seconds
    */
   interval: number;
-  /**
-   * Username for RMF Distributed Data Server.
-   */
-  username?: string;
-  /**
-   * Password for RMF Distributed Data Server.
-   */
-  password?: string;
 }
 
-export type RmfOptionsParams = Partial<RmfOptions>;
-
-export type RmfRequestParams = object;
+export interface RmfRequestParams {
+  /**
+   * Suboptions specified for the Postprocessor reports.
+   *
+   * Example: `SCPER` breaks down WLMGL reports by service class periods.
+   */
+  suboptions?: string | string[];
+}
 
 export interface RmfReport {
   /**

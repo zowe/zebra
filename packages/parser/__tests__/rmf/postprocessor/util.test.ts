@@ -12,11 +12,26 @@ import {
 
 describe("Postprocessor utility functions", () => {
   it("formatting 'date' parameter in DDS format", () => {
-    let date: Date;
-    date = new Date("December 17, 2021 00:00:00");
-    expect(ddsFormatDate(date)).toBe("20211217");
-    date = new Date("February 04, 2022 00:00:00");
-    expect(ddsFormatDate(date));
+    let startDate: Date;
+    let endDate: Date;
+    const singleDate = new Date("December 17, 2021 00:00:00");
+    expect(ddsFormatDate(singleDate)).toBe("20211217,20211217");
+    startDate = new Date("February 04, 2022 00:00:00");
+    endDate = new Date("February 05, 2022 00:00:00");
+    expect(
+      ddsFormatDate({
+        start: startDate,
+        end: endDate,
+      })
+    ).toBe("20220204,20220205");
+    startDate = new Date("February 05, 2022 00:00:00");
+    endDate = new Date("February 04, 2022 00:00:00");
+    expect(() =>
+      ddsFormatDate({
+        start: startDate,
+        end: endDate,
+      })
+    ).toThrow(RmfRequestError);
   });
   it("formatting 'duration' parameter to DDS format", () => {
     let duration: number;
@@ -70,17 +85,32 @@ describe("Postprocessor utility functions", () => {
     expect(ddsFormatSmfSort(smfSort)).toBe("NO");
   });
   it("formatting 'timeofday' parameter to DDS format", () => {
-    let timeOfDay: number;
-    timeOfDay = -1;
+    let timeOfDay: { start: number; end: number };
+    timeOfDay = {
+      start: -1,
+      end: 234,
+    };
     expect(() => ddsFormatTimeOfDay(timeOfDay)).toThrowError(RmfRequestError);
-    timeOfDay = 1440;
+    timeOfDay = {
+      start: 236,
+      end: 1440,
+    };
     expect(() => ddsFormatTimeOfDay(timeOfDay)).toThrowError(RmfRequestError);
-    timeOfDay = 0;
-    expect(ddsFormatTimeOfDay(timeOfDay)).toBe("0000");
-    timeOfDay = 1439;
-    expect(ddsFormatTimeOfDay(timeOfDay)).toBe("2359");
-    timeOfDay = 567;
-    expect(ddsFormatTimeOfDay(timeOfDay)).toBe("0927");
+    timeOfDay = {
+      start: 59,
+      end: 0,
+    };
+    expect(() => ddsFormatTimeOfDay(timeOfDay)).toThrowError(RmfRequestError);
+    timeOfDay = {
+      start: 0,
+      end: 29,
+    };
+    expect(ddsFormatTimeOfDay(timeOfDay)).toBe("0000,0029");
+    timeOfDay = {
+      start: 1410,
+      end: 1439,
+    };
+    expect(ddsFormatTimeOfDay(timeOfDay)).toBe("2330,2359");
   });
   it("formatting 'timeout' parameter to DDS format", () => {
     let timeout: number;

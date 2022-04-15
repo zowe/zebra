@@ -1,8 +1,14 @@
+import tls from "tls";
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import RmfDdsError from "../errors/RmfDdsError";
 import RmfRequestError from "../errors/RmfRequestError";
-import { RmfOptions, RmfRequestParams } from "./types";
+import { RmfAuth, RmfOptions, RmfRequestParams } from "./types";
 import { checkForError } from "./util";
+
+/**
+ * The RMF Distributed Data Server requires a minimum TLS version of 1.1.
+ */
+tls.DEFAULT_MIN_VERSION = "TLSv1.1";
 
 export default abstract class RmfParser {
   /**
@@ -11,12 +17,18 @@ export default abstract class RmfParser {
   public dds: string;
 
   /**
+   * Authentication for the RMF Distributed Data Server.
+   */
+  public auth?: RmfAuth;
+
+  /**
    * Additional options for the parser.
    */
   public options: RmfOptions;
 
-  constructor(dds: string, options: RmfOptions) {
+  constructor(dds: string, options: RmfOptions, auth?: RmfAuth) {
     this.dds = dds;
+    this.auth = auth;
     this.options = options;
   }
 
@@ -61,11 +73,10 @@ export default abstract class RmfParser {
       },
       responseType: "text",
     };
-    const { username, password } = this.options;
-    if (username && password) {
+    if (this.auth?.username && this.auth?.password) {
       requestConfig.auth = {
-        username,
-        password,
+        username: this.auth.username,
+        password: this.auth.password,
       };
     }
     // Make request and handle response or errors

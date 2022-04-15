@@ -1,19 +1,30 @@
-import tls from "tls";
+import MonitorThreeParser from "./rmf/monitor-three/MonitorThreeParser";
 import PostprocessorParser from "./rmf/postprocessor/PostprocessorParser";
-import { PostprocessorOptionsParams } from "./rmf/postprocessor/types";
-// import MonitorThreeParser from "./rmf/monitor-three/MonitorThreeParser";
-// import { MonitorThreeOptionsParams } from "./rmf/monitor-three/MonitorThreeOptions";
+import { RmfAuth, RmfOptions } from "./rmf/types";
+
+interface ZebraOptions {
+  auth?: RmfAuth;
+  postprocessor: Partial<RmfOptions>;
+  monitorThree: Partial<RmfOptions>;
+}
 
 /**
- * The RMF Distributed Data Server requires a minimum TLS version of 1.1.
+ *
+ * @param dds
+ * @param options
+ * @returns
  */
-tls.DEFAULT_MIN_VERSION = "TLSv1.1";
-
-export default {
-  rmf: {
-    postprocessor: (dds: string, options: PostprocessorOptionsParams) =>
-      new PostprocessorParser(dds, options),
-    // monitorThree: (dds: string, options: MonitorThreeOptionsParams) =>
-    // new MonitorThreeParser(dds, options),
-  },
-};
+export default function zebra(dds: string, options: ZebraOptions) {
+  return {
+    postprocessor: new PostprocessorParser(
+      dds,
+      options.auth,
+      options.postprocessor
+    ),
+    monitorThree: new MonitorThreeParser(
+      dds,
+      options.auth,
+      options.monitorThree
+    ),
+  };
+}

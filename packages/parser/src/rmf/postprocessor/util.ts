@@ -11,13 +11,42 @@ const TWO_DIGIT_CONFIG: Intl.NumberFormatOptions = {
  * @param date Value of the `date` DDS parameter.
  * @returns RMF DDS readable value (`YYYYMMDD`).
  */
-export function ddsFormatDate(date: Date): string {
-  const year = date
+export function ddsFormatDate(date: Date | { start: Date; end: Date }): string {
+  if (date instanceof Date) {
+    const year = date
+      .getFullYear()
+      .toLocaleString("en-US", { useGrouping: false });
+    const month = (date.getMonth() + 1).toLocaleString(
+      "en-US",
+      TWO_DIGIT_CONFIG
+    );
+    const day = date.getDate().toLocaleString("en-US", TWO_DIGIT_CONFIG);
+    return `${year}${month}${day},${year}${month}${day}`;
+  }
+  if (date.start > date.end) {
+    throw new RmfRequestError(
+      "The starting `date` parameter cannot be more than the ending `date`"
+    );
+  }
+  const startYear = date.start
     .getFullYear()
     .toLocaleString("en-US", { useGrouping: false });
-  const month = (date.getMonth() + 1).toLocaleString("en-US", TWO_DIGIT_CONFIG);
-  const day = date.getDate().toLocaleString("en-US", TWO_DIGIT_CONFIG);
-  return `${year}${month}${day}`;
+  const endYear = date.end
+    .getFullYear()
+    .toLocaleString("en-US", { useGrouping: false });
+  const startMonth = (date.start.getMonth() + 1).toLocaleString(
+    "en-US",
+    TWO_DIGIT_CONFIG
+  );
+  const endMonth = (date.end.getMonth() + 1).toLocaleString(
+    "en-US",
+    TWO_DIGIT_CONFIG
+  );
+  const startDay = date.start
+    .getDate()
+    .toLocaleString("en-US", TWO_DIGIT_CONFIG);
+  const endDay = date.end.getDate().toLocaleString("en-US", TWO_DIGIT_CONFIG);
+  return `${startYear}${startMonth}${startDay},${endYear}${endMonth}${endDay}`;
 }
 
 /**
@@ -90,18 +119,33 @@ export function ddsFormatSmfSort(smfSort: boolean): string {
  * @param overview Value of the `timeofday` DDS parameter.
  * @returns RMF DDS readable value (`HHmm`).
  */
-export function ddsFormatTimeOfDay(time: number): string {
-  if (time < 0 || time > 1439) {
+export function ddsFormatTimeOfDay(time: {
+  start: number;
+  end: number;
+}): string {
+  if (time.start < 0 || time.start > 1439 || time.end < 0 || time.end > 1439) {
     throw new RmfRequestError(
       "Time of day parameter must be between 0 minutes (representing 00:00) and 1439 minutes (representing 23:59)."
     );
   }
-  const hour = Math.floor(time / 60);
-  const minute = time % 60;
-  return `${hour.toLocaleString(
+  if (time.start > time.end) {
+    throw new RmfRequestError(
+      "The starting `timeofday` parameter cannot be more than the ending `timeofday`"
+    );
+  }
+  const startHour = Math.floor(time.start / 60);
+  const startMinute = time.start % 60;
+  const startTime = `${startHour.toLocaleString(
     "en-US",
     TWO_DIGIT_CONFIG
-  )}${minute.toLocaleString("en-US", TWO_DIGIT_CONFIG)}`;
+  )}${startMinute.toLocaleString("en-US", TWO_DIGIT_CONFIG)}`;
+  const endHour = Math.floor(time.end / 60);
+  const endMinute = time.end % 60;
+  const endTime = `${endHour.toLocaleString(
+    "en-US",
+    TWO_DIGIT_CONFIG
+  )}${endMinute.toLocaleString("en-US", TWO_DIGIT_CONFIG)}`;
+  return `${startTime},${endTime}`;
 }
 
 /**

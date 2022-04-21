@@ -24,7 +24,7 @@ export interface MonitorThreeRequestParams extends RmfRequestParams {
    * comma. For unique resources like the PROCESSOR resource in an MVS IMAGE, you can either omit the
    * resource name or you can assign an asterisk as the resource name.
    */
-  resource?: string;
+  resource: string;
   /**
    * This parameter specifies the datetime interval for the requested performance data. Start and end datetimes are
    * in the local time of the monitored system.

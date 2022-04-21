@@ -3,6 +3,9 @@ import { RmfAuth, RmfOptions } from "../types";
 import MonitorThreeOptions from "./MonitorThreeOptions";
 import { MonitorThreeRequestParams, IMonitorThree } from "./types";
 import parseMonitorThreeReport from "./parseMonitorThreeReport";
+import { ddsFormatSuboptions } from "../util";
+import RmfRequestError from "../../errors/RmfRequestError";
+import { ddsFormatRange, ddsFormatResource } from "./util";
 
 export default class MonitorThreeParser
   extends RmfParser
@@ -15,7 +18,25 @@ export default class MonitorThreeParser
   public buildRequestEndpoint(
     report: string,
     params?: MonitorThreeRequestParams
-  ): string {}
+  ): string {
+    if (!params?.resource) {
+      throw new RmfRequestError(
+        "RMF Monitor III requests must contain `resource` parameter"
+      );
+    }
+    const resource = `&resource=${encodeURIComponent(
+      ddsFormatResource(params.resource)
+    )}`;
+    let range = "";
+    if (params.range) {
+      range = `&range=${encodeURIComponent(ddsFormatRange(params.range))}`;
+    }
+    let suboptions = "";
+    if (params.suboptions) {
+      suboptions = ddsFormatSuboptions(params.suboptions);
+    }
+    return `${this.dds}/gpm/${this.options.file}?report=${report}${suboptions}${resource}${range}`;
+  }
 
   public async getReport(
     report: string,

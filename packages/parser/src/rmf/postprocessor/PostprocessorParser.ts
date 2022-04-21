@@ -13,6 +13,7 @@ import {
   ddsFormatTimeout,
 } from "./util";
 import parsePostprocessorReport from "./parsePostprocessorReport";
+import { ddsFormatSuboptions } from "../util";
 
 export default class PostprocessorParser
   extends RmfParser
@@ -31,11 +32,7 @@ export default class PostprocessorParser
     if (params) {
       // First, add suboptions to report if specified
       if (params.suboptions) {
-        if (typeof params.suboptions === "string") {
-          reportSuboptions = `(${params.suboptions})`;
-        } else {
-          reportSuboptions = `(${params.suboptions.join(",")})`;
-        }
+        reportSuboptions = ddsFormatSuboptions(params.suboptions);
       }
       // Next, add any additional parameters if specified
       if (params.date) {

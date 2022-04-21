@@ -3,9 +3,8 @@ var parser = new xml2js.Parser(); //Initialize parser
 var fs = require('fs'); //Import fs module
 
 /**
- * RMF3bodyParser handles conversion of Monitor III XML data to JSON
- * @param {XML} data - XML data passed to function
- * @param {JSON} fn - Callback function that returns parsed JSON
+ * Handles conversion of Monitor III XML data to JSON
+ * @param {XML} xml - XML data passed to function
  */
 module.exports = async function parseMonitorThreeReport (xml) {
     try {

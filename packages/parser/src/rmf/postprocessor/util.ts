@@ -1,10 +1,5 @@
 import RmfRequestError from "../../errors/RmfRequestError";
-
-/** Ensures number is at least two digits when converting to string */
-const TWO_DIGIT_CONFIG: Intl.NumberFormatOptions = {
-  minimumIntegerDigits: 2,
-  useGrouping: false,
-};
+import { TWO_DIGIT_CONFIG } from "../util";
 
 /**
  * Formats the given `date` DDS parameter into a DDS readable format.

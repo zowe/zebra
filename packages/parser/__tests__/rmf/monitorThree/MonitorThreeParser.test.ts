@@ -1,11 +1,11 @@
-// import axios from "axios";
-// import { readFileSync } from "fs";
-// import path from "path";
-import RmfRequestError from "../../../../src/errors/RmfRequestError";
-import MonitorThreeParser from "../../../../src/rmf/monitor-three/MonitorThreeParser";
+import axios from "axios";
+import { readFileSync } from "fs";
+import path from "path";
+import RmfRequestError from "../../../src/errors/RmfRequestError";
+import MonitorThreeParser from "../../../src/rmf/monitor-three/MonitorThreeParser";
 
 jest.mock("axios");
-// const request = axios as jest.Mocked<typeof axios>;
+const request = axios as jest.Mocked<typeof axios>;
 
 describe("testing the `MonitorThreeParser` class and its functions", () => {
   const monitorThree = new MonitorThreeParser("https://rprt.example.com:8803");
@@ -33,22 +33,18 @@ describe("testing the `MonitorThreeParser` class and its functions", () => {
     );
   });
 
-  /*   it("testing general RMF Monitor III report request and parsing", () => {
+  it("testing general RMF Monitor III report request and parsing", () => {
     request.get.mockResolvedValue({
-      data: readFileSync(
-        path.join(__dirname, "sample", "cpu-small.xml")
-      ).toString(),
+      data: readFileSync(path.join(__dirname, "sample", "cpc.xml")).toString(),
     });
     monitorThree
-      .getReport("CPU")
+      .getReport("CPC", { resource: ",RPRT,MVS_IMAGE" })
       .then((result) =>
         expect(result).toEqual(
           JSON.parse(
-            readFileSync(
-              path.join(__dirname, "sample", "cpu-small.json")
-            ).toString()
+            readFileSync(path.join(__dirname, "sample", "cpc.json")).toString()
           )
         )
       );
-  }); */
+  });
 });

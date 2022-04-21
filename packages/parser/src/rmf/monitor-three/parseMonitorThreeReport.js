@@ -8,7 +8,7 @@ var fs = require('fs'); //Import fs module
  */
 module.exports = async function parseMonitorThreeReport (xml) {
     try {
-        const result = parser.parseStringPromise(xml);
+        const result = await parser.parseStringPromise(xml);
         //Variables initialization from XML attributes
         var timestart = result['ddsml']['report'][0]['time-data'][0]['display-start'][0]['_']; //Initialize timestart variable
         var timeend = result['ddsml']['report'][0]['time-data'][0]['display-end'][0]['_']; //Initialize timeend variable

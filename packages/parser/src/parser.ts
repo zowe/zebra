@@ -9,10 +9,10 @@ interface ZebraOptions {
 }
 
 /**
- *
- * @param dds
- * @param options
- * @returns
+ * ZEBRA builder function
+ * @param dds IP or URL of the RMF Distributed Data Server. The address should be root.
+ * @param options Additional options for authentication and RMF DDS.
+ * @returns ZEBRA object that contains the different kinds of parsers to use.
  */
 export default function zebra(dds: string, options: ZebraOptions) {
   return {

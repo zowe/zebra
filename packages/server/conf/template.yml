@@ -1,0 +1,16 @@
+### CONFIG FILE SHOULD FOLLOW THE FORMAT: ###
+
+### DDS CONFIGURATION ###
+dds:                      # By default, there will be no RMF DDS instances. The application is still able to run, but no data can be retrieved. There is no limit on how many DDS instances can be configured.
+  - lpar:                 # Name of the LPAR that the RMF DDS runs on.
+    uri:                  # URL or IP address where the RMF DDS is running (should be root level address and can include ports, ex: http://lpar.example.com:8803).
+    auth:                 # RMF DDS authentication info. Can be omitted if no authentication is needed
+      username:           # RMF DDS username
+      password:           # RMF DDS password
+
+### ZEBRA APPLICATION CONFIGURATION ###
+zebra:
+  port:                   # Port which ZEBRA server runs on. By default, it is 3090.
+  users:                  # ZEBRA users that are created upon server initialization. By default, there is an initial user with the credentials admin:admin.
+    - username:           # ZEBRA username.
+      password:           # Temporary initial ZEBRA password.

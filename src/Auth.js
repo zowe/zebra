@@ -7,34 +7,6 @@ let dbrefresh = nedb.dbrefresh;
 var fs = require('fs'); //importing the fs module
 //var Zconfig = require("./config/");
 
-/*function parameters(fn){
-    parms = {
-      ddsbaseurl: Zconfig.ddsbaseurl,
-      ddsbaseport: Zconfig.ddsbaseport,
-      rmf3filename: Zconfig.rmf3filename,
-      rmfppfilename: Zconfig.rmfppfilename,
-      mvsResource: Zconfig.mvsResource,
-      mongourl: Zconfig.mongourl,
-      dbinterval: Zconfig.dbinterval,
-      dbname: Zconfig.dbname,
-      appurl: Zconfig.appurl,
-      appport: Zconfig.appport,
-      mongoport: Zconfig.mongoport,
-      ppminutesInterval: Zconfig.ppminutesInterval,
-      rmf3interval: Zconfig.rmf3interval,
-      httptype: Zconfig.httptype,
-      useDbAuth: Zconfig.useDbAuth,
-      dbUser: Zconfig.dbUser,
-      dbPassword: Zconfig.dbPassword,
-      authSource: Zconfig.authSource,
-      useMongo: Zconfig.useMongo,
-      usePrometheus: Zconfig.usePrometheus,
-      https: Zconfig.https,
-      grafanaurl: Zconfig.grafanaurl,
-      grafanaport: Zconfig.grafanaport
-    }
-    fn(parms);
-}*/
 
 //Update Password REST API
 module.exports.updatePassword = async function(req, res){
@@ -52,7 +24,7 @@ module.exports.updatePassword = async function(req, res){
                     const Salt = bcrypt.genSaltSync()
                     const hashedpassword = bcrypt.hashSync(newpassword, Salt)
                     //const user = {name: data.name, password: hashedpassword}
-                    db.update({ password: user.password }, {$set: { password: hashedpassword}}, {}, function (err, numReplaced) {
+                    db.update({ name: user.password }, {$set: { password: hashedpassword}}, {}, function (err, numReplaced) {
                         if(err){
                             res.status(201).send("Error");
                         } else {
@@ -284,7 +256,13 @@ function wenv(act, rft, fn){ //write to .env file
 //Update Paasword Form
 module.exports.updatePasswordForm = async function(req, res){
     db.find({ }, async function (err, users) {
-        const user = users.find(user => user.name == req.body.name)
+        var user = null;
+        if(req.body.name != "Admin"){
+            user = users.find(user => user.name == "Admin")
+        }
+        if(user == null){
+            user = users.find(user => user.name == req.body.name)
+        }
         username = req.body.name;
         oldpassword  = 'Admin';
         newpassword = req.body.newpassword;
@@ -301,7 +279,7 @@ module.exports.updatePasswordForm = async function(req, res){
                     //Update ENV here
                     wenv(req.body.act, req.body.rft, function(data){
                         if(data === "Success"){
-                            db.update({ password: user.password }, {$set: { password: hashedpassword}}, {}, function (err, numReplaced) {
+                            db.update({ name: user.name }, {$set: { password: hashedpassword, name:req.body.name}}, {}, function (err, numReplaced) {
                                 if(err){
                                     res.render("login", {data: "pwd"})
                                 } else {

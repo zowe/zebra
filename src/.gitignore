@@ -6,6 +6,7 @@ db
 data
 
 # DB
+admin.db
 my.db
 my.dbrefresh
 

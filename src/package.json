@@ -36,6 +36,7 @@
     "prom-client": "^12.0.0",
     "pug": "^3.0.1",
     "readline": "0.0.x",
+    "sqlite3": "^5.1.1",
     "swagger-ui-express": "^4.1.4",
     "sweetalert": "^2.1.2",
     "xml2js": "^0.4.23"

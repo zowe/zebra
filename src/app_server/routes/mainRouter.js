@@ -10,10 +10,6 @@ const swaggerUi = require('swagger-ui-express'),
 
 require('dotenv').config();
 const bcrypt = require('bcryptjs')
-var nedb = require("../../nedbAdmin")
-const jwt = require("jsonwebtoken")
-let db = nedb.db;
-let dbrefresh = nedb.dbrefresh;
 var  Auth = require('../../Auth');
 const path = require('path');
 const fs = require('fs');
@@ -398,9 +394,9 @@ router.get('/prommetric', (req, res) => {
     res.end(Prometheus.register.metrics()); //display metrics in prom-client register
 });
 
-router.post("/login", Auth.login) 
+/* router.post("/login", Auth.login)  */
 
-router.post("/UpdatePassword", Auth.authenticateToken, Auth.updatePassword)
+/* router.post("/UpdatePassword", Auth.authenticateToken, Auth.updatePassword) */
 
 router.post("/token", Auth.token)
 

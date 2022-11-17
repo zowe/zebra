@@ -1,43 +1,48 @@
-var neDB = require('nedb');
 const bcrypt = require('bcryptjs')
-var db = new neDB({ filename: 'my.db', autoload: true });
-var dbrefresh = new neDB({ filename: 'my.dbrefresh', autoload: true });
-var data = {name: "Admin", password: "Admin"}
+var sqlite3 = require('sqlite3');
+var db;
 
-/*db.remove({name: 'Admin'}, {multi: true}, err => {
-    if (err) {
-     callback(null, err);
-     return;
+db = new sqlite3.Database('./admin.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err && err.code == "SQLITE_CANTOPEN") {
+        createDatabase();
+        return;
+        } else if (err) {
+            console.log("Getting error " + err + " from DB");
+            exit(1);
     }
-})*/
-
-db.find({ name: 'Admin' })
-  .exec(async function(err, result) {
-    if (err) {
-        console.error(err);
-    } else {
-        if (result.length == 0){
-            try{
-                const Salt = bcrypt.genSaltSync()
-                const hashedpassword = bcrypt.hashSync(data.password, Salt)
-                const user = {name: data.name, password: hashedpassword}
-                db.insert(user, function (err, newDoc) { 
-                    if(err){
-                    }else{
-                        console.log("Admin Saved Successfuly");
-                    }
-                })
-                //res.status(201).send();
-            }catch(err) {
-                //res.status(500).send()
-            }
-            
-        }else{
-            console.log("Admin Already Exist");
-            //console.log('Got results: ', result[0]["name"])
-        }
-    }
+    
+    //updateToken(db, "refresh", "access");
+    /* runQueries(db, function(data){
+        console.log(data);
+    });  */
+    console.log("Admin DB Created");
 });
 
-module.exports.db = db
-module.exports.dbrefresh = dbrefresh
+function createDatabase() {
+    var newdb = new sqlite3.Database('admin.db', (err) => {
+        if (err) {
+            console.log("Getting error " + err);
+            exit(1);
+        }
+        createTables(newdb);
+    });
+}
+
+function createTables(newdb) {
+    const Salt = bcrypt.genSaltSync()
+    const hashedpassword = bcrypt.hashSync("Admin", Salt) 
+    newdb.exec(`
+    create table adm (
+        id int primary key not null,
+        name text not null,
+        password text not null,
+        refreshToken text,
+        accessToken text
+    );
+    insert into adm (id, name, password, refreshToken, accessToken)  
+        values (1, 'Admin', '${hashedpassword}', '', '');  
+        `, ()  => {
+            //runQueries(newdb);
+            console.log("Admin Saved Successfully"); 
+    });
+}

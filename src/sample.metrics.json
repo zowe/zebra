@@ -1,0 +1,324 @@
+{
+	"RPRT_QCK2_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "QCK2"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the QCK2 partition."
+	},
+	"RPRT_TRNG_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "TRNG"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the TRNG partition."
+	},
+	"RPRT_VIDVLP_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "VIDVLP"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the VIDVLP partition."
+	},
+	"RPRT_VIRPT_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "VIRPT"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the VIRPT partition."
+	},
+	"RPRT_KVMOCP1_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "KVMOCP1"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the KVMOCP1 partition."
+	},
+	"RPRT_KVMOCP2_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "KVMOCP2"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the KVMOCP2 partition."
+	},
+	"RPRT_ZVMPROD_PTOU": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "CPC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "ZVMPROD"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization for the ZVMPROD partition."
+	},
+        "LPAR_MEM_QCK2": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "CPC",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "CPCPPNAM",
+                                "value": "QCK2"                       }
+                ],
+                "field": "CPCPCSMB",
+                "desc": "Central storage in MB for the partition."
+        },
+	        "LPAR_MEM_TRNG": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "CPC",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "CPCPPNAM",
+                                "value": "TRNG"                       }
+                ],
+                "field": "CPCPCSMB",
+                "desc": "Central storage in MB for the partition."
+        },
+
+        "LPAR_MEM_RPRT": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "CPC",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "CPCPPNAM",
+                                "value": "VIRPT"                    }
+                ],
+                "field": "CPCPCSMB",
+                "desc": "Central storage in MB for the partition."
+        },
+
+        "LPAR_MEM_DVLP": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "CPC",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "CPCPPNAM",
+                                "value": "VIDVLP"                       }
+                ],
+                "field": "CPCPCSMB",
+                "desc": "Central storage in MB for the partition."
+        },
+
+
+
+	"RPRT_ALL_SYSINFO_SYSUGPVC": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSCPUVC",
+                "desc": "WLM SYSINFO for % Using processor"
+        },
+	
+        "RPRT_ALL_SYSINFO_SYSPDPVC": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSPDPVC",
+                "desc": "WLM SYSINFO for CPU Time in Secs"
+        },
+
+
+
+        "RPRT_ALL_USAGE": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "USAGE",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "JUSPJOB",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "JUSPCPUD",
+                "desc": "CPU time for interval (in seconds)"
+        },
+
+
+
+        "RPRT_ALL_CSXAECS": {
+                "lpar": "RPRT",
+                "request": {
+                        "report": "STORC",
+                        "resource": ",RPRT,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "CSXNAME",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "CSXAECS",
+                "desc": "Common Storagei - Amount of ECSA"
+        },
+	"RPRT_ALL_CSXACSA": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "STORC",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CSXNAME",
+				"value": "ALL"
+			}
+		],
+		"field": "CSXACSA",
+		"desc": "Common Storagei - Amount of CSA"
+	},
+	"RPRT_ALL_JDELDEL": {
+		"lpar": "RPRT",
+		"request": {
+			"report": "DELAY",
+			"resource": ",RPRT,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "JDELDAN",
+				"value": "ALL"
+			}
+		],
+		"field": "JDELDEL",
+		"desc": "Job Processing Delay percentage"
+	},
+	"RPRT_00_OSC_CHACPUVC": {
+	"lpar": "RPRT",
+	"request": {
+		"report": "CHANNEL",
+		"resource": ",RPRT,MVS_IMAGE"
+	},
+	"identifiers": [
+		{
+			"key": "CHACPIVC",
+			"value": "00"
+		},
+                {
+			"key": "CHACPTVC",
+			"value": "OSC"
+		}
+	],
+	"field": "CHACPUVC",
+	"desc": "Channel - Part util %"
+	},
+	"RPRT_01_OSD_CHACPUVC": {
+        "lpar": "RPRT",
+        "request": {
+                "report": "CHANNEL",
+                "resource": ",RPRT,MVS_IMAGE"
+        },
+        "identifiers": [
+                {
+                        "key": "CHACPIVC",
+                        "value": "01"
+                },
+                {
+                        "key": "CHACPTVC",
+                        "value": "OSD"
+                }
+        ],
+
+        "field": "CHACPUVC",
+        "desc": "Channel - Partition util %"
+        },
+        "RPRT_10_FC_CHACPUVC": {
+        "lpar": "RPRT",
+        "request": {
+                "report": "CHANNEL",
+                "resource": ",RPRT,MVS_IMAGE"
+        },
+        "identifiers": [
+                {
+                        "key": "CHACPIVC",
+                        "value": "10"
+                },
+                {
+                        "key": "CHACPTVC",
+                        "value": "FC"
+                }
+        ],
+        "field": "CHACPUVC",
+        "desc": "Channel - Partition util %"
+        }
+
+}

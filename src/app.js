@@ -62,10 +62,10 @@ try{
   var Zconfig = {};
 }
 
+require("./nedbAdmin"); 
 
-require("./nedbAdmin");
 if(lpar_mongo.length > 0){
-  require('./mongoV1');
+  require('./mongoV1'); 
   require("./app_server/Models/db");
 }
 if(lpar_prom.length > 0){

@@ -15,7 +15,7 @@ db = new sqlite3.Database('./admin.db', sqlite3.OPEN_READWRITE, (err) => {
     /* runQueries(db, function(data){
         console.log(data);
     });  */
-    console.log("Admin DB Created");
+    console.log("Admin DB Started");
 });
 
 function createDatabase() {

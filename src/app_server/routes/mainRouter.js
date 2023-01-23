@@ -62,9 +62,9 @@ function parameters(fn){
   fn(parms); //return the parameters
 }
 
-router.get('/pwdd', (req, res) => { //remember to delete
+/* router.get('/pwdd', (req, res) => { //remember to delete
   res.render("login", {data: "pwd"})
-})
+}) */
 
 // Checks if user login session is available in browser
 var sessionChecker = (req, res, next) => {
@@ -201,9 +201,9 @@ router.get('/metrics', sessionChecker, (req, res) => {
   }
   //console.log(c);
   if(req.session.name){ //Check if User login session is available
-    res.render("metrics",{msg:"Admin", resources:resource, lpars:lpar, reports:REPORTS.RMFM3}); // render the metrics page wih Admin previledge
+    res.render("metricdev",{msg:"Admin", resources:resource, lpars:lpar, reports:REPORTS.RMFM3}); // render the metrics page wih Admin previledge
   }else{
-    res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
+    res.render("metricdev", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
   }
 })
 

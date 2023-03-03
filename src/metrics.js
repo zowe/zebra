@@ -61,7 +61,7 @@ setInterval(async () => {
                                 for (i in result['table']) { // loop through the entities
                                     var mtrid = metricName.split("_")[2] // get the metric identifier provided by the user
                                     var JSONBody = result['table'][i];
-                                    var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].key}`; //append TOU(Total Utilization) to lpar name
+                                    var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].desc}`; //append TOU(Total Utilization) to lpar name
                                     var value = JSONBody[metric.field];
                                     try {
                                         (new prometheus.Gauge({
@@ -83,7 +83,7 @@ setInterval(async () => {
                                         var JSONBody = result['table'][i];
                                         if(JSONBody[metric.identifiers[z].key] == metric.identifiers[z].value)
                                         {
-                                            var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].key}`; //append TOU(Total Utilization) to lpar name
+                                            var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].desc}`; //append TOU(Total Utilization) to lpar name
                                             var value = JSONBody[metric.field];
                                             if (!value) {
                                                 // console.log(`WARNING: Could not find field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}'. Field could be missing because its value is 0, but make sure field is valid key.`);

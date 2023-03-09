@@ -61,15 +61,15 @@ setInterval(async () => {
                                 for (i in result['table']) { // loop through the entities
                                     var mtrid = metricName.split("_")[2] // get the metric identifier provided by the user
                                     var JSONBody = result['table'][i];
-                                    var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].desc}`; //append TOU(Total Utilization) to lpar name
-                                    var value = JSONBody[metric.field];
+                                    var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].m_id}`; //append TOU(Total Utilization) to lpar name
+                                    var value = JSONBody[metric.identifiers[z].field];
                                     try {
                                         (new prometheus.Gauge({
                                             name: name,
-                                            help: metric.desc,
+                                            help: metric.identifiers[z].desc,
                                             labelNames: ['parm']
                                         })).set({
-                                            parm: metric.field
+                                            parm: metric.identifiers[z].field
                                         }, parseFloat(value));
                                     } catch (err) { 
                                         //console.log(err);
@@ -83,23 +83,23 @@ setInterval(async () => {
                                         var JSONBody = result['table'][i];
                                         if(JSONBody[metric.identifiers[z].key] == metric.identifiers[z].value)
                                         {
-                                            var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].desc}`; //append TOU(Total Utilization) to lpar name
-                                            var value = JSONBody[metric.field];
+                                            var name = `${lpar}_${JSONBody[metric.identifiers[z].key]}_${metric.identifiers[z].m_id}`; //append TOU(Total Utilization) to lpar name
+                                            var value = JSONBody[metric.identifiers[z].field];
                                             if (!value) {
                                                 // console.log(`WARNING: Could not find field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}'. Field could be missing because its value is 0, but make sure field is valid key.`);
                                                 continue;
                                             }
                                             if (!isNumeric(value)) {
-                                                console.log(`ERROR: Non-numeric error - the field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}' is not numeric.`);
+                                                console.log(`ERROR: Non-numeric error - the field '${metric.identifiers[z].field}' in report '${report}' for Prometheus metric '${metricName}' is not numeric.`);
                                                 continue;
                                             }
                                             try {
                                                 (new prometheus.Gauge({
                                                     name: name,
-                                                    help: metric.desc,
+                                                    help: metric.identifiers[z].desc,
                                                     labelNames: ['parm']
                                                 })).set({
-                                                    parm: metric.field
+                                                    parm: metric.identifiers[z].field
                                                 }, parseFloat(value));
                                             } catch (err) { 
                                                 //console.log(err);
@@ -150,8 +150,8 @@ function getValue (data, metric) {
     // Check through caption if it exists
     if (data["caption"]) {
         for (const key in data["caption"]) {
-            if (key === metric.field) {
-                return data["caption"][metric.field];
+            if (key === metric.identifiers[z].field) {
+                return data["caption"][metric.identifiers[z].field];
             }
         }
     }
@@ -166,7 +166,7 @@ function getValue (data, metric) {
                 }
             }
             if (passes) {
-                return entity[metric.field];
+                return entity[metric.identifiers[z].field];
             }
         }
     }

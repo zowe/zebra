@@ -57,7 +57,7 @@ function parameters(fn){
     usePrometheus: Zconfig.usePrometheus,
     https: Zconfig.https,
     grafanaurl: Zconfig.grafanaurl,
-    grafanaport: Zconfig.grafanaport
+    grafanaport: Zconfig.grafanaport 
   }
   fn(parms); //return the parameters
 }
@@ -96,6 +96,49 @@ router.post('/delmtr', (req, res) => {
   });
 });
 
+router.post('/delid', (req, res) => {
+  fs.readFile('metrics.json', (err, data) => {
+    if (err) throw err;
+    let metricsfile = JSON.parse(data);
+    var id_len = metricsfile[req.body.ky]["identifiers"].length;
+    for(i=0; i < id_len; i++){
+      if (metricsfile[req.body.ky]["identifiers"][i]["m_id"] == req.body.id){
+        metricsfile[req.body.ky]["identifiers"].splice(i,1);
+        break;
+      }
+    } 
+    fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
+      res.send("Metric ID Deleted Successfully");
+    });
+  });
+});
+
+
+router.get('/getmetr', (req, res) => {
+  fs.readFile('metrics.json', (err, data) => {
+    if (err) throw err;
+    let metricsfile = JSON.parse(data);
+    res.send({sc:Object.keys(metricsfile)});
+  });
+})
+
+router.post('/getmetricdis', (req, res) => {
+  try{
+    var metric = req.body.metric;
+    fs.readFile('metrics.json', (err, data) => {
+      if (err) throw err;
+      let metricsfile = JSON.parse(data);
+      let mtr = metricsfile[metric]
+      res.send({sysid: mtr.lpar, rpt: mtr.request.report, rsc: mtr.request.resource, ids:mtr.identifiers});
+    });
+    
+  }catch(err){
+    res.send("error")
+
+  }
+  
+})
+
 router.post('/savemtr', (req, res) => {
   try{
     var lpar = req.body.lpar;
@@ -106,7 +149,7 @@ router.post('/savemtr', (req, res) => {
     var umi = req.body.umi;
     var umd = req.body.umd;
     var rst = req.body.rst;
-    var key = `${lpar}_${snvl}_${umi}`;
+    var key = `${lpar}_${rpt}`;
     var mtr = JSON.parse(`{
         "lpar": "${lpar}",
         "request": {
@@ -116,18 +159,56 @@ router.post('/savemtr', (req, res) => {
         "identifiers": [
             {
                 "key": "${nid}",
-                "value": "${snvl}"
+                "value": "${snvl}",
+                "field": "${vid}",
+                "m_id": "${umi}",
+                "desc": "${umd}"
             }
-        ],
-        "field": "${vid}",
-        "desc": "${umd}"
+        ]
        }`)
     fs.readFile('metrics.json', (err, data) => {
       if (err) throw err;
       let metricsfile = JSON.parse(data);
-      metricsfile[`${key}`] = mtr
+      metrkeys = Object.keys(metricsfile);
+      if(metrkeys.includes(key)){ 
+        res.status(304).send();
+      }else {
+        metricsfile[`${key}`] = mtr
+        fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
+          res.send("Metric Added Successfully");
+        }); 
+      }
+    });
+    
+  }catch(err){
+    res.send("error")
+  }
+})
+
+router.post('/saveexmtr', (req, res) => {
+  try{
+    var metr = req.body.metr;
+    var nidex = req.body.nidex;
+    var snvlex = req.body.snvlex;
+    var videx = req.body.videx;
+    var umiex = req.body.umiex;
+    var umdex = req.body.umdex;
+    var idf = JSON.parse(`
+      {
+        
+        "key": "${nidex}",
+        "value": "${snvlex}",
+        "field": "${videx}",
+        "m_id": "${umiex}",
+        "desc": "${umdex}"
+      }
+    `)
+    fs.readFile('metrics.json', (err, data) => {
+      if (err) throw err;
+      let metricsfile = JSON.parse(data);
+      (metricsfile[`${metr}`]["identifiers"]).push(idf)
       fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
-        res.send("Metric Added Successfully");
+        res.send("Metric Identifier Successfully");
       }); 
     });
     

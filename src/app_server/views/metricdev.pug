@@ -108,13 +108,11 @@ block header
 block content
     div(class="sidefm")
         .salis(style={"width":"96%", "margin-top":"0px", "margin-bottom":"30px", "margin-left": "5%"})
-            .row
-                h5(class='hdd') Add Custom Metrics
-                hr
+            
             div(class="tab")
-                button(class="tablinks" onclick="openCity(event, 'London')") New Metric
-                button(class="tablinks" onclick="openCity(event, 'Paris')") Existing Metric
-            div(id="London" class="tabcontent")
+                button(class="tablinks" onclick="openTab(event, 'New')") New Metric
+                button(class="tablinks" onclick="openTab(event, 'Existing')") Existing Metric
+            div(id="New" class="tabcontent")
                 .row
                     form()
                         .row
@@ -151,23 +149,29 @@ block content
 
                         a(href='javascript:savemtr()' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%", "color":"white"}) Save
 
-            div(id="Paris" class="tabcontent")
+            div(id="Existing" class="tabcontent")
                  .salis(style={"width":"96%", "margin-top":"0px", "margin-bottom":"30px", "margin-left": "5%"})
                     .row
                         form()
-                            label(style={"margin-top":"5px", "margin-right": "10px"}) Metric
-                            select.custom-select(class="form-control-sm" name="rst" id="rst" style={"margin-right": "10px"})
+                            label(style={"margin-top":"5px", "margin-right": "10px"}) Metric(s)
+                            select.custom-select(class="form-control-sm" name="metr" id="metr" style={"margin-right": "10px"} onchange="getrptex()")
                                 option(selected='') Select Metric
-                                - for(dt of resources)
-                                    option(value=`${dt}`) !{dt}
+                            label(style={"margin-top":"5px", "margin-right": "10px"} for="mid") Unique Metric id
+                            input(type="text" class="form-control-sm" id=`umiex` style={"margin-right": "10px"} placeholder=`e.g TOU for Total utilization`)
                             label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Key
-                            select.custom-select(class="form-control-sm" name="prm" id="nid" style={"margin-right": "10px"} onchange="getnvl()")
+                            select.custom-select(class="form-control-sm" name="prmex" id="nidex" style={"margin-right": "10px"} onchange="getnvlex()")
                                 option(selected='') Select
                             label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Value
-                            select.custom-select(class="form-control-sm" name="nvl" id="snvl" style={"margin-right": "10px"})
+                            select.custom-select(class="form-control-sm" name="nvlex" id="snvlex" style={"margin-right": "10px"})
                                 option(selected='*') ALL
+                            label(style={"margin-top":"5px", "margin-right": "10px"}) Field
+                            select.custom-select(class="form-control-sm" name="vrmex" id="videx" style={"margin-right": "10px"})
+                                option(selected='') Select
+                            label(style={"margin-top":"5px", "margin-right": "10px"}) Metric Description
+                            input(type="text" class="form-control-sm" id=`umdex` style={"margin-right": "10px"} placeholder=`A simple metrics description`)
+
                             
-                            a(href='javascript:savemtr()' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%", "color":"white"}) Save
+                            a(href='javascript:saveexmtr()' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%", "color":"white"}) Save
     
 
     div(class="mainfm", style={"overflow" : "auto"})
@@ -175,20 +179,36 @@ block content
         p Use the form to add customize ZEBRA Prometheus Metrics. Note, you will need to first configure ZEBRA and have a working internet connection 
         br 
         p Full information on how the form works can be found in the ZEBRA documentation.
-        br
         h5 Metrics Added
         div(style={"overflow":"auto", "max-height":"50vh"})
+            .row(style={"margin-right": "30px", "margin-left": "10px"})
+                label(style={"margin-top":"5px", "margin-right": "10px"}) Metric(s)
+                select.custom-select(class="form-control-sm" name="metrdis" id="metrdis" style={"margin-right": "10px"} onchange="getmetrdis()")
+                    option(selected='') Select Metric
+                div(style={"clear": "both", "margin-top":"10px"})
+                    p(style={"float": "left", "font-size": "18px"}) SYSID:
+                    p(id="sysid" style={"font-weight": "bold", "float": "right", "margin-left":"5px", "font-size": "18px"}) 
+                hr
+                div(style={"clear": "both", "margin-top":"10px"})
+                    p(style={"float": "left", "font-size": "18px"}) Report:
+                    p(id="rptdis" style={"font-weight": "bold", "float": "right", "margin-left":"5px", "font-size": "18px"}) 
+                hr
+                div(style={"clear": "both", "margin-top":"10px"})
+                    p(style={"float": "left", "font-size": "18px"}) Resource:
+                    p(id="rsc" style={"font-weight": "bold", "float": "right", "margin-left":"5px", "font-size": "18px"})
+                hr
+                div(style={"clear": "both", "margin-top":"10px"})
+                    a(href='javascript:delmtr()' class='btn btn-danger' id="rmf3b", style={ "width":"100%", "float": "left", "color":"white"}) Delete Metric
+        
             table(id="sctable")
                 tr 
-                    th Metric
-                    th SYSID 
-                    th Report
-                    th Resource 
-                    th Identifier Name 
+                    th Identifier Name
                     th Identifier Value 
-                    th field 
+                    th Field
+                    th Metric ID 
+                    th Description 
                     th Action
-        
+            
 
 
 block scripts
@@ -196,8 +216,40 @@ block scripts
     script(src='/stylesheets/bootstrap/js/bootstrap.min.js')
     script(src='/stylesheets/bootstrap/js/bootstrap.bundle.min.js')
     script.
+        
+        function getmetrdis() {
+            var data = {metric: $("#metrdis").val()};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/getmetricdis',
+                data: data,
+            })
+            .done(function(e){
+                //window.reloadTable("sctable");
+                //$("#sctable > tr").empty();
+                $('#sysid').text(`${e.sysid}`)
+                $('#rptdis').text(`${e.rpt}`)
+                $('#rsc').text(`${e.rsc}`)
+                $("#sctable").find("tr:gt(0)").remove();
+                $.each(e.ids, function(i){
+                    var len = $("#sctable tr").toArray().length;
+                    var newRow = "<tr class='tabrow closed'>"
+                    +"<td>"+ e.ids[i]["key"] +"</td>"
+                    +"<td>"+e.ids[i]["value"]+"</td>"
+                    +"<td>"+e.ids[i]["field"]+"</td>"
+                    +"<td>"+e.ids[i]["m_id"]+"</td>"
+                    +"<td>"+e.ids[i]["desc"]+"</td>"
+                    +`<td><div><a href='javascript:del_id("${e.ids[i]["m_id"]}")' class='btn btn-danger' style={'color':'white'}>Delete ID</a></div></td>`
+                    +"</tr>";
+                    $(newRow).appendTo("#sctable");
+                })
+            });
+        }
 
         function gettbl(){
+            //$("#sctable > tr").empty();
+            $("#sctable").find("tr:gt(0)").remove();
             $.ajax({
                 dataType: "json",
                 type: 'get',
@@ -205,17 +257,16 @@ block scripts
             })
             .done(function(e){
                 //window.reloadTable("sctable");
+                
                 $.each(e.mtr, function(i){
                     var len = $("#sctable tr").toArray().length;
                     var newRow = "<tr class='tabrow closed'>"
                     +"<td>"+ e.mtr[i] +"</td>"
                     +"<td>"+e.jsn[e.mtr[i]]["lpar"]+"</td>"
-                    +"<td>"+ e.jsn[e.mtr[i]]["request"]["report"] +"</td>"
-                    +"<td>"+e.jsn[e.mtr[i]]["request"]["resource"]+"</td>"
                     +"<td>"+ e.jsn[e.mtr[i]]["identifiers"][0]["key"] +"</td>"
                     +"<td>"+e.jsn[e.mtr[i]]["identifiers"][0]["value"]+"</td>"
-                    +"<td>"+e.jsn[e.mtr[i]]["field"]+"</td>"
-                    +`<td><div><a href='javascript:delmtr("${e.mtr[i]}")' class='btn btn-danger' style={'color':'white'}>Delete</a></div></td>`
+                    +"<td>"+e.jsn[e.mtr[i]]["identifiers"][0]["field"]+"</td>"
+                    +`<td><div><a href='javascript:del_id("${e.mtr[i]}")' class='btn btn-danger' style={'color':'white'}>Delete ID</a></div></td>`
                     +"</tr>";
                     $(newRow).appendTo("#sctable");
                 })
@@ -223,11 +274,13 @@ block scripts
         }
 
         window.onload = function () {
-            gettbl();
+            gettmetr("metrdis");
+            //gettbl();
+            
         }
 
-        function delmtr(a) {
-            var data = {ky: `${a}`};
+        function delmtr() {
+            var data = {ky: $("#metrdis").val()};
             $.ajax({
                 dataType: "json",
                 type: 'post',
@@ -242,10 +295,25 @@ block scripts
                     location.reload();
                 }
             })
-            //.done(function(e){
-            //    gettbl();
-            //    alert(e);  
-            //});
+        }
+
+        function del_id(a) {
+            var metr = $("#metrdis").val();
+            var data = {ky: metr, id:a};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/delid',
+                data: data,
+                complete:   function(data) {
+                    if(data.status === 200){
+                        alert(`${metr} Metric ${a} Identifier Deleted Successfully`);
+                    }else{
+                        alert(`Deleting Metric Identifier Failed`);
+                    }
+                    location.reload();
+                }
+            })
         }
 
         function getrpt() {
@@ -257,8 +325,6 @@ block scripts
                 data: data,
             })
             .done(function(e){
-                //alert(e.sc);
-                //window.reloadTable("nid");
                 $.each(e.sc, function(i){
                     var x = document.getElementById("nid");
                     var c = document.createElement("option");
@@ -267,6 +333,33 @@ block scripts
                 })
                 $.each(e.sc, function(i){
                     var x = document.getElementById("vid");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+            });
+        }
+
+        function getrptex() {
+            var mtrx = $("#metr").val().split("_")
+            var data = {lpar: mtrx[0], rpt: mtrx[1]};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/getrpt',
+                data: data,
+            })
+            .done(function(e){
+                //alert(e.sc);
+                //window.reloadTable("nid");
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("nidex");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("videx");
                     var c = document.createElement("option");
                     c.text = e.sc[i];
                     x.options.add(c, (i+1));
@@ -292,6 +385,25 @@ block scripts
             });
         }
 
+        function getnvlex() {
+            var mtrx = $("#metr").val().split("_")
+            var data = {lpar: mtrx[0], rpt: mtrx[1], nid: $("#nidex").val()};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/getnvl',
+                data: data,
+            })
+            .done(function(e){
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("snvlex");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+            });
+        }
+
         function savemtr() {
             var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val(), nid: $("#nid").val(), umi: $("#umi").val(), umd: $("#umd").val(), snvl: $("#snvl").val(), vid: $("#vid").val(), rst: $("#rst").val() };
             $.ajax({
@@ -300,25 +412,59 @@ block scripts
                 url: '/savemtr',
                 data: data,
                 complete:   function(data) {
-                    var c = `${$("#lpar").val()}_${$("#snvl").val()}_${$("#umi").val()}`
+                    var c = `${$("#lpar").val()}_${$("#rpt").val()}`
                     
                     if(data.status === 200){
                         alert(`${c} Metric Saved Successfully`);
+                    }else if(data.status === 304){
+                        alert(`Metric Already Exist`);
                     }else{
                         alert(`Saving Metric Failed`);
                     }
-
                     location.reload();
-                    
                 }
             })
-            //.done(function(e){
-            //    alert(e);
-            //});
         }
 
-        function openCity(evt, cityName) {
+        function saveexmtr() {
+            var data = {metr: $("#metr").val(), nidex: $("#nidex").val(), umiex: $("#umiex").val(), umdex: $("#umdex").val(), snvlex: $("#snvlex").val(), videx: $("#videx").val()};
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/saveexmtr',
+                data: data,
+                complete:   function(data) {
+                    var c = `${$("#metr").val()}`
+                    
+                    if(data.status === 200){
+                        alert(`${c} Metric Identifier Saved Successfully`);
+                    }else{
+                        alert(`Saving Metric Identifier Failed`);
+                    }
+                    location.reload();
+                }
+            })
+        }
+        function gettmetr(elem){
+            $.ajax({
+                    dataType: "json",
+                    type: 'get',
+                    url: '/getmetr'
+                })
+                .done(function(e){
+                    $.each(e.sc, function(i){
+                        var x = document.getElementById(`${elem}`);
+                        var c = document.createElement("option");
+                        c.text = e.sc[i];
+                        x.options.add(c, (i+1));
+                    })
+                });
+        }
+        function openTab(evt, Name) {
             var i, tabcontent, tablinks;
+            if(Name == "Existing"){
+                gettmetr("metr");
+            }
             tabcontent = document.getElementsByClassName("tabcontent");
             for (i = 0; i < tabcontent.length; i++) {
                 tabcontent[i].style.display = "none";
@@ -327,6 +473,6 @@ block scripts
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].className = tablinks[i].className.replace(" active", "");
             }
-            document.getElementById(cityName).style.display = "block";
+            document.getElementById(Name).style.display = "block";
             evt.currentTarget.className += " active";
         }

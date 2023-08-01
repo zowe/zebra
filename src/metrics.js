@@ -37,13 +37,20 @@ setInterval(async () => {
     for (const lpar of lpars) {
         // Dynamically get which DDS reports must be made to get data via the metrics
         var requests = {};
+        var multi_true_request = {}
         for (const metricName in metrics) {
             var metric = metrics[metricName];
-            if (metric.lpar === lpar) {
-                requests[metric.request.report + " " + (metric.request.resource ? metric.request.resource : dds[lpar]["mvsResource"])] = true;
+            if(metric.multi === true){
+                if (metric.lpar === lpar) {
+                    multi_true_request[metric.request.report + " " + (metric.request.resource ? metric.request.resource : dds[lpar]["mvsResource"])] = true;
+                }
+            }else{
+                if (metric.lpar === lpar) {
+                    requests[metric.request.report + " " + (metric.request.resource ? metric.request.resource : dds[lpar]["mvsResource"])] = true;
+                }
             }
         }
-        // Loop through DDS requests
+        // Loop through DDS requests for single identifier 
         for (const request in requests) {
             var [ report, resource ] = request.split(" ")
             // Get XML data from DDS (this method is more efficient than calling our own API with axios)
@@ -108,29 +115,83 @@ setInterval(async () => {
                                         }
                                         
                                     }
-                                    // Get value of metric
-                                    //var value = getValue(result, metric);
-                                    // If no match, log error and continue
-                                    /* if (!value) {
-                                        // console.log(`WARNING: Could not find field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}'. Field could be missing because its value is 0, but make sure field is valid key.`);
-                                        continue;
-                                    } */
-                                    // If non numeric value is chosen, log error and continue
-                                    /* if (!isNumeric(value)) {
-                                        console.log(`ERROR: Non-numeric error - the field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}' is not numeric.`);
-                                        continue;
-                                    }
-                                    try{
+                                }
+                            }
+                        }    
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+
+        // Loop through DDS requests for multiple identifier 
+        for (const request in multi_true_request) {
+            var [ report, resource ] = request.split(" ")
+            // Get XML data from DDS (this method is more efficient than calling our own API with axios)
+            await axios.get(`${use_cert == 'true' ? 'https' : 'http'}://${appurl}:${appport}/v1/${lpar}/rmf3/${report}?resource=${resource}`)
+                .then((response) => {
+                    // Loop through metrics using this report
+                    const result = response.data;
+                    for (const metricName in metrics) {
+                        var metric = metrics[metricName];
+                        //Loop through Identifiers
+                        for (var z in metric.identifiers)
+                        {
+                            /* console.log(metric.identifiers[z].id[0].key)
+                            console.log(metric.identifiers[z].id[1].key)
+                            console.log("==================") */
+                            //Check if users want data from all records in the JSON table having the metrics key
+                             if(metric.identifiers[z].id[0].value === "ALL" && metric.identifiers[z].id[1].value === "ALL"){
+                                for (i in result['table']) { // loop through the entities
+                                    var JSONBody = result['table'][i];
+                                    var name = `${lpar}_${JSONBody[metric.identifiers[z].id[0].key]}_${JSONBody[metric.identifiers[z].id[1].key]}_${metric.identifiers[z].m_id}`; //append TOU(Total Utilization) to lpar name
+                                    var value = JSONBody[metric.identifiers[z].field];
+                                    try {
                                         (new prometheus.Gauge({
-                                            name: metricName,
-                                            help: metric.desc,
+                                            name: name,
+                                            help: metric.identifiers[z].desc,
                                             labelNames: ['parm']
                                         })).set({
-                                            parm: metric.field
+                                            parm: metric.identifiers[z].field
                                         }, parseFloat(value));
-                                    } catch(err) {
-                                        console.log(err);
-                                    } */
+                                    } catch (err) { 
+                                        //console.log(err);
+                                    }
+                                }
+
+                            }else{
+                                if (metric.request.report === report && metric.request.resource === resource) {
+                                    for (i in result['table']) { // loop through the entities
+                                        var JSONBody = result['table'][i];
+                                        //console.log(JSONBody[metric.identifiers[z].id[0].key] == metric.identifiers[z].id[0].value)
+                                        if(JSONBody[metric.identifiers[z].id[0].key] == metric.identifiers[z].id[0].value || JSONBody[metric.identifiers[z].id[1].key] == metric.identifiers[z].id[1].value)
+                                        {
+                                            var name = `${lpar}_${JSONBody[metric.identifiers[z].id[0].key]}_${JSONBody[metric.identifiers[z].id[1].key]}_${metric.identifiers[z].m_id}`; //append TOU(Total Utilization) to lpar name
+                                            var value = JSONBody[metric.identifiers[z].field];
+                                            if (!value) {
+                                                // console.log(`WARNING: Could not find field '${metric.field}' in report '${report}' for Prometheus metric '${metricName}'. Field could be missing because its value is 0, but make sure field is valid key.`);
+                                                continue;
+                                            }
+                                            if (!isNumeric(value)) {
+                                                console.log(`ERROR: Non-numeric error - the field '${metric.identifiers[z].field}' in report '${report}' for Prometheus metric '${metricName}' is not numeric.`);
+                                                continue;
+                                            }
+                                            try {
+                                                (new prometheus.Gauge({
+                                                    name: name,
+                                                    help: metric.identifiers[z].desc,
+                                                    labelNames: ['parm']
+                                                })).set({
+                                                    parm: metric.identifiers[z].field
+                                                }, parseFloat(value));
+                                            } catch (err) { 
+                                                console.log(err);
+                                            }
+                                            break;
+                                        }
+                                        
+                                    }
                                 }
                             }
                         }    

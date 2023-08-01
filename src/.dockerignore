@@ -3,6 +3,7 @@ db
 data
 my.db
 my.dbrefresh
+admin.db
 
 # node modules
 node_modules

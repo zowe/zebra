@@ -39,6 +39,7 @@
     "sqlite3": "^5.1.1",
     "swagger-ui-express": "^4.1.4",
     "sweetalert": "^2.1.2",
+    "tls": "^0.0.1",
     "xml2js": "^0.4.23"
   }
 }

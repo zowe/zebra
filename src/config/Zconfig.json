@@ -1,0 +1,62 @@
+{
+	"mongourl": "localhost",
+	"dbinterval": "100",
+	"dbname": "Zebrav1111",
+	"appurl": "localhost",
+	"appport": "3090",
+	"mongoport": "27017",
+	"ppminutesInterval": "30",
+	"rmf3interval": "100",
+	"zebra_httptype": "http",
+	"useDbAuth": "true",
+	"dbUser": "myUserAdmin",
+	"dbPassword": "salisu",
+	"authSource": "admin",
+	"use_cert": "false",
+	"grafanaurl": "localhost",
+	"grafanaport": "3000",
+	"grafanahttptype": "http",
+	"dds": {
+		"LPAR1": {
+			"ddshhttptype": "https",
+			"ddsbaseurl": "lpar1.com",
+			"ddsbaseport": "8803",
+			"ddsauth": "true",
+			"ddsuser": "user",
+			"ddspwd": "password",
+			"rmf3filename": "rmfm3.xml",
+			"rmfppfilename": "rmfpp.xml",
+			"mvsResource": ",SYSID,MVS_IMAGE",
+			"PCI": 2951,
+			"usePrometheus": "false",
+			"useMongo": "false",
+			"hmai": {
+				"ftp": {
+					"directory": "/default/ftp/directory"
+				},
+				"mysql": {
+					"host": "localhost",
+					"user": "defaultuser",
+					"password": "defaultpassword"
+				},
+				"dataRetention": {
+					"clpr": "1",
+					"ldev": "1",
+					"mpb": "1",
+					"mprank20": "1",
+					"pgrp": "1",
+					"port": "1"
+				},
+				"checkInterval": "1",
+				"defaultStartDate": "2024-08-20",
+				"continuousMonitoring": true
+			}
+		}
+	},
+	"apiml_IP": "localhost",
+	"apiml_http_type": "https",
+	"apiml_password": "password",
+	"apiml_username": "username",
+	"apiml_port": "10010",
+	"apiml_auth_type": "bypass"
+}

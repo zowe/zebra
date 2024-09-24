@@ -1,19 +1,49 @@
-/* GET Homepage*/
-var fs = require('fs'); //importing the fs module
-try{
-  var Zconfig = require("./config/Zconfig");
-}catch(e){
-  var Zconfig = {};
-}
-var path = require("path");
-var  Auth = require('../../Auth');
+const path = require('path');
 const REPORTS = require("../../constants").REPORTS;
-try{
-  var ddsconfig = require("../../config/Zconfig.json");
-}catch(e){
-  var ddsconfig = {};
-}
+const METRICDESCRIPTIONS = require("../../constants").METRICDESCRIPTIONS;
+const REPORTTYPE = require("../../constants").REPORTTYPE;
 
+let ddsconfig;
+try {
+  ddsconfig = require("../../config/Zconfig.json");
+} catch(e) {
+  console.error("Error loading Zconfig:", e);
+  ddsconfig = {};
+}
+function reloadZconfig() {
+  const configPath = path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
+  delete require.cache[require.resolve(configPath)];
+  return require(configPath);
+}
+exports.home = async function(req, res) {
+  try {
+    global.Zconfig = global.reloadZconfig(); // Reload config before rendering
+  const lpar_details = global.Zconfig.dds || {};
+    const lpars = Object.keys(lpar_details);
+    console.log("Available LPARs for index:", lpars);
+
+    const renderOptions = {
+      lpar: lpars,
+      reports: REPORTS,
+      metricDescriptions: METRICDESCRIPTIONS,
+      reportType: REPORTTYPE
+    };
+
+    if (req.session.name) {
+      renderOptions.msg = "Admin";
+    }
+
+    res.render("index", renderOptions);
+  } catch(e) {
+    console.error("Error in home function:", e);
+    res.render("index", {
+      lpar: [],
+      reports: REPORTS,
+      metricDescriptions: METRICDESCRIPTIONS,
+      reportType: REPORTTYPE
+    });
+  }
+};
 
 /**
  * parameters function reads the parameters in the Zconfig file
@@ -52,20 +82,21 @@ try{
  * Endpoint: /                                                                                
  * Endpoint does not take any parameter                                                        
  */
-module.exports.home = async function(req, res){ //Controller function for Index page/Home page
-  try{
-    var lpar_details = ddsconfig["dds"];
-    var lpars = Object.keys(lpar_details);
-    if(req.session.name){ //Check if User login session is available
-      res.render("index",{msg:"Admin", lpar:lpars, reports:REPORTS}); // render the homepage wih Admin previledge
-    }else{ // if login session not available
-      res.render("index", {lpar:lpars, reports:REPORTS}); //render the homepage with user previledge
-    }
-  }catch(e){
-    res.render("index", {lpar:[], reports:REPORTS});
-  }
+// module.exports.home = async function(req, res){ //Controller function for Index page/Home page
+//   // Render imported reports, metric descriptions and report resource types
+//   try{
+//     var lpar_details = ddsconfig["dds"];
+//     var lpars = Object.keys(lpar_details);
+//     if(req.session.name){ //Check if User login session is available
+//       res.render("index",{msg:"Admin", lpar:lpars, reports:REPORTS, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE}); // render the homepage wih Admin previledge
+//     }else{ // if login session not available
+//       res.render("index", {lpar:lpars, reports:REPORTS, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE}); //render the homepage with user previledge
+//     }
+//   }catch(e){
+//     res.render("index", {lpar:[], reports:REPORTS, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE});
+//   }
   
-};
+// };
 
 /**  
  * settings Function displays App settings from Zconfig.json file                              
@@ -248,5 +279,3 @@ module.exports.home = async function(req, res){ //Controller function for Index 
     }
   })
 }*/
-
-

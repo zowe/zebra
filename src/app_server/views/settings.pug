@@ -51,9 +51,15 @@ block scripts
         function dds(){
             $.ajax({
                 url: '/ddsconfig',
+                method: 'GET',
+                dataType: 'html'
             })
             .done(function(e){
                 $('.main').html(e);
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Error loading DDS config:", textStatus, errorThrown);
+                alert("Error loading DDS configuration. Please check the console for more details.");
             });
         }
         function config(){
@@ -65,11 +71,21 @@ block scripts
             });   
         }
         function createZconfig(){
-            $.ajax({
-                url: '/createZconfig',
-            })
-            .done(function(e){
-                alert(e);
-                window.location.href =`/setting`;
-            });   
+        $.ajax({
+            url: '/createZconfig',
+            method: 'GET',
+            dataType: 'json'
+        })
+        .done(function(response){
+            if (response.success) {
+                alert(response.message);
+                //- window.location.href = '/config/settings';
+                window.location.reload();
+            } else {
+                alert('Error: ' + response.message);
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            alert('Error creating Zconfig: ' + textStatus);
+        });   
         }

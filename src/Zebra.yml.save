@@ -17,7 +17,7 @@ services:
               scheme: ZoweJwt
               applid: ZOWEAPPL
       apiInfo:
-        - apiId: 172.23.90.50.zebra.3090
+        - apiId: localhost.zebra.3090
           gatewayUrl: /
           swaggerUrl: http://localhost:3090/api-doc
           version: 1.0.0

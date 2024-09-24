@@ -44,6 +44,36 @@
             "PCI": 3340,
             "usePrometheus":"false",
             "useMongo": "true"
+        },
+        "HMAI": {
+            "comment_to_be_removed":"THIS IS A COMMENT ADDED FOR INFORMATION IN ZCONFIG TEMPLATE, TO BE DELETED. THIS IS ONLY FOR USERS WITH HMAI INSTALLED, DO NOT BOTHER IF YOU DON'T USE HMAI. ALL CORE DDS SETTINGS REMAIN THE SAME, ONLY THE NEW HMAI OBJECT MUST BE CONFIGURED",
+            "ddshhttptype":"http",
+            "ddsbaseurl":"hmai.com",
+            "ddsbaseport":"8803",
+            "ddsauth":"true",
+            "ddsuser":"user",
+            "ddspwd":"pass",
+            "rmf3filename":"rmfm3.xml",
+            "rmfppfilename":"rmfpp.xml",
+            "mvsResource":",JSTN,MVS_IMAGE",
+            "PCI": 3340,
+            "usePrometheus":"false",
+            "useMongo": "true",
+            "hmai": {
+				"ftp": {
+					"directory": "/u/hmai"
+				},
+				"mysql": {
+					"host": "localhost",
+					"user": "user",
+					"password": "password",
+					
+					"multipleStatements": true
+				},
+				
+				"checkInterval": "10000" 
+			}
         }
+
     }
 }

@@ -7,7 +7,8 @@ const Prometheus = require('prom-client');
 var session = require('express-session');
 const swaggerUi = require('swagger-ui-express'),
     swaggerdoc = require("../../Zebra_Swagger.json");
-
+var ctrlHmai = require('../Controllers/hmaiController');
+const { getMetrics } = require('../../metrics');
 require('dotenv').config();
 const bcrypt = require('bcryptjs')
 var  Auth = require('../../Auth');
@@ -29,7 +30,10 @@ const axios = require('axios');
 const { send } = require('process');
 const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
 
+// Initialize constants
 const REPORTS = require("../../constants").REPORTS;
+const METRICDESCRIPTIONS = require("../../constants").METRICDESCRIPTIONS;
+const REPORTTYPE = require("../../constants").REPORTTYPE;
 const { keys } = require('lodash');
 
 
@@ -61,11 +65,27 @@ function parameters(fn){
   }
   fn(parms); //return the parameters
 }
+// ... (keep existing imports)
 
-router.get('/pwdd', (req, res) => { //remember to delete
-  res.render("login", {data: "pwd"})
-})
+router.get('/hmai', function(req, res, next) {
+  const Zconfig = require('../../config/Zconfig.json');
+  const lpars = Object.keys(Zconfig.dds);
+  console.log("Rendering HMAI report with lpars:", lpars);
+  // console.log("LPAR config:", Zconfig.dds);
+  res.render('hmaiReport', { 
+    title: 'HMAI Report', 
+    lpars: lpars,
+    lparConfig: Zconfig.dds
+  });
+});
 
+router.post('/hmai/start', ctrlHmai.startHMAI);
+router.post('/hmai/clear-db', ctrlHmai.clearDatabase);
+router.post('/hmai/get-csv', ctrlHmai.getCSVData);
+router.post('/hmai/download-csv', ctrlHmai.downloadCSV);
+router.post('/hmai/stop-monitoring', ctrlHmai.stopContinuousMonitoring);  
+router.get('/hmai/running-processes', ctrlHmai.getRunningProcesses);
+router.post('/hmai/start-all', ctrlHmai.startHMAIForAllLpars);
 // Checks if user login session is available in browser
 var sessionChecker = (req, res, next) => {
   if (req.session.name && req.cookies.user_sid) { //If user login session is available
@@ -96,45 +116,67 @@ router.post('/delmtr', (req, res) => {
   });
 });
 
+// Updated to allow saving multiple metrics at once
 router.post('/savemtr', (req, res) => {
-  try{
-    var lpar = req.body.lpar;
-    var rpt = req.body.rpt;
-    var nid = req.body.nid;
-    var snvl = req.body.snvl;
-    var vid = req.body.vid;
-    var umi = req.body.umi;
-    var umd = req.body.umd;
-    var rst = req.body.rst;
-    var key = `${lpar}_${snvl}_${umi}`;
-    var mtr = JSON.parse(`{
-        "lpar": "${lpar}",
+  try {
+    const lpar = req.body.lpar;
+    const rpt = req.body.rpt;
+    const nid = req.body.nid;
+    const snvlList = req.body.snvl instanceof Array ? req.body.snvl : [req.body.snvl]; // Ensure snvl is an array
+    const vid = req.body.vid;
+    const umi = req.body.umi;
+    const umd = req.body.umd;
+    const rst = req.body.rst;
+
+    // Synchronously read the file to avoid race conditions
+    let metricsfile = {};
+    try {
+      const data = fs.readFileSync('metrics.json', 'utf8');
+      metricsfile = JSON.parse(data);
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        // File does not exist, start with an empty object
+        metricsfile = {};
+      } else {
+        throw err;
+      }
+    }
+
+    // Loop through each selected identifier value
+    snvlList.forEach(snvl => {
+      // Construct a unique key using the identifier key and value
+      const key = `${lpar}_${snvl}_${vid}`;
+
+      // Construct the new metric object
+      const mtr = {
+        "lpar": lpar,
         "request": {
-            "report": "${rpt}",
-            "resource": "${rst}"
+          "report": rpt,
+          "resource": rst
         },
         "identifiers": [
-            {
-                "key": "${nid}",
-                "value": "${snvl}"
-            }
+          {
+            "key": nid,
+            "value": snvl
+          }
         ],
-        "field": "${vid}",
-        "desc": "${umd}"
-       }`)
-    fs.readFile('metrics.json', (err, data) => {
-      if (err) throw err;
-      let metricsfile = JSON.parse(data);
-      metricsfile[`${key}`] = mtr
-      fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
-        res.send("Metric Added Successfully");
-      }); 
+        "field": vid,
+        "desc": umd
+      };
+
+      // Add the new metric to the metrics object
+      metricsfile[key] = mtr;
     });
-    
-  }catch(err){
-    res.send("error")
+
+    // Synchronously write the updated metrics object back to the file
+    fs.writeFileSync('metrics.json', JSON.stringify(metricsfile, null, '\t'), 'utf-8');
+    res.send("Metrics Added Successfully");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error saving metrics");
   }
-})
+});
 
 router.post('/getnvl', (req, res) => {
   try{
@@ -190,8 +232,8 @@ router.post('/getrpt', (req, res) => {
   }
   
 })
-
-router.get('/metrics', sessionChecker, (req, res) => {
+// Updated with new constant variables
+router.get('/metrics', /*sessionChecker,*/ (req, res) => {
   //console.log(Zconfig.dds["RPRT"])
   resource = [];
   var lpar_details = Zconfig["dds"];
@@ -201,9 +243,11 @@ router.get('/metrics', sessionChecker, (req, res) => {
   }
   //console.log(c);
   if(req.session.name){ //Check if User login session is available
-    res.render("metrics",{msg:"Admin", resources:resource, lpars:lpar, reports:REPORTS.RMFM3}); // render the metrics page wih Admin previledge
+    res.render("metrics",
+      {msg:"Admin", 
+        resources:resource, lpars:lpar, reports:REPORTS.RMFM3, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE}); // render the metrics page wih Admin previledge
   }else{
-    res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
+    res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE});
   }
 })
 
@@ -219,23 +263,46 @@ router.post('/updatedds', ctrlConfig.updatedds);
 
 router.post('/deletedds', ctrlConfig.deletedds);
 
-router.post('/savedds', Auth.authenticateFormToken, ctrlConfig.savedds);
+router.post('/savedds', ctrlConfig.savedds);
 
 router.get('/createZconfig', ctrlConfig.createZconfig);
 
-router.get('/config/settings', sessionChecker, (req, res) => {
-  if(Object.keys(Zconfig).length === 0){
-    res.render("settings",{nozmsg: "No Zconfig"});
-  }else{
-    res.render("settings",{msg: "Admin"});
-  } 
+// router.get('/config/settings', sessionChecker, (req, res) => {
+//   if(Object.keys(Zconfig).length === 0){
+//     res.render("settings",{nozmsg: "No Zconfig"});
+//   }else{
+//     res.render("settings",{msg: "Admin"});
+//   } 
   
+// });
+function loadZconfig() {
+  const configPath = path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
+  try {
+    if (fs.existsSync(configPath)) {
+      delete require.cache[require.resolve(configPath)];
+      global.Zconfig = require(configPath);
+    } else {
+      global.Zconfig = {};
+    }
+  } catch (error) {
+    console.error('Error loading Zconfig:', error);
+    global.Zconfig = {};
+  }
+}
+
+router.get('/config/settings', sessionChecker, (req, res) => {
+  loadZconfig();
+  if (Object.keys(global.Zconfig).length === 0) {
+    res.render("settings", { nozmsg: "No Zconfig" });
+  } else {
+    res.render("settings", { msg: "Admin", dds: global.Zconfig.dds || {} });
+  }
 });
 
 router.get('/ddsconfig', (req, res) => {
-  //console.log(Zconfig.dds["RPRT"])
-  res.render("ddsconfig", {dds: Zconfig.dds});
-})
+  loadZconfig();
+  res.render("ddsconfig", { dds: global.Zconfig.dds || {} });
+});
 
 router.get('/otherconfig', (req, res) => {
   res.render("otherconfig", {fparms:Zconfig});
@@ -393,7 +460,11 @@ router.get('/api-doc',  function(req, res, next){
 router.get('/prommetric', (req, res) => {
     res.end(Prometheus.register.metrics()); //display metrics in prom-client register
 });
-
+// Prometheus metric API router for real-time metric data retrieval
+router.get('/v1/metrics', (req, res) => {
+  const metrics = getMetrics();
+  res.json(metrics); // Serve the reloaded metrics
+});
 /* router.post("/login", Auth.login)  */
 
 /* router.post("/UpdatePassword", Auth.authenticateToken, Auth.updatePassword) */
@@ -418,4 +489,3 @@ router.get("/logout", Auth.authenticateToken, (req,res) => {
 
 
 module.exports = router;
- 

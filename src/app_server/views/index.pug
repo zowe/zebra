@@ -21,8 +21,11 @@ block content
                     .form-group
                         select.custom-select(style={"margin-top":"10px", "margin-right": "10px"}, name="lpar", id='lpar')
                             option(selected='') Select LPAR
-                            - for(dat of lpar)
-                                option(value=`${dat}`) !{dat}
+                            if lpar && lpar.length > 0
+                                each dat in lpar
+                                    option(value=`${dat}`) !{dat}
+                            else
+                                option(disabled) No LPARs available
         hr(style={"margin":"0"})
     .apis
         h4(style={"margin-top":"20px"}) RMF Monitor III report
@@ -77,8 +80,10 @@ block content
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Report File
                         input(type="file" class="form-control" name="xml" style={"margin-right": "10px"})
                         button(type='submit' class='btn btn-primary' id="rmf3b") Try it
-            
         hr(style={"margin":"0"})
+    
+            
+        
     br
     .apis
         .row
@@ -91,31 +96,37 @@ block content
                 form(class="form-inline" action="/mongo")
                     .form-group
                         img(src="/images/grafana.png", height="60", width="60")
-                        a.h6(style={"margin-left":"20px"}, href="/grafana") Browse RMF real-time data with Grafana
+                        a.h6(style={"margin-left":"20px"}, href="/grafana") Browse data with Grafana
+            .col-md-4
+                form(class="form-inline" action="/hmai")
+                    .form-group
+                        img(src="/images/mysql.png", height="40", width="60")
+                        a.h6(style={"margin-left":"20px"}, href="/hmai") Browse Hitachi Mainframe Analytics Interpreter with MySQL
 
 block scripts
     script(src='https://code.jquery.com/jquery-3.5.1.min.js')
     script.
+        console.log("Available LPARs:", !{JSON.stringify(lpar || [])});
+        console.log("Reports:", !{JSON.stringify(reports || {})});
+    script.
         function rmfm3() {
-            var url = '@Url.Action("Index", "Home")';
             var lpar = $("#lpar").val();
             if (lpar === "Select LPAR"){
                 alert("Please Select LPAR from which to retrieve the data");
-            }else{
+            } else {
                 var report = $('#rmf3_report').val();
                 window.location.href =`/v1/${lpar}/rmf3/${report}`;
             }
         }
 
         function rmfpp() {
-            var url = '@Url.Action("Index", "Home")';
             var lpar = $("#lpar").val();
             if (lpar === "Select LPAR"){
                 alert("Please Select LPAR from which to retrieve the data");
-            }else{
+            } else {
                 var report = $('#rmfpp_report').val();
                 var start = $('#start').val();
                 var end = $('#end').val();
-                window.location.href =`/v1/${lpar}/rmfpp/${report}?start=${start}&end=${end}`; //'/v1/RPRT/rmfpp/wlmgl?date=20210627,20210627'
+                window.location.href =`/v1/${lpar}/rmfpp/${report}?start=${start}&end=${end}`;
             }
         }

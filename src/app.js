@@ -22,6 +22,7 @@ try {
 
 
 var ddsconfig = require("./config/Zconfig.json"); */
+
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -33,18 +34,68 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
 
-// Create empty metrics.json if it doesn't exist
-if (!fs.existsSync(path.resolve(__dirname, 'metrics.json'))) {
-  fs.writeFileSync(path.resolve(__dirname, 'metrics.json'), JSON.stringify({}), 'utf8');
+// Load metrics
+const { reloadMetrics, getMetrics } = require('./metrics');
+
+// Path to metrics.json
+const METRICS_PATH = path.resolve(__dirname, 'metrics.json');
+
+// Ensure metrics.json exists, if not create it
+if (!fs.existsSync(METRICS_PATH)) {
+  fs.writeFileSync(METRICS_PATH, JSON.stringify({}), 'utf8');
   console.log("Empty metrics.json generated");
 }
+
+// Initial load of metrics
+reloadMetrics();
+
+// Watch for changes in metrics.json and reload metrics
+fs.watch(METRICS_PATH, (eventType) => {
+  if (eventType === 'change') {
+    try {
+      const fileContent = fs.readFileSync(METRICS_PATH, 'utf8');
+      if (fileContent.trim()) {
+        delete require.cache[require.resolve(METRICS_PATH)];
+        reloadMetrics(); // Re-run metrics.js logic
+        console.log('Metrics reloaded successfully.');
+      } else {
+        console.warn('metrics.json is empty, skipping reload.');
+      }
+    } catch (err) {
+      console.error('Error reloading metrics:', err);
+    }
+  }
+});
 
 //var lpar_details = ddsconfig["dds"];
 //var lpars = Object.keys(lpar_details);
 lpar_prom = [];
 lpar_mongo = [];
+function loadZconfig() {
+  const configPath = path.join(__dirname, 'config', 'Zconfig.json');
+  try {
+    const configData = fs.readFileSync(configPath, 'utf8');
+    return JSON.parse(configData);
+  } catch (error) {
+    console.error("Error loading Zconfig:", error);
+    return {};
+  }
+}
+
+global.Zconfig = loadZconfig();
+global.reloadZconfig = loadZconfig;
 try{
-  var ddsconfig = require("./config/Zconfig.json");
+  
+  let ddsconfig;
+try {
+  ddsconfig = require("./config/Zconfig.json");
+  console.log("Zconfig loaded successfully");
+} catch(e) {
+  console.error("Error loading Zconfig:", e);
+  ddsconfig = {};
+}
+
+// ... rest of your app.js code ...
   var lpar_details = ddsconfig["dds"];
   var lpars = Object.keys(lpar_details);
 
@@ -79,6 +130,7 @@ var rmfppRouter = require('./app_server/routes/rmfppRouter');
 var metricRouter = require('./app_server/routes/metricRouter');
 var staticRouter = require('./app_server/routes/staticXMLRouter');
 var v1Router = require('./app_server/routes/v1Router');
+const hmaiRouter = require('./app_server/routes/hmaiRouter');
 const { exit } = require('process');
 
 var app = express();
@@ -141,6 +193,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
+app.use('/hmai', hmaiRouter);
 
 module.exports = app;

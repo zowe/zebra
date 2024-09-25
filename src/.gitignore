@@ -11,7 +11,7 @@ my.db
 my.dbrefresh
 
 # Zconfig file
-
+config/Zconfig.json
 config/dds.js
 config/Zconfig copy.json
 
@@ -27,3 +27,6 @@ src/nodemon.json
 
 # Tokens
 .env
+
+package-lock.json
+config/hmaiMemory

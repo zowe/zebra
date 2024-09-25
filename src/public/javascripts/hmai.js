@@ -811,7 +811,7 @@ $(document).ready(function() {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error('HMAI start error:', textStatus, errorThrown);
-                alert('An error occurred while running the HMAI script');
+                // alert('An error occurred while running the HMAI script');
                 runningProcesses[lpar].isRunning = false;
             },
             complete: function() {

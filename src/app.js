@@ -34,38 +34,15 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
 
-// Load metrics
-const { reloadMetrics, getMetrics } = require('./metrics');
+// Create empty metrics.json if it doesn't exist
 
-// Path to metrics.json
-const METRICS_PATH = path.resolve(__dirname, 'metrics.json');
+if (!fs.existsSync(path.resolve(__dirname, 'metrics.json'))) {
 
-// Ensure metrics.json exists, if not create it
-if (!fs.existsSync(METRICS_PATH)) {
-  fs.writeFileSync(METRICS_PATH, JSON.stringify({}), 'utf8');
+  fs.writeFileSync(path.resolve(__dirname, 'metrics.json'), JSON.stringify({}), 'utf8');
+
   console.log("Empty metrics.json generated");
+
 }
-
-// Initial load of metrics
-reloadMetrics();
-
-// Watch for changes in metrics.json and reload metrics
-fs.watch(METRICS_PATH, (eventType) => {
-  if (eventType === 'change') {
-    try {
-      const fileContent = fs.readFileSync(METRICS_PATH, 'utf8');
-      if (fileContent.trim()) {
-        delete require.cache[require.resolve(METRICS_PATH)];
-        reloadMetrics(); // Re-run metrics.js logic
-        console.log('Metrics reloaded successfully.');
-      } else {
-        console.warn('metrics.json is empty, skipping reload.');
-      }
-    } catch (err) {
-      console.error('Error reloading metrics:', err);
-    }
-  }
-});
 
 //var lpar_details = ddsconfig["dds"];
 //var lpars = Object.keys(lpar_details);

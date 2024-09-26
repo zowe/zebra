@@ -1,10 +1,7 @@
 extends layout
+
 block header
-    // Include custom stylesheets
     link(rel='stylesheet', href='/stylesheets/slider.css')
-    link(rel='stylesheet', href='/stylesheets/bootstrap/css/bootstrap.css')
-    link(rel='stylesheet', href='/stylesheets/bootstrap/css/bootstrap.min.css')
-    title ZEBRA - Custom Metrics
     style.
         .center {
             margin: 0;
@@ -16,12 +13,8 @@ block header
         }
 
         .container {
-            height: auto;
+            height: 200px;
             position: relative;
-        }
-
-        section {
-            padding: 2rem 0;
         }
 
         form {
@@ -60,131 +53,84 @@ block header
         }
 
         table {
-            --background: white;
-            --border: rgba(0, 0, 0, 0.125);
-            --borderDark: rgba(0, 0, 0, 0.25);
-            --borderDarker: rgba(0, 0, 0, 0.5);
-            --bgColorH: 0;
-            --bgColorS: 0%;
-            --bgColorL: 98%;
-            --fgColorH: 210;
-            --fgColorS: 50%;
-            --fgColorL: 38%;
-            --shadeDark: 0.3;
-            --shadeLight: 0.7;
-            --shadeNormal: 0.5;
-            --borderRadius: 0.125rem;
-            --highlight: #306090;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--borderRadius);
-            box-shadow: 0 1rem 1rem -0.75rem var(--border);
-        }
-        th {
-            border: 1px solid lightgrey;
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 96%;
         }
 
-block content 
-    // Page title and description section
-    section
-        div(class='container')
-            div(class='row justify-content-center')
-                div(class='col')
-                    h1(class="h2 mb-2") Add Custom Metrics
-                    p Use the forms to add custom ZEBRA Prometheus Metrics. Note, you will need to first configure Zebra and have a working internet connection.
-                    p Full information on how the form works can be found in the ZEBRA documentation.
-    
-    // Form section
-    section(class='flush-with-above')
-        div(class='container' style='height: auto;')
-            div(class='row')
-                // Custom Metric Selection
-                div(class='col-md-6')
-                    form
-                        h6(class='title-decorative' style='color:#adb5bd') Parameters
-                        // Lpar Select
-                        div(class='form-group')
-                            label(for='lpar') LPAR
-                            select(id='lpar' class='form-control')
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+
+block content
+    div(class="sidefm")
+        .salis(style={"width":"96%", "margin-top":"0px", "margin-bottom":"30px", "margin-left": "10%"})
+            .row
+                h5(class='hdd') Add Custom Metrics
+                hr
+            .row
+                form()
+                    .row
+                        .col-md-6
+                            label(style={"margin-top":"5px", "margin-right": "10px", "font-size":"12px"} for=`sysid`) SYSID
+                            select.custom-select(class="form-control-sm" name="lpar" id="lpar" style={"margin-right": "10px"})
                                 option(selected='') Select LPAR
                                 - for(dat of lpars)
                                     option(value=`${dat}`) !{dat}
-                        // Report Select
-                        div(class='form-group')
-                            label(for='rpt') Report
-                            select(id='rpt' class='form-control' onchange='getrpt()')
-                                option(value='') Select Report
+                        .col-md-6
+                            label(style={"margin-top":"5px", "margin-right": "10px", "font-size":"12px"} for=`rpt`) Report
+                            select.custom-select(class="form-control-sm" name="rpt" id="rpt" style={"margin-right": "10px"} onchange="getrpt()")
+                                option(selected='') Select 
                                 each report in reports
-                                    option(value=report) #{report}
-                        // Resource Initialisation
-                        input(type="hidden" id="rst" name="rst")
-                        // Identifier Key Select
-                        div(class='form-group')
-                            label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Key
-                            select(class="form-control" name="prm" id="nid" style={"margin-right": "10px"} onchange="getnvl()")
-                                option(selected='') Select
-                        // Identifier Value Select (Updated to support multiple selections)
-                        div(class='form-group')
-                            label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Value
-                            select(class="form-control" name="nvl" id="snvl" multiple style={"margin-right": "10px", "height": "75px"})
-                                option(value='ALL') ALL
-                        // Description Input
-                        div(class='form-group')
-                            label(for='umd') Description
-                            input(type='text' class='form-control' id='umd' placeholder='Enter Custom Description')
-                        // Hidden field to store selected metric value
-                        input(type='hidden' id='selectedMetric')
+                                    option(value=report) #{report}   
+                    label(style={"margin-top":"5px", "margin-right": "10px"} for="mid") Unique Metric id
+                    input(type="text" class="form-control-sm" id=`umi` style={"margin-right": "10px"} placeholder=`e.g TOU for Total utilization`)
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Resource
+                    select.custom-select(class="form-control-sm" name="rst" id="rst" style={"margin-right": "10px"})
+                        option(selected='') Select Resource
+                        - for(dt of resources)
+                            option(value=`${dt}`) !{dt}
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Key
+                    select.custom-select(class="form-control-sm" name="prm" id="nid" style={"margin-right": "10px"} onchange="getnvl()")
+                        option(selected='') Select
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Identifier Value
+                    select.custom-select(class="form-control-sm" name="nvl" id="snvl" style={"margin-right": "10px"})
+                        option(selected='*') ALL
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Field
+                    select.custom-select(class="form-control-sm" name="vrm" id="vid" style={"margin-right": "10px"})
+                        option(selected='') Select
+                    label(style={"margin-top":"5px", "margin-right": "10px"}) Metric Description
+                    input(type="text" class="form-control-sm" id=`umd` style={"margin-right": "10px"} placeholder=`A simple metrics description`)
 
-                // Metric Filtering and List
-                div(class='col-md-6')
-                    form(class='d-flex flex-column w-100' style='height:540px')
-                        h6(class='title-decorative' style='color:#adb5bd') Filter Metrics
-                        div(class='row')
-                            div(class='col')
-                                div(class='form-group')
-                                    select(id='type', class='form-control' onchange='filterMetrics()')
-                                        option(selected='') All
-                                        option(value='id') ID
-                                        option(value='nbr') Number
-                                        option(value='name') Name
-                                        option(value='type') Type
-                                        option(value='status') Status
-                            div(class='col')
-                                button(type='button' class='btn btn-primary btn-block' onclick='savemtr()') Add Metrics
-                        // Search bar for filtering metrics
-                        div(class='row')
-                            div(class='col' style='padding-bottom:5px')
-                                input(type='text' class='form-control' id='searchInput' placeholder='Search Metrics' onkeyup='searchMetrics()')
-                        // List of available metrics by their description
-                        div(class='row scrollable' style='height: 402px; overflow-y: auto;')
-                            div(class='col')
-                                div(class='form-check' id='metricCheckList')
-                    // Hidden field to store selected metric values
-                    input(type='hidden' id='selectedMetrics')
+                    a(href='javascript:savemtr()' class='btn btn-primary' id="rmf3b", style={"margin-top":"13px", "width":"98%", "color":"white"}) Save
+                    
 
-    // Added metrics section
-    section(class='flush-with-above')
-        div(class='container')
-            div(class='row')
-                div(class='col')
-                    table(class='table' id='sctable')
-                        thead(class='thead-dark')
-                            tr
-                                th(scope='col', colspan='2') Metric
-                                th(scope='col') LPAR
-                                th(scope='col') Report
-                                th(scope='col') Resource
-                                th(scope='col') Identifier
-                                th(scope='col') Value
-                                th(scope='col') Field
-                        tbody
-
-    // Delete metrics button
-    section(class='flush-with-above', style='padding-top: 0px;')
-        div(class='container')
-            div(class='row')
-                div(class='col')
-                    button(type='button' class='btn btn-danger btn-block' onclick='deleteSelectedMetrics()') Delete Selected Metrics
+    div(class="mainfm", style={"overflow" : "auto"})
+        h5 Add Custom Metrics Page
+        p Use the form to add customize ZEBRA Prometheus Metrics. Note, you will need to first configure ZEBRA and have a working internet connection 
+        br 
+        p Full information on how the form works can be found in the ZEBRA documentation.
+        br
+        h5 Metrics Added
+        div(style={"overflow":"auto", "max-height":"50vh"})
+            table(id="sctable")
+                tr 
+                    th Metric
+                    th SYSID 
+                    th Report
+                    th Resource 
+                    th Identifier Name 
+                    th Identifier Value 
+                    th field 
+                    th Action
+        
 
 
 block scripts
@@ -192,120 +138,60 @@ block scripts
     script(src='/stylesheets/bootstrap/js/bootstrap.min.js')
     script(src='/stylesheets/bootstrap/js/bootstrap.bundle.min.js')
     script.
-        var metricDescriptions = !{JSON.stringify(metricDescriptions)};
-        var reportType = !{JSON.stringify(reportType)};
-        var currentReportMetrics = []; // Store metrics of the currently selected report 
-        var selectedMetrics = []; // Store selected metrics from the checklist
 
-        // Function to get the metrics table
-        function gettbl() {
+        function gettbl(){
             $.ajax({
                 dataType: "json",
                 type: 'get',
                 url: '/mtrfile'
             })
-            .done(function(e) {
-                $.each(e.mtr, function(i) {
+            .done(function(e){
+                //window.reloadTable("sctable");
+                $.each(e.mtr, function(i){
                     var len = $("#sctable tr").toArray().length;
                     var newRow = "<tr class='tabrow closed'>"
-                    + "<td><input type='checkbox' class='metric-checkbox' data-metric='"+e.mtr[i]+"'></td>" // Add a checkbox
-                    + "<td>"+ e.mtr[i] +"</td>"
-                    + "<td>"+e.jsn[e.mtr[i]]["lpar"]+"</td>"
-                    + "<td>"+ e.jsn[e.mtr[i]]["request"]["report"]+"</td>"
-                    + "<td>"+e.jsn[e.mtr[i]]["request"]["resource"]+"</td>"
-                    + "<td>"+ e.jsn[e.mtr[i]]["identifiers"][0]["key"]+"</td>"
-                    + "<td>"+e.jsn[e.mtr[i]]["identifiers"][0]["value"]+"</td>"
-                    + "<td>"+e.jsn[e.mtr[i]]["field"]+"</td>"
-                    + "</tr>";
+                    +"<td>"+ e.mtr[i] +"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["lpar"]+"</td>"
+                    +"<td>"+ e.jsn[e.mtr[i]]["request"]["report"] +"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["request"]["resource"]+"</td>"
+                    +"<td>"+ e.jsn[e.mtr[i]]["identifiers"][0]["key"] +"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["identifiers"][0]["value"]+"</td>"
+                    +"<td>"+e.jsn[e.mtr[i]]["field"]+"</td>"
+                    +`<td><div><a href='javascript:delmtr("${e.mtr[i]}")' class='btn btn-danger' style={'color':'white'}>Delete</a></div></td>`
+                    +"</tr>";
                     $(newRow).appendTo("#sctable");
-                });
+                })
             });
         }
 
-        // Ensure the current type filter is applied when the page loads
         window.onload = function () {
             gettbl();
-            initializeMetricList();
-            filterMetrics(); // Apply the current type filter on page load
         }
 
-        // Function to delete multiple selected metrics
-        function deleteSelectedMetrics() {
-            var selectedMetrics = [];
-            $(".metric-checkbox:checked").each(function() {
-                selectedMetrics.push($(this).data("metric"));
-            });
-
-            if (selectedMetrics.length === 0) {
-                alert("No metrics selected.");
-                return;
-            }
-
-            function deleteMetricSequentially(index) {
-                if (index >= selectedMetrics.length) {
-                    location.reload(); // Reload after all metrics are deleted
-                    return;
-                }
-
-                // Delete the metric at the current index
-                delmtr(selectedMetrics[index], function() {
-                    deleteMetricSequentially(index + 1);
-                });
-            }
-
-            // Start deleting metrics sequentially
-            deleteMetricSequentially(0);
-        }
-
-        // Function to delete a metric with an ajax call
-        function delmtr(a, callback) {
-            var data = {ky: a};
+        function delmtr(a) {
+            var data = {ky: `${a}`};
             $.ajax({
                 dataType: "json",
                 type: 'post',
                 url: '/delmtr',
                 data: data,
-                complete: function(data) {
-                    if (data.status === 200) {
-                        alert("Metric Deleted Successfully");
-                    } else {
-                        alert("Deleting Metric Failed");
+                complete:   function(data) {
+                    if(data.status === 200){
+                        alert(`Metric Deleted Successfully`);
+                    }else{
+                        alert(`Deleting Metric Failed`);
                     }
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
+                    location.reload();
                 }
-            });
+            })
+            //.done(function(e){
+            //    gettbl();
+            //    alert(e);  
+            //});
         }
 
-        // Function to populate the metric checklist with the selected report's metrics by their description
-        function initializeMetricList() {
-            // Clear the existing metric checklist
-            $("#metricCheckList").empty();
-            currentReportMetrics = Object.keys(metricDescriptions); // Populate with all metrics initially
-            $.each(metricDescriptions, function(key, value) {
-                // Add the metric to the checkbox list
-                var checkbox = $('<div class="form-check"></div>');
-                var input = $('<input class="form-check-input" type="checkbox" value="'+key+'" id="metricCheck'+key+'" onchange="selectMetric(this, \''+key+'\')">');
-                var label = $('<label class="form-check-label" for="metricCheck'+key+'">'+value.description+'</label>');
-                checkbox.append(input);
-                checkbox.append(label);
-                $("#metricCheckList").append(checkbox);
-            });
-        }
-
-        // Function to get valid parameters for the selected report
         function getrpt() {
-            var lpar = $("#lpar").val();
-            var rpt = $("#rpt").val();
-
-            if (!lpar || !rpt) {
-                initializeMetricList();
-                return; // Exit the function early if LPAR or Report is not selected
-            }
-
-            var data = { lpar: lpar, rpt: rpt };
-
+            var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val()};
             $.ajax({
                 dataType: "json",
                 type: 'post',
@@ -313,123 +199,25 @@ block scripts
                 data: data,
             })
             .done(function(e){
-                // Clear existing options in the Identifier Key dropdown
-                $("#nid").empty();
-
-                // Populate the Identifier Key dropdown with descriptions
+                //alert(e.sc);
+                //window.reloadTable("nid");
                 $.each(e.sc, function(i){
-                    var metricId = e.sc[i];
-                    var description = metricDescriptions[metricId] ? metricDescriptions[metricId].description : metricId;
-                    var option = $("<option></option>").attr("value", metricId).text(description);
-                    $("#nid").append(option);
-                });
-
-                // Add a default "Select" option at the top
-                $("#nid").prepend('<option selected value="">Select</option>');
-
-                // Automatically populate the Identifier Value dropdown based on the first Identifier Key
-                if (e.sc.length > 0) {
-                    $("#nid").val(e.sc[0]); // Set the first option as selected
-                    getnvl(); // Fetch values for the selected identifier key
-                }
-
-                // Set the resource value based on the report type from imported constants
-                var resource = reportType[rpt];
-                if (resource === "MVS_IMAGE") {
-                    $("#rst").val(',' + lpar + ',MVS_IMAGE,');
-                } else if (resource === "SYSPLEX") {
-                    $("#rst").val(',,SYSPLEX');
-                }
-
-                // Update currentReportMetrics and apply type filter
-                currentReportMetrics = e.sc;
-                filterMetrics();
+                    var x = document.getElementById("nid");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
+                $.each(e.sc, function(i){
+                    var x = document.getElementById("vid");
+                    var c = document.createElement("option");
+                    c.text = e.sc[i];
+                    x.options.add(c, (i+1));
+                })
             });
         }
 
-        // Function to filter metrics based on the selected metric type
-        function filterMetrics() {
-            var selectedType = $("#type").val();
-            $("#metricCheckList").empty();
-
-            // Determine the source of metrics to display
-            var metricsToDisplay = currentReportMetrics.length > 0 ? currentReportMetrics : Object.keys(metricDescriptions);
-
-            // If no type is selected, display all metrics
-            if (!selectedType || selectedType === 'All') {
-                $.each(metricsToDisplay, function(i, metricKey) {
-                    var value = metricDescriptions[metricKey];
-                    var checkbox = $('<div class="form-check"></div>');
-                    var input = $('<input class="form-check-input" type="checkbox" value="'+metricKey+'" id="metricCheck'+metricKey+'" onchange="selectMetric(this, \''+metricKey+'\'); getdesc(\''+metricKey+'\')">');
-                    var label = $('<label class="form-check-label" for="metricCheck'+metricKey+'">'+value.description+'</label>');
-                    checkbox.append(input);
-                    checkbox.append(label);
-                    $("#metricCheckList").append(checkbox);
-                });
-            } else { // Display metrics based on the selected type
-                $.each(metricsToDisplay, function(i, metricKey) {
-                    var value = metricDescriptions[metricKey];
-                    if (value.type === selectedType) {
-                        var checkbox = $('<div class="form-check"></div>');
-                        var input = $('<input class="form-check-input" type="checkbox" value="'+metricKey+'" id="metricCheck'+metricKey+'" onchange="selectMetric(this, \''+metricKey+'\'); getdesc(\''+metricKey+'\')">');
-                        var label = $('<label class="form-check-label" for="metricCheck'+metricKey+'">'+value.description+'</label>');
-                        checkbox.append(input);
-                        checkbox.append(label);
-                        $("#metricCheckList").append(checkbox);
-                    }
-                });
-            }
-        }
-
-        // Function to store the selected metrics in the hidden input field
-        function selectMetric(checkbox, metric) {
-            if (checkbox.checked) {
-                // Add the metric to the selectedMetrics array
-                selectedMetrics.push(metric);
-
-                // Automatically populate the description field with the selected metric's description
-                var metricDesc = metricDescriptions[metric] ? metricDescriptions[metric].description : '';
-                $("#umd").val(metricDesc);
-            } else {
-                // Remove the metric from the selectedMetrics array
-                var index = selectedMetrics.indexOf(metric);
-                if (index > -1) {
-                    selectedMetrics.splice(index, 1);
-                }
-
-                // Clear the description field if no metrics are selected
-                if (selectedMetrics.length === 0) {
-                    $("#umd").val('');
-                }
-            }
-
-            // Update the hidden input field with the selected metrics (comma-separated)
-            $("#selectedMetrics").val(selectedMetrics.join(','));
-        }
-
-        // Function to filter and display metrics based on the user's search input
-        function searchMetrics() {
-            var input = document.getElementById("searchInput");
-            var filter = input.value.toUpperCase();
-            var metricCheckList = document.getElementById("metricCheckList");
-            var div = metricCheckList.getElementsByClassName("form-check");
-
-            for (var i = 0; i < div.length; i++) {
-                var label = div[i].getElementsByTagName("label")[0];
-                var txtValue = label.textContent || label.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    div[i].style.display = "";
-                } else {
-                    div[i].style.display = "none";
-                }
-            }
-        }
-
-        // Function to populate the Identifier Value dropdown based on the selected Identifier Key
         function getnvl() {
             var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val(), nid: $("#nid").val()};
-            // Clear all options and then re-add the "ALL" option
-            $("#snvl").empty().append('<option value="ALL">ALL</option>');
             $.ajax({
                 dataType: "json",
                 type: 'post',
@@ -446,66 +234,27 @@ block scripts
             });
         }
 
-        // Function to save the selected metrics via ajax calls
         function savemtr() {
-            if ($("#lpar").val() === undefined || $("#lpar").val() === '' ||
-                $("#rpt").val() === undefined || $("#rpt").val() === '' ||
-                selectedMetrics.length === 0 || $("#snvl").val() === null) {
-                alert("Please fill in all fields and select at least one metric and identifier value");
-                return;
-            }
-
-            var metricsSaved = 0; // Counter to track saved metrics
-            var selectedValues = $("#snvl").val(); // Get selected identifier values
-            
-            // Function to save each metric sequentially
-            function saveMetricSequentially(index, valueIndex) {
-                if (index >= selectedMetrics.length) {
-                    location.reload(); // Reload only after all metrics are saved
-                    return;
-                }
-
-                if (valueIndex >= selectedValues.length) {
-                    saveMetricSequentially(index + 1, 0); // Proceed to the next metric
-                    return;
-                }
-
-                // Prepare the data to be sent to the server
-                var metric = selectedMetrics[index];
-                var metricDesc = metricDescriptions[metric] ? metricDescriptions[metric].description : '';
-                var data = {
-                    lpar: $("#lpar").val(),
-                    rpt: $("#rpt").val(),
-                    nid: $("#nid").val(),
-                    umi: $("#umi").val(),
-                    umd: metricDesc, // Use the specific description for the current metric
-                    snvl: selectedValues[valueIndex], // Use the current identifier value in the loop
-                    vid: metric, // Use the current metric in the loop
-                    rst: $("#rst").val()
-                };
-
-                // Send the data to the server to save the metric
-                $.ajax({
-                    dataType: "json",
-                    type: 'post',
-                    url: '/savemtr',
-                    data: data,
-                    complete: function(data) {
-                        var c = $("#lpar").val()+"_"+selectedValues[valueIndex]+"_"+metric;
-                        
-                        if(data.status === 200){
-                            alert(c+" Metric Saved Successfully");
-                            metricsSaved++;
-                        } else {
-                            alert("Saving Metric Failed for " + c);
-                        }
-
-                        // Proceed to the next identifier value
-                        saveMetricSequentially(index, valueIndex + 1);
+            var data = {lpar: $("#lpar").val(), rpt: $("#rpt").val(), nid: $("#nid").val(), umi: $("#umi").val(), umd: $("#umd").val(), snvl: $("#snvl").val(), vid: $("#vid").val(), rst: $("#rst").val() };
+            $.ajax({
+                dataType: "json",
+                type: 'post',
+                url: '/savemtr',
+                data: data,
+                complete:   function(data) {
+                    var c = `${$("#lpar").val()}_${$("#snvl").val()}_${$("#umi").val()}`
+                    
+                    if(data.status === 200){
+                        alert(`${c} Metric Saved Successfully`);
+                    }else{
+                        alert(`Saving Metric Failed`);
                     }
-                });
-            }
 
-            // Start saving metrics sequentially from the first one
-            saveMetricSequentially(0, 0);
+                    location.reload();
+                    
+                }
+            })
+            //.done(function(e){
+            //    alert(e);
+            //});
         }

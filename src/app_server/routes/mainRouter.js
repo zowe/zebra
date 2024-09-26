@@ -117,138 +117,225 @@ router.post('/delmtr', (req, res) => {
 });
 
 // Updated to allow saving multiple metrics at once
+
 router.post('/savemtr', (req, res) => {
-  try {
-    const lpar = req.body.lpar;
-    const rpt = req.body.rpt;
-    const nid = req.body.nid;
-    const snvlList = req.body.snvl instanceof Array ? req.body.snvl : [req.body.snvl]; // Ensure snvl is an array
-    const vid = req.body.vid;
-    const umi = req.body.umi;
-    const umd = req.body.umd;
-    const rst = req.body.rst;
 
-    // Synchronously read the file to avoid race conditions
-    let metricsfile = {};
-    try {
-      const data = fs.readFileSync('metrics.json', 'utf8');
-      metricsfile = JSON.parse(data);
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        // File does not exist, start with an empty object
-        metricsfile = {};
-      } else {
-        throw err;
-      }
-    }
+  try{
 
-    // Loop through each selected identifier value
-    snvlList.forEach(snvl => {
-      // Construct a unique key using the identifier key and value
-      const key = `${lpar}_${snvl}_${vid}`;
+    var lpar = req.body.lpar;
 
-      // Construct the new metric object
-      const mtr = {
-        "lpar": lpar,
+    var rpt = req.body.rpt;
+
+    var nid = req.body.nid;
+
+    var snvl = req.body.snvl;
+
+    var vid = req.body.vid;
+
+    var umi = req.body.umi;
+
+    var umd = req.body.umd;
+
+    var rst = req.body.rst;
+
+    var key = `${lpar}_${snvl}_${umi}`;
+
+    var mtr = JSON.parse(`{
+
+        "lpar": "${lpar}",
+
         "request": {
-          "report": rpt,
-          "resource": rst
-        },
-        "identifiers": [
-          {
-            "key": nid,
-            "value": snvl
-          }
-        ],
-        "field": vid,
-        "desc": umd
-      };
 
-      // Add the new metric to the metrics object
-      metricsfile[key] = mtr;
+            "report": "${rpt}",
+
+            "resource": "${rst}"
+
+        },
+
+        "identifiers": [
+
+            {
+
+                "key": "${nid}",
+
+                "value": "${snvl}"
+
+            }
+
+        ],
+
+        "field": "${vid}",
+
+        "desc": "${umd}"
+
+       }`)
+
+    fs.readFile('metrics.json', (err, data) => {
+
+      if (err) throw err;
+
+      let metricsfile = JSON.parse(data);
+
+      metricsfile[`${key}`] = mtr
+
+      fs.writeFile("metrics.json", JSON.stringify(metricsfile, null, '\t'), 'utf-8', function(err, data) {
+
+        res.send("Metric Added Successfully");
+
+      }); 
+
     });
 
-    // Synchronously write the updated metrics object back to the file
-    fs.writeFileSync('metrics.json', JSON.stringify(metricsfile, null, '\t'), 'utf-8');
-    res.send("Metrics Added Successfully");
+    
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error saving metrics");
+  }catch(err){
+
+    res.send("error")
+
   }
-});
+
+})
+
+
 
 router.post('/getnvl', (req, res) => {
+
   try{
+
     var lpar = req.body.lpar;
+
     var rpt = req.body.rpt;
+
     var nid = req.body.nid;
+
     var c = [];
+
     var RMF3URL = `${zhttp}://${appurl}:${appport}/v1/${lpar}/rmf3/${rpt}`; //Dynamically create URL
+
     axios.get(RMF3URL)
+
     .then(function (response) {
+
       // handle success
+
       var dat = response.data
+
       for(i in dat["table"]){
+
         c.push(dat["table"][i][nid])
+
       }
+
       //console.log(c);
+
       c = [...new Set(c)]; // distinct values
+
       res.send({sc:c});
+
       //console.log(response.data);
+
       //res.json({sc:["columnhead"]});
+
     })
+
     .catch(function (error) {
+
       // handle error
+
       res.send("error")
+
     })
+
   }catch(err){
+
     res.send("error")
 
+
+
   }
+
   
+
 })
+
+
 
 router.post('/getrpt', (req, res) => {
+
   try{
+
     var lpar = req.body.lpar;
+
     var rpt = req.body.rpt;
+
     var RMF3URL = `${zhttp}://${appurl}:${appport}/v1/${lpar}/rmf3/${rpt}`; //Dynamically create URL
+
     axios.get(RMF3URL)
+
     .then(function (response) {
+
       // handle success
+
       var columns = response.data
+
       res.send({sc:columns["columnhead"]});
+
       //console.log(response.data);
+
       //res.json({sc:["columnhead"]});
+
     })
+
     .catch(function (error) {
+
       // handle error
+
       res.send("error")
+
     })
+
   }catch(err){
+
     res.send("error")
 
+
+
   }
+
   
+
 })
-// Updated with new constant variables
-router.get('/metrics', /*sessionChecker,*/ (req, res) => {
+
+
+
+router.get('/metrics', sessionChecker, (req, res) => {
+
   //console.log(Zconfig.dds["RPRT"])
+
   resource = [];
+
   var lpar_details = Zconfig["dds"];
+
   var lpar = Object.keys(lpar_details);
+
   for(i in lpar){
+
     resource.push(lpar_details[lpar[i]]["mvsResource"])
+
   }
+
   //console.log(c);
+
   if(req.session.name){ //Check if User login session is available
-    res.render("metrics",
-      {msg:"Admin", 
-        resources:resource, lpars:lpar, reports:REPORTS.RMFM3, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE}); // render the metrics page wih Admin previledge
+
+    res.render("metrics",{msg:"Admin", resources:resource, lpars:lpar, reports:REPORTS.RMFM3}); // render the metrics page wih Admin previledge
+
   }else{
-    res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3, metricDescriptions:METRICDESCRIPTIONS, reportType:REPORTTYPE});
+
+    res.render("metrics", {resources:resource, lpars:lpar, reports:REPORTS.RMFM3});
+
   }
+
 })
 
 

@@ -20,7 +20,7 @@ sslcert/*.cert
 sslcert/*.key
 
 # Prometheus Metrics
-metrics.json
+# metrics.json
 
 # Nodemon config
 src/nodemon.json

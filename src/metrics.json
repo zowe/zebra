@@ -1,0 +1,386 @@
+{ 
+
+"DV01_ALL_JDELDEL": {
+		"lpar": "DV01",
+		"request": {
+			"report": "DELAY",
+			"resource": ",DV01,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "JDELDAN",
+				"value": "ALL"
+			}
+		],
+		"field": "JDELDEL",
+		"desc": "Job Processing Delay percentage"
+	},
+
+"DV01_ALL_CPCPDMSU": {
+		"lpar": "DV01",
+		"request": {
+			"report": "CPC",
+			"resource": ",DV01,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "ALL"
+			}
+		],
+		"field": "CPCPDMSU",
+		"desc": "Defined capacity limit"
+	},
+"DV01_ALL_CPCPAMSU": {
+		"lpar": "DV01",
+		"request": {
+			"report": "CPC",
+			"resource": ",DV01,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "ALL"
+			}
+		],
+		"field": "CPCPAMSU",
+		"desc": "Actual consumed MSUs"
+	},
+"DV01_ALL_CPCPPTOU": {
+		"lpar": "DV01",
+		"request": {
+			"report": "CPC",
+			"resource": ",DV01,MVS_IMAGE"
+		},
+		"identifiers": [
+			{
+				"key": "CPCPPNAM",
+				"value": "ALL"
+			}
+		],
+		"field": "CPCPPTOU",
+		"desc": "Physical total utilization"
+	},
+
+"DV01_ALL_CHACPUVC": {
+        	"lpar": "DV01",
+        	"request": {
+                	"report": "CHANNEL",
+               		"resource": ",DV01,MVS_IMAGE"
+       		 },
+      		  "identifiers": [
+               		 {
+                        "key": "CHACPIVC",
+                        "value": "ALL"
+               		 }
+       		 ],
+       		 "field": "CHACPUVC",
+       		 "desc": "Channel - Partition util %"
+        },
+
+	"DV01_ALL_SYSTUSVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSTUSVC",
+                "desc": "Average number of total users"
+        },
+	
+        "DV01_ALL_SYSAUSVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSAUSVC",
+                "desc": "Average number of active users"
+        },
+
+ 	"DV01_ALL_SYSWFLVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSWFLVC",
+                "desc": "Workflow percentage"
+        },
+
+ 	"DV01_ALL_SYSRSPM": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSRSPM",
+                "desc": "Average response time per transaction in milliseconds"
+        },
+
+ 	"DV01_ALL_SYSTRSVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSTRSVC",
+                "desc": "Transactions / sec"
+        },
+
+	 "DV01_ALL_SYSUGMVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSUGMVC",
+                "desc": "% using"
+        },
+
+ 	"DV01_ALL_SYSUGPVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSUGPVC",
+                "desc": "% using processor"
+        },
+
+	"DV01_ALL_SYSUGDVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSUGDVC",
+                "desc": "% using device"
+        },
+
+	"DV01_ALL_SYSDGMVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSDGMVC",
+                "desc": "% delay"
+        },
+
+	"DV01_ALL_SYSDGPVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSDGPVC",
+                "desc": "% delay for PROC"
+        },
+
+	"DV01_ALL_SYSDGDVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSDGDVC",
+                "desc": "% delay for DEV"
+        },
+
+	"DV01_ALL_SYSDGSVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSDGSVC",
+                "desc": "% delay for STOR"
+        },
+
+	"DV01_ALL_SYSAUPVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSAUPVC",
+                "desc": "Average number using PROC"
+        },
+
+	"DV01_ALL_SYSAUDVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSAUDVC",
+                "desc": "Average number using DEV"
+        },
+
+	"DV01_ALL_SYSADPVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSADPVC",
+                "desc": "Average number delayed for PROC"
+        },
+
+	"DV01_ALL_SYSADDVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSADDVC",
+                "desc": "Average number delayed for DEV"
+        },
+
+	"DV01_ALL_SYSADSVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SSYSADSVC",
+                "desc": "Average number delayed for STOR"
+        },
+
+
+	"DV01_ALL_SYSINFO_SYSCPUVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSCPUVC",
+                "desc": "WLM SYSINFO for % Using processor"
+        },
+	
+        "DV01_ALL_SYSINFO_SYSPDPVC": {
+                "lpar": "DV01",
+                "request": {
+                        "report": "SYSINFO",
+                        "resource": ",DV01,MVS_IMAGE"
+                },
+                "identifiers": [
+                        {
+                                "key": "SYSNAMVC",
+                                "value": "ALL"
+                        }
+                ],
+                "field": "SYSPDPVC",
+                "desc": "WLM SYSINFO for CPU Time in Secs"
+        }
+
+}

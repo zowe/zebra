@@ -11,9 +11,13 @@
     - [Configuring MongoDB](#configuring-mongodb)
     - [Configuring Prometheus](#configuring-prometheus)
     - [Configuring Grafana](#configuring-grafana)
+    - [Configuring MySQL](#configuring-mysql)
 - [Installing ZEBRA](#installing-zebra)
     - [Manual Installation](#manual-installation)
     - [Docker Installation](#docker-installation)
+- [Installing HMAI ZEBRA](#installing-hmai-zebra) 
+	- [Manual Installation](#manual-installation-1) 
+	- [Docker Installation](#docker-installation-1)
 - [Configuring ZEBRA's Settings](#configuring-zebras-settings)
     - [Field Definitions](#field-definitions)
         - [General Settings](#general-settings)
@@ -140,7 +144,95 @@ After installing and running Grafana, follow [this guide](https://grafana.com/do
 
 **Note:** ZEBRA has to be [configured](#configure) to work with Grafana.
 
----
+### Configuring MySQL
+
+#### Step 1: Enabling `local_infile`
+
+In the MySQL terminal (accessed by `mysql -u root -p`), run the following command:
+
+```sql
+SHOW GLOBAL VARIABLES LIKE 'local_infile';
+```
+
+It should return something like:
+
+```
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| local_infile  | OFF   |
++---------------+-------+
+1 row in set (1.06 sec)
+```
+
+Now, enable `local_infile` by running:
+
+```sql
+SET GLOBAL local_infile = 'ON';
+```
+
+Verify that it has changed to `ON`:
+
+```sql
+SHOW GLOBAL VARIABLES LIKE 'local_infile';
+```
+
+You should see:
+
+```
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| local_infile  | ON    |
++---------------+-------+
+```
+
+#### Step 2: Edit MySQL Server Configuration File
+
+Manually edit the MySQL server configuration file to make the necessary changes. For example, on MySQL Ver 8.0.36 for Linux on x86_64 (Source distribution), the file is located at `/etc/my.cnf.d/mysql-server.cnf`. The file may look like this:
+
+```
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+log-error=/var/log/mysql/mysqld.log
+pid-file=/run/mysqld/mysqld.pid
+max_allowed_packet = 256M
+innodb_log_file_size = 512M
+innodb_buffer_pool_size = 1G
+port = 3306
+```
+
+Add the following two lines, one below the other:
+
+```
+bind-address = 0.0.0.0
+local_infile = 1
+```
+
+After adding, the file should look like:
+
+```
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+log-error=/var/log/mysql/mysqld.log
+pid-file=/run/mysqld/mysqld.pid
+max_allowed_packet = 256M
+innodb_log_file_size = 512M
+innodb_buffer_pool_size = 1G
+port = 3306
+bind-address = 0.0.0.0
+local_infile = 1
+```
+
+Save and close the file.
+
+#### Step 3: Edit the Central MySQL Configuration File
+
+For `my.cnf` (usually located at `/etc/my.cnf`), add the line `local_infile = 1` similar to Step 2. Save and close the file.
+
+**Reminder:** ZEBRA has to be [configured](#configuring-zebras-settings) to work with MySQL.
 
 # Installing ZEBRA
 
@@ -286,7 +378,99 @@ volumes:
 
 where ```[ZEBRA_PORT]```, ```[MONGO_PORT]```, ```[PROMETHEUS_PORT]```, and ```[GRAFANA_PORT]``` are your desired ports for ZEBRA, MongoDB, Prometheus, and Grafana, respectively.
 
----
+## Installing HMAI ZEBRA
+
+### Manual Installation
+
+1. Make sure you have the required system specifications as described.
+
+2. Install MySQL and any desired [third party software](#built-in-third-party-support) you want to integrate with ZEBRA.
+
+3. Clone this repository with Git:
+
+   ```bash
+   git clone https://github.com/zowe/zebra.git
+   ```
+
+4. Navigate to the `src` directory:
+
+   ```bash
+   cd src
+   ```
+
+5. Update the ZEBRA download with the `hmai-metrics` branch:
+
+   ```bash
+   git pull origin hmai-metrics
+   ```
+
+6. Install the Node.js dependencies needed for ZEBRA to run:
+
+   ```bash
+   npm install
+   ```
+
+7. (Optional) If developing, we recommend downloading the npm package `nodemon`:
+
+   ```bash
+   npm install -g nodemon
+   ```
+
+8. (Optional) Configure ZEBRA before running for the first time.
+
+   This step is not required since you can configure ZEBRA once it is running via the [Settings](#settings-page) page. However, if you already know how you want to configure everything, you can make a copy of `Zconfig.template.json` and name it `Zconfig.json`. Then, you can change your preferences and configuration following the format described [here](#config-file). Once the application runs, your configuration will already be applied.
+
+9. (Optional) Add SSL Certificate and Key to `src/sslcert` directory.
+
+   This step is only required when running ZEBRA on `https`.
+
+10. Run ZEBRA:
+
+    ```bash
+    node bin/www
+    ```
+
+### Docker Installation
+
+1. Make sure you have Docker installed.
+
+2. Clone this repository with Git:
+
+   ```bash
+   git clone git@github.com:zowe/zebra.git
+   ```
+
+3. Ensure you're in the `hmai-metrics` branch by running:
+
+   ```bash
+   git pull origin hmai-metrics
+   ```
+
+4. (Optional) Configure ZEBRA before running for the first time.
+
+   This step is not required since you can configure ZEBRA once it is running via the [Settings](#settings-page) page. However, if you already know how you want to configure everything, you can edit `Zconfig.json` directly. Then, you can change your preferences and configuration following the format described in `LPAR1`. Once the application runs, your configuration will already be applied.
+
+5. (Optional) Add SSL Certificate and Key to `src/sslcert` directory.
+
+   This step is only required when running ZEBRA on `https`.
+
+6. Navigate to the `src` directory:
+
+   ```bash
+   cd src
+   ```
+
+7. Use `docker-compose` to build the container network and run ZEBRA:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+8. If successful, you should see the following message somewhere in the output:
+
+   ```
+   http server listening at port [PORT]
+   ```
 
 # Configuring ZEBRA's Settings
 

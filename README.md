@@ -665,14 +665,14 @@ You can add additional query strings to the request for more options:
 
 ##### Examples
 
-The following examples use the ZEBRA demo found at <https://zebra.talktothemainframe.com:3390/>.
+The following examples use the ZEBRA demo found at <https://zebra.infinite-blue.com:3390/>.
 
 | Request                                                                                        | Description                                                             |
 | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmfpp/CPU>                                  | Gets the list of CPU Activity reports for the current date so far.      |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmfpp/CHAN?start=2021-11-09&end=2021-11-11> | Gets the list of Channel Path Activity reports from November 9, 2021 to November 11, 2021. **NOTE:** These dates are most likely outdated since Postprocessor reports only go back a limited amounted of time. Try changing the dates to those within the last week.  |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmfpp/WLMGL>                                | Gets the list of Workload Activity reports for the current date so far. |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmfpp/WLMGL(SCPER,RCLASS)>                  | Adds additional parameters to the previously listed request. The ```SCPER``` parameter breaks down service classes to periods and the ```RCLASS``` adds report classes to the report.                                                                                    |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmfpp/CPU>                                  | Gets the list of CPU Activity reports for the current date so far.      |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmfpp/CHAN?start=2021-11-09&end=2021-11-11> | Gets the list of Channel Path Activity reports from November 9, 2021 to November 11, 2021. **NOTE:** These dates are most likely outdated since Postprocessor reports only go back a limited amounted of time. Try changing the dates to those within the last week.  |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmfpp/WLMGL>                                | Gets the list of Workload Activity reports for the current date so far. |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmfpp/WLMGL(SCPER,RCLASS)>                  | Adds additional parameters to the previously listed request. The ```SCPER``` parameter breaks down service classes to periods and the ```RCLASS``` adds report classes to the report.                                                                                    |
 
 ### RMF Monitor III Reports
 
@@ -727,13 +727,13 @@ You can add additional query strings to the request for more options:
 
 ##### Examples
 
-The following examples use the ZEBRA demo found at <https://zebra.talktothemainframe.com:3390/>.
+The following examples use the ZEBRA demo found at <https://zebra.infinite-blue.com:3390/>.
 
 | Request                                                                                  | Description                                                                          |
 | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf3/CPC>                             | Gets the most recent CPC Capacity report.                                            |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf3/SYSINFO>                         | Gets the most recent System Information report.                                      |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf3/SYSSUM?resource=,VIPLEX,SYSPLEX> | Gets the most recent Sysplex Summary report from the ```,VIPLEX,SYSPLEX``` resource. |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf3/CPC>                             | Gets the most recent CPC Capacity report.                                            |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf3/SYSINFO>                         | Gets the most recent System Information report.                                      |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf3/SYSSUM?resource=,VIPLEX,SYSPLEX> | Gets the most recent Sysplex Summary report from the ```,VIPLEX,SYSPLEX``` resource. |
 
 ### Individual RMF Metrics
 
@@ -762,14 +762,14 @@ You can add additional query strings to the request for more options:
 
 ##### Examples
 
-The following examples use the ZEBRA demo found at <https://zebra.talktothemainframe.com:3390/>.
+The following examples use the ZEBRA demo found at <https://zebra.infinite-blue.com:3390/>.
 
 | Request                                                                                    | Description                                                                                      |
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf?id=LIST>                            | Lists the RMF metric IDs and their description in the default resource.                          |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf?id=LIST&resource=,VIPLEX,SYSPLEX>   | Lists the RMF metric IDs and their description in the ```,VIPLEX,SYSPLEX``` resource.            |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf?id=8D0160>                          | Gets most recent value for '% delay' (ID: ```8D0160```) from the default resource.               |
-| <https://zebra.talktothemainframe.com:3390/v1/RPRT/rmf?id=8D0160&resource=,VIPLEX,SYSPLEX> | Gets most recent value for '% delay' (ID: ```8D0160```) from the ```,VIPLEX,SYSPLEX``` resource. |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf?id=LIST>                            | Lists the RMF metric IDs and their description in the default resource.                          |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf?id=LIST&resource=,VIPLEX,SYSPLEX>   | Lists the RMF metric IDs and their description in the ```,VIPLEX,SYSPLEX``` resource.            |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf?id=8D0160>                          | Gets most recent value for '% delay' (ID: ```8D0160```) from the default resource.               |
+| <https://zebra.infinite-blue.com:3390/v1/RPRT/rmf?id=8D0160&resource=,VIPLEX,SYSPLEX> | Gets most recent value for '% delay' (ID: ```8D0160```) from the ```,VIPLEX,SYSPLEX``` resource. |
 
 ### Exposing RMF Data to Prometheus
 
@@ -860,7 +860,7 @@ To initialize a new custom Prometheus metric, make a ```POST``` request to ```/v
 
 **Request:**
 
-```POST https://zebra.talktothemainframe.com:3390/v1/metrics/RPRT_QCK2_PTOU```
+```POST https://zebra.infinite-blue.com:3390/v1/metrics/RPRT_QCK2_PTOU```
 
 **Request Body:**
 
@@ -897,7 +897,7 @@ To retrieve a custom Prometheus metric, make a ```GET``` request to ```/v1/metri
 
 **Request:**
 
-```GET https://zebra.talktothemainframe.com:3390/v1/metrics/RPRT_QCK2_PTOU```
+```GET https://zebra.infinite-blue.com:3390/v1/metrics/RPRT_QCK2_PTOU```
 
 **Response:**
 
@@ -929,7 +929,7 @@ To update a custom Prometheus metric, make a ```PUT``` request to ```/v1/metrics
 
 **Request:**
 
-```PUT https://zebra.talktothemainframe.com:3390/v1/metrics/RPRT_QCK2_PTOU```
+```PUT https://zebra.infinite-blue.com:3390/v1/metrics/RPRT_QCK2_PTOU```
 
 **Request Body:**
 
@@ -966,7 +966,7 @@ To delete a custom Prometheus metric, make a ```DELETE``` request to ```/v1/metr
 
 **Request:**
 
-```DELETE https://zebra.talktothemainframe.com:3390/v1/metrics/RPRT_QCK2_PTOU```
+```DELETE https://zebra.infinite-blue.com:3390/v1/metrics/RPRT_QCK2_PTOU```
 
 **Response:**
 

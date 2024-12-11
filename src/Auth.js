@@ -49,7 +49,6 @@ module.exports.token = function(req, res){
                     res.json({accessToken: accessToken})
                 })
             });
-            
           }catch(err){
               res.send("Token Generation Failed");
           }

@@ -27,6 +27,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 const fs = require('fs');
 var session = require('express-session');
+const tls = require('tls');
 
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -73,6 +74,7 @@ if(lpar_prom.length > 0){
 }
 //require("./Eureka_conn");
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+tls.DEFAULT_MIN_VERSION = "TLSv1.1";
 var mainRouter = require('./app_server/routes/mainRouter');
 var rmf3Router = require('./app_server/routes/rmf3Router');
 var rmfppRouter = require('./app_server/routes/rmfppRouter');

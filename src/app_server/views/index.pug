@@ -4,11 +4,19 @@ block content
     - function currentDate() { return (new Date()).toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' }); }
     .apis
         br
-        ul
-            li Browse RMF data for real-time LPAR
-            li Browse RMF data real-time Workload
-            li Browse RMF data for historical CPU Reports (post-processor report)
-            li Browse RMF data for historical Workload Reports (post-processor report)
+        .row
+            .col-md-6
+                ul
+                    li Browse RMF data for real-time LPAR
+                    li Browse RMF data real-time Workload
+                    li Browse RMF data for historical CPU Reports (post-processor report)
+                    li Browse RMF data for historical Workload Reports (post-processor report)
+            .col-md-6
+                ul
+                    li Browse Hitachi Mainframe Analytics Interpreter with MySQL
+                    li Browse Hitachi Mainframe Analytics Interpreter DCOLLECT with MySQL
+                    li Browse Hitachi Mainframe Replication Extensions with MySQL
+                    li Browse RMF Monitor I Reports with MySQL
     hr
     .apis 
         h4(style={"margin-top":"20px"}) Select LPAR
@@ -62,10 +70,11 @@ block content
                                 else
                                     option(value=report) #{report}
                         p(style={"margin-top":"10px", "margin-right": "10px"}) Start Date
-                        input(type="date" class="form-control" name="start" id="start" style={"margin-right": "10px"} value=currentDate() )
+                        input(type="date" class="form-control" name="start" id="start" style={"margin-right": "10px"})
                         p(style={"margin-top":"10px", "margin-right": "10px"}) End Date
-                        input(type="date" class="form-control" name="end" id="end" style={"margin-right": "10px"} value=currentDate() )
+                        input(type="date" class="form-control" name="end" id="end" style={"margin-right": "10px"})
                         a(href='javascript:rmfpp()' class='btn btn-primary' id="rmf3b") Try it
+                p(style={"margin-left":"30px", "font-size":"14px", "color":"#666", "font-style":"italic"}) Note: RMF Monitor I only supports 1 day's worth of data.
             
         hr(style={"margin":"0"})
     .apis
@@ -124,6 +133,18 @@ block scripts
         console.log("Available LPARs:", !{JSON.stringify(lpar || [])});
         console.log("Reports:", !{JSON.stringify(reports || {})});
     script.
+        // Set today's date as default for start and end date inputs
+        $(document).ready(function() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            var yyyy = today.getFullYear();
+            
+            var todayFormatted = yyyy + '-' + mm + '-' + dd;
+            $('#start').val(todayFormatted);
+            $('#end').val(todayFormatted);
+        });
+
         function rmfm3() {
             var lpar = $("#lpar").val();
             if (lpar === "Select LPAR"){

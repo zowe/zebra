@@ -114,7 +114,7 @@ async function insertData(connection, data, lpar) {
         // Initialize processedTimestamps array if it doesn't exist
         const processedTimestamps = memory.processedTimestamps || [];
         let newDataInserted = false;
-        let distinctTimestamps = new Set();
+        let distinctTimestamps = new Set(); // Track distinct timestamps for this run
 
         // Add validation for data structure
         if (!data || typeof data !== 'object') {
@@ -122,6 +122,8 @@ async function insertData(connection, data, lpar) {
             return;
         }
 
+        console.log(`Previously processed timestamps count: ${processedTimestamps.length}`);
+        
         for (const [rootVar, rootData] of Object.entries(data)) {
             // Add validation for timestamp
             if (!rootData || !rootData.Timestamp) {
@@ -137,19 +139,27 @@ async function insertData(connection, data, lpar) {
                     continue;
                 }
 
-                // Skip if timestamp was processed in previous runs or in current run
-                if (processedTimestamps.includes(timestampStr) || distinctTimestamps.has(timestampStr)) {
-                    console.log(`Skipping already processed timestamp ${timestampStr}`);
+                // Skip if timestamp was processed in previous runs
+                if (processedTimestamps.includes(timestampStr)) {
+                    console.log(`Skipping timestamp ${timestampStr} - Already processed in previous runs`);
                     continue;
                 }
-
-                distinctTimestamps.add(timestampStr);
+                
+                // Skip if timestamp was already processed in this run
+                if (distinctTimestamps.has(timestampStr)) {
+                    console.log(`Skipping timestamp ${timestampStr} - Already processed in this run`);
+                    continue;
+                }
 
                 const daData = rootData['Direct Access Device Activity'];
                 if (!daData) {
                     console.log(`No Direct Access Device Activity data found for root variable ${rootVar}`);
+                    // Don't add to distinctTimestamps here since we're not processing it
                     continue;
                 }
+
+                // Only add to distinctTimestamps if we're actually going to process this data
+                distinctTimestamps.add(timestampStr);
 
                 const totalSamples = parseInt(daData['Total Samples']) || null;
                 const iodfNameSuffix = daData['IODF Name Suffix'] || null;
@@ -207,7 +217,16 @@ async function insertData(connection, data, lpar) {
 
         // Update memory file if new data was inserted
         if (newDataInserted) {
-            const updatedTimestamps = [...new Set([...processedTimestamps, ...distinctTimestamps])];
+            // Update memory file with only distinct timestamps
+            const updatedTimestamps = [...processedTimestamps];
+            distinctTimestamps.forEach(timestamp => {
+                if (!updatedTimestamps.includes(timestamp)) {
+                    updatedTimestamps.push(timestamp);
+                }
+            });
+            
+            console.log(`Updating memory with ${updatedTimestamps.length} processed timestamps (${distinctTimestamps.size} new)`);
+            
             await new Promise((resolve, reject) => {
                 deviceJSONController.writeLparData(lpar, { 
                     processedTimestamps: updatedTimestamps 
@@ -383,20 +402,23 @@ async function clearDatabase(req, res) {
 
     try {
         connection = await mysql.createConnection({
-            host: config.dds[lpar].hmai.mysql.host,
-            user: config.dds[lpar].hmai.mysql.user,
-            password: config.dds[lpar].hmai.mysql.password,
+            host: config.dds[lpar].rmfmon1.mysql.host,
+            user: config.dds[lpar].rmfmon1.mysql.user,
+            password: config.dds[lpar].rmfmon1.mysql.password,
             database: lpar
         });
 
         await connection.query('TRUNCATE TABLE device_activity_report');
 
+        // Explicitly set processedTimestamps to an empty array
         await new Promise((resolve, reject) => {
-            deviceJSONController.writeLparData(lpar, {}, (err) => {
+            deviceJSONController.writeLparData(lpar, { processedTimestamps: [] }, (err) => {
                 if (err) reject(err);
                 else resolve();
             });
         });
+
+        console.log(`Cleared database and reset processedTimestamps for ${lpar}`);
 
         if (runningProcesses[lpar]) {
             delete runningProcesses[lpar];

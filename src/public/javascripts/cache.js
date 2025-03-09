@@ -7,10 +7,10 @@ $(document).ready(function() {
     }
 
     function updateEndDateVisibility() {
-        if ($('#continuous-monitoring').is(':checked')) {
-            $('#end-date-container').hide();
+        if ($('#cache-continuous-monitoring').is(':checked')) {
+            $('#cache-end-date-container').hide();
         } else {
-            $('#end-date-container').show();
+            $('#cache-end-date-container').show();
         }
     }
 
@@ -47,19 +47,19 @@ $(document).ready(function() {
 
     function updateLPARFields() {
         const selectedLPAR = getSelectedLPAR();
-        if (selectedLPAR && lparConfig[selectedLPAR] && lparConfig[selectedLPAR].hmai) {
-            const hmaiConfig = lparConfig[selectedLPAR].hmai;
-            if (hmaiConfig.defaultStartDate) {
-                $('#cache-start-date').val(hmaiConfig.defaultStartDate);
+        if (selectedLPAR && lparConfig[selectedLPAR] && lparConfig[selectedLPAR].rmfmon1 && lparConfig[selectedLPAR].rmfmon1.cache) {
+            const cacheConfig = lparConfig[selectedLPAR].rmfmon1.cache;
+            if (cacheConfig.startDate) {
+                $('#cache-start-date').val(cacheConfig.startDate);
             }
-            if (hmaiConfig.continuousMonitoring !== undefined) {
-                $('#continuous-monitoring').prop('checked', hmaiConfig.continuousMonitoring);
+            if (cacheConfig.continuousMonitoring !== undefined) {
+                $('#cache-continuous-monitoring').prop('checked', cacheConfig.continuousMonitoring);
             }
             updateEndDateVisibility();
         }
     }
 
-    $('#continuous-monitoring').change(function() {
+    $('#cache-continuous-monitoring').change(function() {
         updateEndDateVisibility();
     });
 
@@ -76,7 +76,7 @@ $(document).ready(function() {
 
         var startDate = $('#cache-start-date').val();
         var endDate = $('#cache-end-date').val();
-        var continuousMonitoring = $('#continuous-monitoring').is(':checked');
+        var continuousMonitoring = $('#cache-continuous-monitoring').is(':checked');
 
         runningProcesses[lpar] = { isRunning: true, continuousMonitoring: continuousMonitoring };
         updateStartButtonState(lpar);

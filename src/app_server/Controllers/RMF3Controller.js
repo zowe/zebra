@@ -16,6 +16,10 @@ let ddsauth = Zconfig.ddsauth;
 let ddsid = Zconfig.ddsuser;
 let ddspass = Zconfig.ddspwd;
 const url = require('url');
+const debugConfig = require('../../config/debugConfig');
+
+// IMPORTANT: Set this to false to disable detailed RMF3 logging
+const ENABLE_RMF3_LOGGING = debugConfig.RMF3_DEBUG;
 
 /**
  * RMFMonitor3getRequest is the GET function for retrieving data from RMF monitor III.
@@ -36,6 +40,17 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //
   }
   urlParams = urlParams.slice(0, urlParams.length - 1);
   var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}${urlParams}`; //Dynamically create URL
+  
+  if (ENABLE_RMF3_LOGGING) {
+    console.log("\n=== RMFIII Request ===");
+    console.log(`LPAR: ${params.resource ? params.resource.split(',')[1] : 'Unknown'}`);
+    console.log(`Report: ${params.report || 'Unknown'}`);
+    
+    console.log("\n=== RMF3 Request Details ===");
+    console.log(`URL: ${RMF3URL}`);
+    console.log(`Auth enabled: ${ddsauth === 'true'}`);
+  }
+  
   if(ddsauth === 'true'){
     axios.get(RMF3URL, {
       auth: {
@@ -45,11 +60,28 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //
     })
     .then(function (response) {
       // handle success
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Response ===");
+        console.log(`Status: ${response.status}`);
+        console.log(`Headers: ${JSON.stringify(response.headers, null, 2)}`);
+        console.log(`Content-Type: ${response.headers['content-type']}`);
+        
+        if (response.headers['content-type'].includes('json')) {
+          console.log("Received JSON response");
+        } else {
+          console.log("Parsing XML structure");
+        }
+      }
+      
       fn(response.data);
-      //console.log(response.data);
     })
     .catch(function (error) {
       // handle error
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Error ===");
+        console.log(error);
+      }
+      
       try{
         if(parseInt(error.response.status) === 401){
           fn("UA");
@@ -59,22 +91,33 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //
       }catch(e){
         fn(error["errno"]);
       }
-      
-      //console.log(error.response.status);
-      //console.log(error);
-    })
-    .then(function () {
-      // always executed
     });
   }else{
     axios.get(RMF3URL)
     .then(function (response) {
       // handle success
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Response ===");
+        console.log(`Status: ${response.status}`);
+        console.log(`Headers: ${JSON.stringify(response.headers, null, 2)}`);
+        console.log(`Content-Type: ${response.headers['content-type']}`);
+        
+        if (response.headers['content-type'].includes('json')) {
+          console.log("Received JSON response");
+        } else {
+          console.log("Parsing XML structure");
+        }
+      }
+      
       fn(response.data);
     })
     .catch(function (error) {
       // handle error
-      //console.log(error)
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Error ===");
+        console.log(error);
+      }
+      
       try{
         if(parseInt(error.response.status) === 401){
           fn("UA");
@@ -84,13 +127,8 @@ function RMFMonitor3getRequest(baseurl, baseport, rmf3filename, params, fn) { //
       }catch(e){
         fn(error["errno"]);
       }
-    })
-    .then(function () {
-      // always executed
     });
-
   }
-  
 }
 
 //***** */
@@ -98,6 +136,16 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, urlResource, fn) {
   //Use backtick for URL string formatting
   var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/reports/${rmf3filenames}?resource=${urlResource}`; //Dynamically create URL
 
+  if (ENABLE_RMF3_LOGGING) {
+    console.log("\n=== RMFIII Info Request ===");
+    console.log(`LPAR: ${urlResource ? urlResource.split(',')[1] : 'Unknown'}`);
+    console.log(`Filename: ${rmf3filenames}`);
+    
+    console.log("\n=== RMF3 Request Details ===");
+    console.log(`URL: ${RMF3URL}`);
+    console.log(`Auth enabled: ${ddsauth === 'true'}`);
+  }
+
   if(ddsauth === 'true'){
     axios.get(RMF3URL, {
       auth: {
@@ -107,10 +155,18 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, urlResource, fn) {
     })
     .then(function (response) {
       // handle success
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Info Response ===");
+        console.log(`Status: ${response.status}`);
+      }
       fn(response.data);
     })
     .catch(function (error) {
       // handle error
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Info Error ===");
+        console.log(error);
+      }
       try{
         if(parseInt(error.response.status) === 401){
           fn("UA");
@@ -120,19 +176,23 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, urlResource, fn) {
       }catch(e){
         fn(error["errno"]);
       }
-    })
-    .then(function () {
-      // always executed
     });
   }else{
     axios.get(RMF3URL)
     .then(function (response) {
       // handle success
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Info Response ===");
+        console.log(`Status: ${response.status}`);
+      }
       fn(response.data);
     })
     .catch(function (error) {
       // handle error
-      //console.log(error)
+      if (ENABLE_RMF3_LOGGING) {
+        console.log("\n=== RMF3 Info Error ===");
+        console.log(error);
+      }
       try{
         if(parseInt(error.response.status) === 401){
           fn("UA");
@@ -142,11 +202,7 @@ function RMFMonitor3getInfo(baseurl, baseport, rmf3filenames, urlResource, fn) {
       }catch(e){
         fn(error["errno"]);
       }
-    })
-    .then(function () {
-      // always executed
     });
-
   }
 }
 
@@ -184,137 +240,121 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
     urlRange = req.query.range;
   }
   // querying specific field
-  if (req.query.id && req.query.id.toUpperCase() !== "LIST") {
-    RMFMonitor3getRequest(baseurl, baseport, "perform.xml", { resource: urlResource, id: req.query.id }, function (data) {
-      //res.json(data);
-      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
-        var string = encodeURIComponent(`${data}`);
-        res.redirect('/rmfm3/error?emsg=' + string);
+  if (req.query.id) {
+    RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { id: req.query.id, resource: urlResource }, function (data) {
+      if(data === 'EPROTO'){
+        res.redirect('/rmfm3/error?emsg=NE');
+      }else if(data === 'ENOTFOUND'){
+        res.redirect('/rmfm3/error?emsg=DE');
+      }else if(data === 'UA'){
+        res.redirect('/rmfm3/error?emsg=UA');
+      }else if(data === 'ETIMEDOUT'){
+        res.redirect('/rmfm3/error?emsg=EOUT');
       }else{
-        RMFMonitor3parser.RMF3fieldParser(data, function (result){
-          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
-            var data = result["data"];
-            res.redirect(`/rmfm3/error?emsg=${data}`);
+        try {
+          RMFMonitor3parser.RMF3fieldParser(data, function (result) {
+            if(result["msg"]){
+              res.redirect(`/rmfm3/error?emsg=${result["error"]}`);
           }else{
             res.json(result);
           }
         });
+        } catch (err) {
+          res.redirect(`/rmfm3/error?emsg=${err}`);
+        }
       }
     });
-  } else if (req.query.id && req.query.id.toUpperCase() === "LIST") {
-    RMFMonitor3getRequest(baseurl, baseport, "listmetrics.xml", { resource: urlResource }, function (data) {
-      //res.json(data);
-      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
-        var string = encodeURIComponent(`${data}`);
-        res.redirect('/rmfm3/error?emsg=' + string);
+  } else if (req.query.filename) {
+    ulrFilename = req.query.filename;
+    RMFMonitor3getInfo(baseurl, baseport, ulrFilename, urlResource, function (data) {
+      if(data === 'EPROTO'){
+        res.redirect('/rmfm3/error?emsg=NE');
+      }else if(data === 'ENOTFOUND'){
+        res.redirect('/rmfm3/error?emsg=DE');
+      }else if(data === 'UA'){
+        res.redirect('/rmfm3/error?emsg=UA');
+      }else if(data === 'ETIMEDOUT'){
+        res.redirect('/rmfm3/error?emsg=EOUT');
       }else{
-        RMFMonitor3parser.RMF3idListParser(data, function (result){
-          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
-            var data = result["data"];
-            res.redirect(`/rmfm3/error?emsg=${data}`);
+        try {
+          RMFMonitor3parser.RMF3idListParser(data, function (result) {
+            if(result["msg"]){
+              res.redirect(`/rmfm3/error?emsg=${result["error"]}`);
           }else{
             res.json(result);
           }
         });
+        } catch (err) {
+          res.redirect(`/rmfm3/error?emsg=${err}`);
+        }
       }
     });
-  } else if(req.query.reports){
-    ulrFilename = (req.query.reports).toUpperCase() + ".xml";
-    RMFMonitor3getInfo(baseurl, baseport, ulrFilename, urlResource, function (data){
-      //res.json(data);
-      if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
-        var string = encodeURIComponent(`${data}`);
-        res.redirect('/rmfm3/error?emsg=' + string);
+  } else if (urlReport === "CPC") { //if user specified CPC as report name
+    displayCPC(urlReport, ulrParm, urlLpar_parms, function (data) { //call displayCPC function
+      if(data === "NE"){
+        res.redirect('/rmfm3/error?emsg=NE');
+      }else if(data === "DE"){
+        res.redirect('/rmfm3/error?emsg=DE');
+      }else if(data === "UA"){
+        res.redirect('/rmfm3/error?emsg=UA');
+      }else if(data === "EOUT"){
+        res.redirect('/rmfm3/error?emsg=EOUT');
       }else{
-        RMFMonitor3parser.RMF3bodyParser(data, function (result){
-          if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
-            var data = result["data"];
-            res.redirect(`/rmfm3/error?emsg=${data}`);
-          }else{
-            res.json(result);
-          }
-        });
+        res.json(data); //Express displays the JSON returned by displayCPC function
       }
     });
-  }else{
-    if (urlReport === "CPC") { // checks if user has specify the value "CPC" for report parameter in the URL
-    displayCPC(urlReport, ulrParm, urlLpar_parms, function (result) { //A call to displayCPC function is made with a callback function as parameter
-      //Check for DE= Data Error from DDS, NE= Node Version Error, UA = User Authentication Error, EOUT= Request Time out error
-      if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
-        var string = encodeURIComponent(`${result}`);
-        res.redirect('/rmfm3/error?emsg=' + string);
-      }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-        var data = result["data"];
-        res.redirect(`/rmfm3/error?emsg=${data}`);
+  } else if (urlReport === "PROC") { //if user specified PROC as report name
+    displayPROC(urlReport, ulrParm, urlJobParm, function (data) { //call displayPROC function
+      if(data === "NE"){
+        res.redirect('/rmfm3/error?emsg=NE');
+      }else if(data === "DE"){
+        res.redirect('/rmfm3/error?emsg=DE');
+      }else if(data === "UA"){
+        res.redirect('/rmfm3/error?emsg=UA');
+      }else if(data === "EOUT"){
+        res.redirect('/rmfm3/error?emsg=EOUT');
       }else{
-        res.json(result); //Express respond with the result returned from displayCPC function
+        res.json(data); //Express displays the JSON returned by displayPROC function
       }
     });
-    } else if (urlReport === "PROC") { // checks if user has specify the value "PROC" for report parameter in the URL
-      displayPROC(urlReport, ulrParm, urlJobParm, function (result) { //A call to displayPROC function is made with a callback function as parameter
-        if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
-          var string = encodeURIComponent(`${result}`);
-          res.redirect('/rmfm3/error?emsg=' + string);
-        }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-          var data = result["data"];
-          res.redirect(`/rmfm3/error?emsg=${data}`);
+  } else if (urlReport === "USAGE") { //if user specified USAGE as report name
+    displayUSAGE(urlReport, ulrParm, urlJobParm, function (data) { //call displayUSAGE function
+      if(data === "NE"){
+        res.redirect('/rmfm3/error?emsg=NE');
+      }else if(data === "DE"){
+        res.redirect('/rmfm3/error?emsg=DE');
+      }else if(data === "UA"){
+        res.redirect('/rmfm3/error?emsg=UA');
+      }else if(data === "EOUT"){
+        res.redirect('/rmfm3/error?emsg=EOUT');
+      }else{
+        res.json(data); //Express displays the JSON returned by displayUSAGE function
+      }
+    });
+  } else { //if user specified any other report name
+    RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: urlResource }, function (data) { //Send GET request for data to Monitor III.
+      if(data === 'EPROTO'){
+        res.redirect('/rmfm3/error?emsg=NE');
+      }else if(data === 'ENOTFOUND'){
+        res.redirect('/rmfm3/error?emsg=DE');
+      }else if(data === 'UA'){
+        res.redirect('/rmfm3/error?emsg=UA');
+      }else if(data === 'ETIMEDOUT'){
+        res.redirect('/rmfm3/error?emsg=EOUT');
         }else{
-          res.json(result); //Express respond with the result returned from displayPROC function
-        }
-        //res.json(result); //Express respond with the result returned from displayPROC function
-      });
-    } else if (urlReport === "USAGE") { // checks if user has specify the value "USAGE" for report parameter in the URL
-      displayUSAGE(urlReport, ulrParm, urlJobParm, function (result) { //A call to displayUSAGE function is made with a callback function as parameter
-        if(result === "DE" || result === "NE" || result === "UA" || result === "EOUT"){ 
-          var string = encodeURIComponent(`${result}`);
-          res.redirect('/rmfm3/error?emsg=' + string);
-        }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
-          var data = result["data"];
-          res.redirect(`/rmfm3/error?emsg=${data}`);
-        }else{
-          res.json(result); //Express respond with the result returned from displayUSAGE function
-        }
-        //res.json(result); //Express respond with the result returned from displayUSAGE function
-      });
-    } else if (urlReport === "MIPS") { // checks if user has specify the value "USAGE" for report parameter in the URL
-      displayCPC("CPC", ulrParm, urlJobParm, function (result) { //A call to displayCPC function is mgoing to return a json formatted RMFIII CPC Report
-        for(i in result["table"]){
-          if (result["table"][i]["CPCPPNAM"] === "VIRPT"){
-            var virpt_tou = result["table"][i]['CPCPLTOU'];
-            var virpt_normalise = parseFloat(virpt_tou)  / 100
-            var virpt_mips = virpt_normalise * lspr
-            
-            var response = {};
-            response['lpar_name'] = result["table"][i]['CPCPPNAM'];
-            response['lpar_tou'] = result["table"][i]['CPCPLTOU'];
-            response['lpar_tou_normalized'] = virpt_normalise;
-            response['lpar_mips'] = virpt_mips;
-
-            //console.log(response);
-            res.json(response);
-          }
-        }
-        //console.log(result["table"]["CPCPPNAM"] === "VIRPT");
-        // //Express respond with the result returned from displayUSAGE function
-      });
-    } else{ //Any other report
-      RMFMonitor3getRequest(baseurl, baseport, rmf3filename, { report: urlReport, resource: urlResource, range: urlRange }, function (data) {
-        //res.json(data);
-        if(data === "DE" || data === "NE" || data === "UA" || data === "EOUT"){ 
-          var string = encodeURIComponent(`${data}`);
-          res.redirect('/rmfm3/error?emsg=' + string);
-        }else{
-          RMFMonitor3parser.RMF3bodyParser(data, function (result){
-            if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
-              var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
+        try {
+          RMFMonitor3parser.RMF3bodyParser(data, function (result) { //send returned XML to Monitor III parser.
+            if(result["msg"]){
+              res.redirect(`/rmfm3/error?emsg=${result["error"]}`);
             }else{
-              res.json(result);
+              res.json(result); //Express displays the JSON returned by the parser
             }
           });
+        } catch (err) {
+          res.redirect(`/rmfm3/error?emsg=${err}`);
+        }
         }
       });
-    }
   }
 };
 
@@ -379,7 +419,7 @@ function displayCPC(urlReport, urlParm, urlLpar_parms, fn) {
               if (caption === undefined) { //if caption is not available
                 table.forEach((i) => { //Loop through RMF3bodyParserResult table to check for urlParm
                   var d = { "CPCPPNAM": i["CPCPPNAM"], [urlParm]: i[urlParm] } //a temporary dictionary of argument and its value
-                  col.push(d); //push the dictionary to col
+                  col.push(d);
                 });
                 jsonResponse = {}; // Prepares the necesary jsonResponse and its key/value content
                 jsonResponse.timestart = RMF3bodyParserResult.timestart;

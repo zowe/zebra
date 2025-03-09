@@ -1,5 +1,6 @@
 const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
+const debugConfig = require('../../config/debugConfig');
 try{
   var ddsconfig = require("../../config/Zconfig.json");
 }catch(e){
@@ -35,10 +36,12 @@ var apiml_auth = ddsconfig.apiml_auth_type;
     urlParams = urlParams.slice(0, urlParams.length - 1);
     //var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}?report=${urlReport}&resource=${mvsResource}`;
     var RMF3URL = `${ddshttp}://${baseurl}:${baseport}/gpm/${rmf3filename}${urlParams}`; //Dynamically create URL
-    //console.log(RMF3URL);
-    console.log('\n=== RMF3 Request Details ===');
-    console.log('URL:', RMF3URL);
-    console.log('Auth enabled:', ddsauth);
+    
+    if (debugConfig.RMF3_DEBUG) {
+        console.log('\n=== RMF3 Request Details ===');
+        console.log('URL:', RMF3URL);
+        console.log('Auth enabled:', ddsauth);
+    }
 
     // Test server availability
     const testConfig = {
@@ -54,9 +57,11 @@ var apiml_auth = ddsconfig.apiml_auth_type;
             makeActualRequest();
         })
         .catch(error => {
-            console.log('\n=== Connection Test Error ===');
-            console.log('Error type:', error.code);
-            console.log('Error message:', error.message);
+            if (debugConfig.RMF3_DEBUG) {
+                console.log('\n=== Connection Test Error ===');
+                console.log('Error type:', error.code);
+                console.log('Error message:', error.message);
+            }
             if (error.code === 'EHOSTUNREACH') {
                 fn({
                     error: 'DDS_UNREACHABLE',
@@ -88,30 +93,31 @@ var apiml_auth = ddsconfig.apiml_auth_type;
                 }
             })
             .then(function (response) {
-                console.log('\n=== RMF3 Response ===');
-                console.log('Status:', response.status);
-                console.log('Headers:', JSON.stringify(response.headers, null, 2));
-                
-                // Check content type
-                const contentType = response.headers['content-type'];
-                console.log('Content-Type:', contentType);
-
-                if (contentType && contentType.includes('application/json')) {
-                    console.log('Received JSON response');
-                    // Return the JSON data directly
-                    fn(response.data);
-                } else {
-                    // Original XML handling
-                    fn(response.data);
+                if (debugConfig.RMF3_DEBUG) {
+                    console.log('\n=== RMF3 Response ===');
+                    console.log('Status:', response.status);
+                    console.log('Headers:', JSON.stringify(response.headers, null, 2));
+                    console.log('Content-Type:', response.headers['content-type']);
+                    
+                    if (response.headers['content-type'] && response.headers['content-type'].includes('application/json')) {
+                        console.log('Received JSON response');
+                    } else {
+                        // Original XML handling
+                        console.log('Received XML response');
+                    }
                 }
+                
+                fn(response.data);
             })
             .catch(function (error) {
-                console.log('\n=== RMF3 Error ===');
-                console.log('Error message:', error.message);
-                if (error.response) {
-                    console.log('Error status:', error.response.status);
-                    console.log('Error headers:', JSON.stringify(error.response.headers, null, 2));
-                    console.log('Error data:', error.response.data);
+                if (debugConfig.RMF3_DEBUG) {
+                    console.log('\n=== RMF3 Error ===');
+                    console.log('Error message:', error.message);
+                    if (error.response) {
+                        console.log('Error status:', error.response.status);
+                        console.log('Error headers:', JSON.stringify(error.response.headers, null, 2));
+                        console.log('Error data:', error.response.data);
+                    }
                 }
 
                 try {
@@ -444,9 +450,11 @@ function formatRMF3Report(jsonData) {
 
 // Modify the RMFIII function to handle both formats
 module.exports.RMFIII = async function (req, res) {
-    console.log('\n=== RMFIII Request ===');
-    console.log('LPAR:', req.params.lpar);
-    console.log('Report:', req.params.report);
+    if (debugConfig.RMF3_DEBUG) {
+        console.log('\n=== RMFIII Request ===');
+        console.log('LPAR:', req.params.lpar);
+        console.log('Report:', req.params.report);
+    }
 
     if(!req.params.lpar) {
         return res.status(400).json({

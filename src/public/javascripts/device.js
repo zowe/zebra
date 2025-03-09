@@ -7,10 +7,10 @@ $(document).ready(function() {
     }
 
     function updateEndDateVisibility() {
-        if ($('#continuous-monitoring').is(':checked')) {
-            $('#end-date-container').hide();
+        if ($('#device-continuous-monitoring').is(':checked')) {
+            $('#device-end-date-container').hide();
         } else {
-            $('#end-date-container').show();
+            $('#device-end-date-container').show();
         }
     }
 
@@ -30,6 +30,12 @@ $(document).ready(function() {
         }
     }
 
+    $('#lpar').change(function() {
+        const selectedLPAR = $(this).val();
+        updateStartButtonState(selectedLPAR);
+        updateLPARFields();
+    });
+
     function checkLPARSelected() {
         const lpar = getSelectedLPAR();
         if (lpar === 'Select LPAR' || !lpar) {
@@ -41,19 +47,19 @@ $(document).ready(function() {
 
     function updateLPARFields() {
         const selectedLPAR = getSelectedLPAR();
-        if (selectedLPAR && lparConfig[selectedLPAR] && lparConfig[selectedLPAR].hmai) {
-            const hmaiConfig = lparConfig[selectedLPAR].hmai;
-            if (hmaiConfig.defaultStartDate) {
-                $('#device-start-date').val(hmaiConfig.defaultStartDate);
+        if (selectedLPAR && lparConfig[selectedLPAR] && lparConfig[selectedLPAR].rmfmon1 && lparConfig[selectedLPAR].rmfmon1.device) {
+            const deviceConfig = lparConfig[selectedLPAR].rmfmon1.device;
+            if (deviceConfig.startDate) {
+                $('#device-start-date').val(deviceConfig.startDate);
             }
-            if (hmaiConfig.continuousMonitoring !== undefined) {
-                $('#continuous-monitoring').prop('checked', hmaiConfig.continuousMonitoring);
+            if (deviceConfig.continuousMonitoring !== undefined) {
+                $('#device-continuous-monitoring').prop('checked', deviceConfig.continuousMonitoring);
             }
             updateEndDateVisibility();
         }
     }
 
-    $('#continuous-monitoring').change(function() {
+    $('#device-continuous-monitoring').change(function() {
         updateEndDateVisibility();
     });
 
@@ -70,7 +76,7 @@ $(document).ready(function() {
 
         var startDate = $('#device-start-date').val();
         var endDate = $('#device-end-date').val();
-        var continuousMonitoring = $('#continuous-monitoring').is(':checked');
+        var continuousMonitoring = $('#device-continuous-monitoring').is(':checked');
 
         runningProcesses[lpar] = { isRunning: true, continuousMonitoring: continuousMonitoring };
         updateStartButtonState(lpar);

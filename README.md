@@ -45,6 +45,11 @@
         - [Updating a Prometheus Metric](#updating-a-prometheus-metric)
         - [Deleting a Prometheus Metric](#deleting-a-prometheus-metric)
 - [Support](#support)
+- [Debugging in ZEBRA](#debugging-in-zebra)
+    - [Debug Configuration](#debug-configuration)
+    - [Toggling Debug Settings](#toggling-debug-settings)
+    - [Available Debug Settings](#available-debug-settings)
+    - [Important Notes](#important-notes)
 
 ### License Information 
 
@@ -995,3 +1000,62 @@ For any questions or help with any aspect of ZEBRA, you can contact the developm
 | Alex Kim      | Project Lead | <alexkim@ibm.com>              |
 | Salisu Ali    | Developer    | <salis7897@gmail.com>          |
 | Justin Santer | Developer    | <justin.santer@convergetp.com> |
+
+# Debugging in ZEBRA
+
+ZEBRA includes a configurable debug logging system that allows you to control the verbosity of logs for different components.
+
+## Debug Configuration
+
+The debug settings are controlled in the `src/config/debugConfig.js` file:
+
+```javascript
+module.exports = {
+  // RMF Monitor III request/response logging
+  RMF3_DEBUG: false,
+  
+  // Parser debug logging
+  PARSER_DEBUG: false,
+  
+  // Database operations logging
+  DB_DEBUG: false
+};
+```
+
+## Toggling Debug Settings
+
+You can toggle debug settings in two ways:
+
+### 1. Edit the config file directly
+
+Open `src/config/debugConfig.js` and change the values from `false` to `true` for the components you want to debug.
+
+### 2. Use the toggleDebug.js script
+
+We've included a script to easily toggle debug settings:
+
+```bash
+# Enable RMF3 debugging
+node toggleDebug.js RMF3_DEBUG true
+
+# Disable parser debugging
+node toggleDebug.js PARSER_DEBUG false
+
+# Enable all debugging
+node toggleDebug.js all true
+
+# Disable all debugging
+node toggleDebug.js all false
+```
+
+## Available Debug Settings
+
+- `RMF3_DEBUG`: Controls logging of RMF Monitor III requests and responses
+- `PARSER_DEBUG`: Controls logging of XML/JSON parsing operations
+- `DB_DEBUG`: Controls logging of database operations
+
+## Important Notes
+
+- You must restart the ZEBRA application after changing debug settings
+- Enabling debug logging may significantly increase console output
+- For production environments, it's recommended to keep all debug settings disabled

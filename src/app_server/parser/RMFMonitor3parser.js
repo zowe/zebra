@@ -1,6 +1,10 @@
-var xml2js = require('xml2js'); //Import xml2js module
+const xml2js = require('xml2js');
+const debugConfig = require('../../config/debugConfig');
 var parser = new xml2js.Parser(); //Initialize parser
 var fs = require('fs'); //Import fs module
+
+// Make sure the ENABLE_PARSER_LOGGING constant is directly tied to debugConfig.PARSER_DEBUG
+const ENABLE_PARSER_LOGGING = debugConfig.PARSER_DEBUG;
 
 /**
  * RMF3bodyParser handles conversion of Monitor III XML data to JSON
@@ -8,24 +12,34 @@ var fs = require('fs'); //Import fs module
  * @param {JSON} fn - Callback function that returns parsed JSON
  */
 module.exports.RMF3bodyParser = function (data, fn) {
-    console.log('\n=== RMF3 Parser ===');
-    console.log('Parsing RMF3 data');
+    if (ENABLE_PARSER_LOGGING) {
+        console.log('\n=== RMF3 Parser ===');
+        console.log('Parsing RMF3 data');
+    }
     
     if (!data) {
-      console.log('Error: Received empty data');
+      if (ENABLE_PARSER_LOGGING) {
+        console.log('Error: Received empty data');
+      }
       return fn({msg: 'Err', error: 'Empty data received', data: data});
     }
 
     parser.parseString(data, function (err, result) {
         if (err) {
-          console.log('Error: XML parsing failed:', err);
+          if (ENABLE_PARSER_LOGGING) {
+            console.log('Error: XML parsing failed:', err);
+          }
           return fn({msg: 'Err', error: err, data: data});
         }
 
         try {
-            console.log('Parsing XML structure');
+            if (ENABLE_PARSER_LOGGING) {
+                console.log('Parsing XML structure');
+            }
             if (!result || !result.ddsml || !result.ddsml.report) {
-              console.log('Error: Invalid XML structure');
+              if (ENABLE_PARSER_LOGGING) {
+                console.log('Error: Invalid XML structure');
+              }
               return fn({msg: 'Err', error: 'Invalid XML structure', data: data});
             }
 
@@ -88,16 +102,26 @@ module.exports.RMF3bodyParser = function (data, fn) {
             }
             fn(parsedJSON); //return parsed JSON
         } catch (err) {
-            console.log('Error during parsing:', err);
-            console.log('Raw data:', data);
+            if (ENABLE_PARSER_LOGGING) {
+                console.log('Error during parsing:', err);
+                console.log('Raw data:', data);
+            }
             fn({msg: 'Err', error: err, data: data});
         }
     });
 }
 
 module.exports.RMF3fieldParser = function (data, fn) {
+    if (ENABLE_PARSER_LOGGING) {
+        console.log('\n=== RMF3 Field Parser ===');
+        console.log('Parsing RMF3 field data');
+    }
+    
     parser.parseString(data, function (err, result) {
         if (err) {
+            if (ENABLE_PARSER_LOGGING) {
+                console.log('Error parsing field data:', err);
+            }
             fn({msg: 'Err', error: err, data: data});
         }
         try {
@@ -133,14 +157,25 @@ module.exports.RMF3fieldParser = function (data, fn) {
             fn(parsedJSON); //return parsed JSON
 
         } catch(err) {
+            if (ENABLE_PARSER_LOGGING) {
+                console.log('Error during field parsing:', err);
+            }
             fn({msg: 'Err', error: err, data: data});
         }
     });
 }
 
 module.exports.RMF3idListParser = function (data, fn) {
+    if (ENABLE_PARSER_LOGGING) {
+        console.log('\n=== RMF3 ID List Parser ===');
+        console.log('Parsing RMF3 ID list data');
+    }
+    
     parser.parseString(data, function (err, result) {
         if (err) {
+            if (ENABLE_PARSER_LOGGING) {
+                console.log('Error parsing ID list:', err);
+            }
             fn({msg: 'Err', error: err, data: data});
         }
         try {
@@ -158,6 +193,9 @@ module.exports.RMF3idListParser = function (data, fn) {
             fn(parsedJSON); //return parsed JSON
 
         } catch(err) {
+            if (ENABLE_PARSER_LOGGING) {
+                console.log('Error during ID list parsing:', err);
+            }
             fn({msg: 'Err', error: err, data: data});
         }
     });

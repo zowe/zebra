@@ -19,63 +19,94 @@
 	"dds": {
 		"LPAR1": {
 			"ddshhttptype": "https",
-			"ddsbaseurl": "lpar1.com",
+			"ddsbaseurl": "example.lpar1.com",
 			"ddsbaseport": "8803",
 			"ddsauth": "true",
-			"ddsuser": "user",
-			"ddspwd": "password",
+			"ddsuser": "lpar1user",
+			"ddspwd": "lpar1password",
 			"rmf3filename": "rmfm3.xml",
 			"rmfppfilename": "rmfpp.xml",
-			"mvsResource": ",SYSID,MVS_IMAGE",
-			"PCI": 2951,
-			"usePrometheus": "false",
+			"mvsResource": ",LPAR1,MVS_IMAGE",
+			"PCI": "2951",
 			"useMongo": "false",
+			"usePrometheus": "false",
 			"hmai": {
 				"ftp": {
-					"directory": "/default/ftp/directory"
+					"directory": "/u/lpar1/hmaicsv"
 				},
 				"mysql": {
 					"host": "localhost",
-					"user": "defaultuser",
-					"password": "defaultpassword"
+					"user": "lpar1user",
+					"password": "lpar1password"
 				},
 				"dataRetention": {
-					"clpr": "1",
-					"ldev": "1",
-					"mpb": "1",
-					"mprank20": "1",
-					"pgrp": "1",
-					"port": "1"
+					"clpr": "3",
+					"ldev": "3",
+					"mpb": "3",
+					"mprank20": "3",
+					"pgrp": "3",
+					"port": "3"
 				},
-				"checkInterval": "1",
-				"defaultStartDate": "2024-08-20",
-				"continuousMonitoring": true
+				"rmfmon1Retention": {
+					"cache": "5",
+					"device": "5"
+				},
+				"checkInterval": "30",
+				"defaultStartDate": "2024-07-01",
+				"continuousMonitoring": false
 			},
 			"hmre": {
 				"ftp": {
-					"directory": "/u/hmre/hmrecsv"
+					"directory": "/u/lpar1/hmrecsv"
 				},
 				"mysql": {
 					"host": "localhost",
-					"user": "defaultuser",
-					"password": "defaultpassword"
+					"user": "lpar1user",
+					"password": "lpar1password"
 				},
-				"checkInterval": "1",
-				"defaultStartDate": "2024-08-20",
-				"continuousMonitoring": true
+				"dataRetention": {
+					"hmrecsvs": "2",
+					"hmrecsvd": "2"
+				},
+				"checkInterval": "2",
+				"defaultStartDate": "2024-07-01",
+				"continuousMonitoring": false
 			},
 			"dcol": {
 				"ftp": {
-					"directory": "/u/hmaidcol"
+					"directory": "/u/lpar1/hmaidcol"
 				},
 				"mysql": {
 					"host": "localhost",
-					"user": "defaultuser",
-					"password": "defaultpassword"
+					"user": "lpar1user",
+					"password": "lpar1password"
 				},
-				"checkInterval": "1",
-				"defaultStartDate": "2024-08-20",
-				"continuousMonitoring": true
+				"dataRetention": {
+					"hmaidcol": "2"
+				},
+				"checkInterval": "2",
+				"defaultStartDate": "2024-07-01",
+				"continuousMonitoring": false
+			},
+			"rmfmon1": {
+				"mysql": {
+					"host": "localhost",
+					"user": "lpar1user",
+					"password": "lpar1password"
+				},
+				"cache": {
+					"checkInterval": "2",
+					"dataRetention": "5",
+					"startDate": "2024-07-01",
+					"continuousMonitoring": false
+				},
+				"device": {
+					"checkInterval": "2",
+					"dataRetention": "5",
+					"startDate": "2024-07-01",
+					"continuousMonitoring": false
+				},
+				"continuousMonitoring": false
 			}
 		}
 	},

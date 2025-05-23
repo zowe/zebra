@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "build": "echo NO BUILD PROCESS",
-    "test": "echo NO TESTS AVAILABLE",
+    "test": "node jest --detectOpenHandles",
     "docker": "nodemon --inspect=0.0.0.0 --legacy-watch ./bin/www"
   },
   "dependencies": {
@@ -40,5 +40,9 @@
     "swagger-ui-express": "^4.1.4",
     "sweetalert": "^2.1.2",
     "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.1"
   }
 }

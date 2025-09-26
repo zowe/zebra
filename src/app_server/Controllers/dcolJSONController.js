@@ -59,12 +59,23 @@ function updateLparData(lpar, newData, callback) {
         if (err) {
             return callback(err);
         }
-        var updatedData = Object.assign({}, currentData, newData);
-        writeLparData(lpar, updatedData, function(writeErr) {
+
+        
+        for (const key in newData) {
+            if (newData.hasOwnProperty(key)) {
+                if (typeof newData[key] === 'object' && newData[key] !== null && !Array.isArray(newData[key]) && currentData[key]) {
+                    currentData[key] = { ...currentData[key], ...newData[key] };
+                } else {
+                    currentData[key] = newData[key];
+                }
+            }
+        }
+
+        writeLparData(lpar, currentData, function(writeErr) {
             if (writeErr) {
                 return callback(writeErr);
             }
-            callback(null, updatedData);
+            callback(null, currentData);
         });
     });
 }
@@ -73,4 +84,4 @@ module.exports = {
     readLparData: readLparData,
     writeLparData: writeLparData,
     updateLparData: updateLparData
-}; 
+};

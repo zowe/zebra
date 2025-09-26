@@ -867,33 +867,67 @@ async function checkForNewFiles(ftpClient, mysqlConnection, startDate, endDate, 
             if (item.type !== 'd') return false;
             const dirDate = parseDirName(item.name);
             if (!dirDate) return false;
-            const isNewDir = !visitedDirs[item.name];
-            return isNewDir && dirDate >= startDateTime && dirDate <= endDateTime;
+            
+            
+            // Check if directory exists in memory and if all requested metrics are processed.
+            const dirInfo = visitedDirs[item.name];
+            const needsProcessing = !dirInfo || 
+                                  !dirInfo.processedMetrics || 
+                                  metrics.some(metric => !dirInfo.processedMetrics.includes(metric));
+
+            // Only include directory if it needs processing and is within the date range.
+            return needsProcessing && dirDate >= startDateTime && dirDate <= endDateTime;
         });
 
-        console.log(`Found ${newDirs.length} new directories to process for ${lpar}`);
+        console.log(`Found ${newDirs.length} directories to process for ${lpar}`);
 
         for (const dir of newDirs) {
             const fullPath = path.join(config.dds[lpar].dcol.ftp.directory, dir.name);
             try {
-                await processDirectory(ftpClient, mysqlConnection, fullPath, lpar, metrics);
-                const dirDate = parseDirName(dir.name);
-                const updateData = { [dir.name]: dirDate.toISOString() };
-                await new Promise((resolve, reject) => {
-                    dcolJSONcontroller.updateLparData(lpar, updateData, (updateErr, updatedData) => {
-                        if (updateErr) reject(updateErr);
-                        else {
-                            console.log('Processed and updated ' + lpar + '.json with ' + dir.name);
-                            resolve(updatedData);
+                // Get existing processed metrics for this directory.
+                const existingDirInfo = visitedDirs[dir.name] || {};
+                const existingProcessedMetrics = existingDirInfo.processedMetrics || [];
+
+                // Only process metrics that haven't been processed yet for this run.
+                const metricsToProcess = metrics.filter(metric => 
+                    !existingProcessedMetrics.includes(metric)
+                );
+
+                if (metricsToProcess.length > 0) {
+                    console.log(`Processing directory ${dir.name} for metrics:`, metricsToProcess);
+                   
+                    const processedMetrics = await processDirectory(ftpClient, mysqlConnection, fullPath, lpar, metricsToProcess);
+                    const dirDate = parseDirName(dir.name);
+
+                    // Combine existing and newly processed metrics, ensuring no duplicates.
+                    const allProcessedMetrics = [...new Set([...existingProcessedMetrics, ...processedMetrics])];
+                    
+                    
+                    const updateData = {
+                        [dir.name]: {
+                            timestamp: dirDate.toISOString(),
+                            processedMetrics: allProcessedMetrics
                         }
+                    };
+                    
+                    await new Promise((resolve, reject) => {
+                        dcolJSONcontroller.updateLparData(lpar, updateData, (updateErr, updatedData) => {
+                            if (updateErr) reject(updateErr);
+                            else {
+                                console.log(`Processed and updated ${lpar}.json with ${dir.name}, metrics: ${processedMetrics.join(', ')}`);
+                                resolve(updatedData);
+                            }
+                        });
                     });
-                });
+                } else {
+                    console.log(`Skipping directory ${dir.name} - all requested metrics already processed.`);
+                }
             } catch (error) {
                 console.error('Error processing directory ' + dir.name + ' for ' + lpar + ':', error);
             }
         }
-       
-        console.log(`Finished processing ${newDirs.length} new directories for ${lpar}`);
+        
+        console.log(`Finished processing ${newDirs.length} directories for ${lpar}`);
         return newDirs.length;
     } catch (error) {
         console.error('Error in checkForNewFiles:', error);
@@ -903,6 +937,7 @@ async function checkForNewFiles(ftpClient, mysqlConnection, startDate, endDate, 
 
 async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metrics) {
     console.log(`Processing directory: ${dirPath}`);
+    const processedMetrics = []; 
     
     try {
         await promisifyFtpCommand(ftpClient, 'cwd', dirPath);
@@ -911,6 +946,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
         for (const file of files) {
             if (file.type === '-' && file.name.endsWith('.csv')) {
                 const tableName = getTableNameFromFileName(file.name);
+                // The metrics array now contains only the metrics we need to process for this specific run.
                 if (tableName && metrics.includes(tableName)) {
                     try {
                         await loadDataFromFTPToMySQL(
@@ -920,6 +956,9 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                             tableName,
                             tableHeaders[tableName]
                         );
+                      
+                        processedMetrics.push(tableName);
+                        console.log(`Successfully processed metric ${tableName} from ${file.name}`);
                     } catch (error) {
                         console.error(`Error processing ${file.name}:`, error);
                     }
@@ -935,6 +974,8 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
             console.error(`Error changing back to base directory:`, error);
         }
     }
+    
+    return processedMetrics; 
 }
 
 async function startDCOL(req, res) {

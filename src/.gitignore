@@ -27,7 +27,7 @@ src/nodemon.json
 
 # Tokens
 .env
-
+package.json
 package-lock.json
 config/hmaiMemory
 config/hmreMemory

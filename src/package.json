@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node --tls-min-v1.0 ./bin/www",
+    "start:tls": "node --tls-min-v1.0 ./bin/www",
     "dev": "nodemon ./bin/www",
     "build": "echo NO BUILD PROCESS",
     "test": "echo NO TESTS AVAILABLE",
@@ -32,6 +33,7 @@
     "jsonschema": "^1.5.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "mongodb": "^6.20.0",
     "mongoose": "^8.18.2",
     "morgan": "~1.10.1",
     "multer": "^2.0.2",

@@ -584,8 +584,22 @@ router.get('/api-doc',  function(req, res, next){
   res.json(swaggerdoc);
 })
 
-router.get('/prommetric', (req, res) => {
-    res.end(Prometheus.register.metrics()); //display metrics in prom-client register
+router.get('/prommetric', async (req, res) => {
+    try {
+        // Set the appropriate content type for Prometheus
+        res.set('Content-Type', Prometheus.register.contentType);
+        
+        // Await the promise to get the metrics string
+        const metrics = await Prometheus.register.metrics();
+        
+        // Add logging to prove it's working
+        console.log(`[Metrics] Scraping /prommetric. Serving ${metrics.length} characters of data.`);
+        
+        res.end(metrics);
+    } catch (ex) {
+        console.error('[Metrics] Could not serve metrics:', ex);
+        res.status(500).end(ex.toString());
+    }
 });
 // Prometheus metric API router for real-time metric data retrieval
 router.get('/v1/metrics', (req, res) => {

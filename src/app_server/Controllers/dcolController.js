@@ -1160,8 +1160,7 @@ async function clearDatabase(req, res) {
     try {
         connection = await mysql.createConnection(mysqlConfig);
 
-        const tables = ['dcollect_a', 'dcollect_ai', 'dcollect_bc', 'dcollect_d', 'dcollect_dc', 
-                       'dcollect_lb', 'dcollect_mc', 'dcollect_sc', 'dcollect_sg', 'dcollect_v', 'dcollect_vl'];
+        const tables = ['dcollect_a', 'dcollect_ai', 'dcollect_b', 'dcollect_bc', 'dcollect_c', 'dcollect_d', 'dcollect_dc', 'dcollect_lb', 'dcollect_m', 'dcollect_mc', 'dcollect_sc', 'dcollect_sg', 'dcollect_t', 'dcollect_v', 'dcollect_vl'];
         for (const table of tables) {
             await connection.query(`TRUNCATE TABLE ${table}`);
         }

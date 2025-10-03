@@ -1,11 +1,16 @@
 const FTP = require('ftp');
 const mysql = require('mysql2/promise');
 const path = require('path');
-try {
-    var config = require("../../config/Zconfig.json");
-} catch(e) {
-    var config = {};
+
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("../../config/Zconfig.json");
+  } catch(e) {
+    return {};
+  }
 }
+
 var hmreJSONcontroller = require('./hmreJSONController');
 const stream = require('stream');
 const monitoringIntervals = {};
@@ -277,7 +282,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
         console.error(`Error processing directory ${dirPath}:`, error);
     } finally {
         try {
-            await promisifyFtpCommand(ftpClient, 'cwd', config.dds[lpar].hmre.ftp.directory);
+            await promisifyFtpCommand(ftpClient, 'cwd', getConfig().dds[lpar].hmre.ftp.directory);
         } catch (error) {
             console.error(`Error changing back to base directory:`, error);
         }
@@ -297,7 +302,7 @@ async function checkForNewFiles(ftpClient, mysqlConnection, startDate, endDate, 
             });
         });
         
-        await promisifyFtpCommand(ftpClient, 'cwd', config.dds[lpar].hmre.ftp.directory);
+        await promisifyFtpCommand(ftpClient, 'cwd', getConfig().dds[lpar].hmre.ftp.directory);
         const list = await promisifyFtpCommand(ftpClient, 'list');
 
         const startDateTime = new Date(startDate);
@@ -321,7 +326,7 @@ async function checkForNewFiles(ftpClient, mysqlConnection, startDate, endDate, 
         console.log(`Found ${newDirs.length} directories to process for ${lpar}`);
 
         for (const dir of newDirs) {
-            const fullPath = path.join(config.dds[lpar].hmre.ftp.directory, dir.name);
+            const fullPath = path.join(getConfig().dds[lpar].hmre.ftp.directory, dir.name);
             try {
                 // Get existing processed metrics for this directory
                 const existingDirInfo = visitedDirs[dir.name] || {};
@@ -394,9 +399,9 @@ async function startHMRE(req, res) {
     try {
         // Create MySQL connection without database specified
         mysqlConnection = await mysql.createConnection({
-            host: config.dds[lpar].hmre.mysql.host,
-            user: config.dds[lpar].hmre.mysql.user,
-            password: config.dds[lpar].hmre.mysql.password,
+            host: getConfig().dds[lpar].hmre.mysql.host,
+            user: getConfig().dds[lpar].hmre.mysql.user,
+            password: getConfig().dds[lpar].hmre.mysql.password,
             multipleStatements: true
         });
         console.log('MySQL connection established');
@@ -445,9 +450,9 @@ async function startHMRE(req, res) {
             });
             ftpClient.on('error', reject);
             ftpClient.connect({
-                host: config.dds[lpar].ddsbaseurl,
-                user: config.dds[lpar].ddsuser,
-                password: config.dds[lpar].ddspwd,
+                host: getConfig().dds[lpar].ddsbaseurl,
+                user: getConfig().dds[lpar].ddsuser,
+                password: getConfig().dds[lpar].ddspwd,
             });
         });
 
@@ -490,7 +495,7 @@ async function startHMRE(req, res) {
 
 async function enforceDataRetention(connection, lpar) {
     try {
-        const retentionConfig = config.dds[lpar].hmre.dataRetention;
+        const retentionConfig = getConfig().dds[lpar].hmre.dataRetention;
 
         // HMRE has hmrecsvs and hmrecsvd metrics
         const metrics = {
@@ -513,7 +518,7 @@ async function enforceDataRetention(connection, lpar) {
 }
 
 function startContinuousMonitoring(lpar, metrics) {
-    const checkIntervalMinutes = parseInt(config.dds[lpar].hmre.checkInterval);
+    const checkIntervalMinutes = parseInt(getConfig().dds[lpar].hmre.checkInterval);
     console.log(`Setting up continuous monitoring for ${lpar} with interval of ${checkIntervalMinutes} minutes`);
 
     monitoringIntervals[lpar] = setInterval(async () => {
@@ -522,9 +527,9 @@ function startContinuousMonitoring(lpar, metrics) {
 
         try {
             mysqlConnection = await mysql.createConnection({
-                host: config.dds[lpar].hmre.mysql.host,
-                user: config.dds[lpar].hmre.mysql.user,
-                password: config.dds[lpar].hmre.mysql.password,
+                host: getConfig().dds[lpar].hmre.mysql.host,
+                user: getConfig().dds[lpar].hmre.mysql.user,
+                password: getConfig().dds[lpar].hmre.mysql.password,
                 database: lpar,
                 multipleStatements: true
             });
@@ -534,9 +539,9 @@ function startContinuousMonitoring(lpar, metrics) {
                 ftpClient.on('ready', resolve);
                 ftpClient.on('error', reject);
                 ftpClient.connect({
-                    host: config.dds[lpar].ddsbaseurl,
-                    user: config.dds[lpar].ddsuser,
-                    password: config.dds[lpar].ddspwd,
+                    host: getConfig().dds[lpar].ddsbaseurl,
+                    user: getConfig().dds[lpar].ddsuser,
+                    password: getConfig().dds[lpar].ddspwd,
                 });
             });
 
@@ -569,7 +574,7 @@ function startContinuousMonitoring(lpar, metrics) {
 async function clearDatabase(req, res) {
     const { lpar } = req.body;
     const mysqlConfig = {
-        ...config.dds[lpar].hmre.mysql,
+        ...getConfig().dds[lpar].hmre.mysql,
         database: lpar,
     };
 

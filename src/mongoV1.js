@@ -6,98 +6,43 @@ let usagedoci = require("./app_server/Models/usagedocSchema");
 let usagedoc = usagedoci.usagedocs;
 let workloaddoci = require("./app_server/Models/workloaddocSchema");
 let workloaddoc = workloaddoci.wokloaddocs;
-try{
-    var Zconfig = require("./config/Zconfig.json");
-}catch(e){
-    var Zconfig = {};
-}
-let appbaseurl = Zconfig.appurl;
-let appbaseport = Zconfig.appport;
-let dbinterval = Zconfig.dbinterval;
-let httptype = Zconfig.zebra_httptype;
 const axios = require('axios');
 
-
-console.log('mongo started');
-lpar_mongo = [];
-try{
-    var ddsconfig = require("./config/Zconfig.json");
-
-    var lpar_details = ddsconfig["dds"];
-    var lpars = Object.keys(lpar_details);
-
-    for(i in lpars){
-        var lpar = lpars[i]
-        if (ddsconfig["dds"][lpar]["useMongo"] === 'true'){
-            lpar_mongo.push(lpar);
-        }
-    }
-}catch(e){
-    var Zconfig = {};
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("./config/Zconfig.json");
+  } catch(e) {
+    return {};
+  }
 }
 
+console.log('mongo started');
 
-if(lpar_mongo.length > 0){
-    setInterval(async () => { // Set interval function allows this routine to run at a specified intervals
-        for(i in lpar_mongo){
-            var lpar_name = lpar_mongo[i];
+/**
+ * getdata function query this app using its endpoint for JSON data to save to mongo DB 
+ * @param {string} lp - LPAR name
+ * @param {URLString} appbaseurl - A recognised URL for this app that returns a JSON
+ * @param {function} fn - A callback function containing the required JSON
+ */
+async function getdata(lp, appbaseurl, fn){ 
+    axios.get(appbaseurl)
+    .then(function (response) {
+        fn({lpar:lp, res: response.data});
+    })
+    .catch(function (error) {
+        fn(error);
+    });
+}
 
-            var cpuRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/CPC`;
-            var procRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/PROC`;
-            var usageRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/USAGE`;
-            var sysRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/SYSINFO`;
-            var syssumRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/SYSSUM?resource=\",,SYSPLEX\"`; // TODO: make dynamic?
-        
-            await getdata(lpar_name, cpuRealtimeURL, async function(data){ // get CPC data in JSON format
-                await fedDatabase(data["lpar"], data["res"], 'CPC', function(c){}) // Save CPC JSON to MongoDB
-            });
-        
-            await getdata(lpar_name, procRealtimeURL, async function(data){ // get PROC data in JSON format
-                await fedDatabase(data["lpar"], data["res"], 'PROC', function(c){}) // Save PROC JSON to MongoDB
-            });
-        
-            await getdata(lpar_name, usageRealtimeURL, async function(data){ // get USAGE data in JSON format
-                await fedDatabase(data["lpar"], data["res"], 'USAGE', function(c){}) // Save USAGE JSON to MongoDB
-            });
-        
-            await getdata(lpar_name, sysRealtimeURL, async function(sysinfoData){ // get Workload data in JSON format
-                await getdata(sysinfoData["lpar"], syssumRealtimeURL, async function(syssumData) { // get SYSSUM data to combine with SYSINFO
-                    await fedDatabase(syssumData["lpar"], {
-                    title: "Workload Activity",
-                    timestart: sysinfoData["res"]["timestart"],
-                    caption: { ...sysinfoData["res"]["caption"], ...syssumData["res"]["caption"] },
-                    classes: { SYSINFO: sysinfoData["res"]["table"], SYSSUM: syssumData["res"]["table"] }, 
-                    }, 'WKL', function(c){}); // Save Workload JSON to MongoDB
-                });
-            });
-        
-            /**
-             * getdata function query this app using its endpoint for JSON data to save to mongo DB 
-             * @param {URLString} appbaseurl - A recognised URL for this app that returns a JSON
-             * @param {JSON} fn - A callback function containing the required JSON
-             */
-            async function getdata(lp, appbaseurl, fn){ // Function to make request for JSON using this apps Endpoints
-                axios.get(appbaseurl)
-                .then(function (response) {
-                    // handle success
-                    fn({lpar:lp, res: response.data});
-                })
-                .catch(function (error) {
-                    // handle error
-                    fn(error);
-                })
-                .then(function () {
-                    // always executed
-                });
-            }
-        
-            /**
-             * fedDatabase function handles saving the JSON from getdata into MongoDB
-             * @param {JSON} data - JSON returned by getdataFunction
-             * @param {string} type - Type of data (CPC, PROC or USAGE)
-             * @param {*} fn - A callback function that does nothing
-             */
-            async function fedDatabase(lpar, data, type, fn ){
+/**
+ * fedDatabase function handles saving the JSON from getdata into MongoDB
+ * @param {string} lpar - LPAR name
+ * @param {JSON} data - JSON returned by getdataFunction
+ * @param {string} type - Type of data (CPC, PROC, USAGE, or WKL)
+ * @param {function} fn - A callback function that does nothing
+ */
+async function fedDatabase(lpar, data, type, fn ){
                 try{ // if data is not equal to error.... getdata function can return error instead of JSON when something goes wrong
                     var JSONBody = data;
                     var parm = JSONBody["title"] // represent the value of title key in JSONBody
@@ -174,108 +119,180 @@ if(lpar_mongo.length > 0){
                 }catch(e){
         
                 }
-            }
-        
-            /**
-             * Converts date and time strings to Date object
-             * @param {String} date String representing date in MM/DD/YYYY format
-             * @param {String} time String representing time in HOUR:MINUTE:SECONDS format
-             * @returns Date object representing the date and time of the record
-             */
-            function toDateTime(date, time) {
-                const [month, day, year] = date.split("/");
-                const dateTimeString = `${year}-${month}-${day}T${time}`;
-                const parsed = new Date(Date.parse(dateTimeString));
-                return parsed;
-            }
-            
-            /**
-             * Joins different reports into one class name and type
-             * @param {Object} sysinfo The base data
-             * @param {Array} reportsToJoin  The data to join into sysinfo
-             * @returns The data joined on class name and type
-             */
-            function joinWorkloadData(sysinfo, [ syssum ]) {
-            let joinedData = [];
-            for (let i = 0; i < sysinfo.length; i++) {
-                let found = false;
-                for (let j = 0; j < syssum.length; j++) {
-                if (sysinfo[i]["SYSDDSIN"] === syssum[j]["SUMDDSIN"] &&
-                    sysinfo[i]["SYSDDSIT"] === syssum[j]["SUMDDSIT"] &&
-                    sysinfo[i]["SYSDDSIP"] === syssum[j]["SUMDDSIP"] ) {
-                    found = true;
-                    joinedData.push({
+}
+
+/**
+ * Converts date and time strings to Date object
+ * @param {String} date String representing date in MM/DD/YYYY format
+ * @param {String} time String representing time in HOUR:MINUTE:SECONDS format
+ * @returns Date object representing the date and time of the record
+ */
+function toDateTime(date, time) {
+    const [month, day, year] = date.split("/");
+    const dateTimeString = `${year}-${month}-${day}T${time}`;
+    const parsed = new Date(Date.parse(dateTimeString));
+    return parsed;
+}
+
+/**
+ * Joins different reports into one class name and type
+ * @param {Object} sysinfo The base data
+ * @param {Array} reportsToJoin  The data to join into sysinfo
+ * @returns The data joined on class name and type
+ */
+function joinWorkloadData(sysinfo, [ syssum ]) {
+    let joinedData = [];
+    for (let i = 0; i < sysinfo.length; i++) {
+        let found = false;
+        for (let j = 0; j < syssum.length; j++) {
+            if (sysinfo[i]["SYSDDSIN"] === syssum[j]["SUMDDSIN"] &&
+                sysinfo[i]["SYSDDSIT"] === syssum[j]["SUMDDSIT"] &&
+                sysinfo[i]["SYSDDSIP"] === syssum[j]["SUMDDSIP"] ) {
+                found = true;
+                joinedData.push({
                     ...sysinfo[i],
                     ...syssum[j]
-                    });
-                    break;
-                }
-                }
-                if (!found) {
-                for (let j = 0; j < syssum.length; j++) {
-                    if (sysinfo[i]["SYSDDSIN"] === syssum[j]["SUMDDSIN"] &&
-                        sysinfo[i]["SYSDDSIT"] === syssum[j]["SUMDDSIT"] ) {
+                });
+                break;
+            }
+        }
+        if (!found) {
+            for (let j = 0; j < syssum.length; j++) {
+                if (sysinfo[i]["SYSDDSIN"] === syssum[j]["SUMDDSIN"] &&
+                    sysinfo[i]["SYSDDSIT"] === syssum[j]["SUMDDSIT"] ) {
                     found = true;
                     joinedData.push({
                         ...sysinfo[i],
                         ...syssum[j]
                     });
                     break;
-                    }
                 }
-                }
-                if (!found) {
-                joinedData.push({ 
-                    ...sysinfo[i],
-                    SUMGRP:"",
-                    SUMTYP:"",
-                    SUMRCTNT:"",
-                    SUMIMP:"",
-                    SUMEVG:"",
-                    SUMEVA:"",
-                    SUMRTGTM:"",
-                    SUMRTGP:"",
-                    SUMRTATM:"",
-                    SUMRTAP:"",
-                    SUMPFID:"",
-                    SUMTRAN:"",
-                    SUMARTWM:"",
-                    SUMARTAM:"",
-                    SUMARTTM:"",
-                    SUMARTQM:"",
-                    SUMARTRM:"",
-                    SUMARTIM:"",
-                    SUMARTCM:"",
-                    SUMGOA:"",
-                    SUMDUR:"",
-                    SUMRES:"",
-                    SUMRGTYP:"",
-                    SUMSMI:"",
-                    SUMSMA:"",
-                    SUMSRA:"",
-                    SUMRGSPC:"",
-                    SUMCRIT:"",
-                    SUMHONP:"",
-                    SUMMLIM:"",
-                    SUMMEMUS:"",
-                    SUMDDSIN:"",
-                    SUMDDSIT:"",
-                    SUMDDSIP:"",
-                    SUMEGRP:"",
-                    SUMRTGT:"",
-                    SUMRTAT:"",
-                    SUMARTW:"",
-                    SUMARTA:"",
-                    SUMARTT:"",
-                    SUMARTQ:"",
-                    SUMARTR:"",
-                    SUMARTI:"",
-                    SUMARTC:""
-                });
-                }
-            }
-            return joinedData;
             }
         }
-      }, parseInt(dbinterval) * 1000); // duration of the interval
+        if (!found) {
+            joinedData.push({ 
+                ...sysinfo[i],
+                SUMGRP:"",
+                SUMTYP:"",
+                SUMRCTNT:"",
+                SUMIMP:"",
+                SUMEVG:"",
+                SUMEVA:"",
+                SUMRTGTM:"",
+                SUMRTGP:"",
+                SUMRTATM:"",
+                SUMRTAP:"",
+                SUMPFID:"",
+                SUMTRAN:"",
+                SUMARTWM:"",
+                SUMARTAM:"",
+                SUMARTTM:"",
+                SUMARTQM:"",
+                SUMARTRM:"",
+                SUMARTIM:"",
+                SUMARTCM:"",
+                SUMGOA:"",
+                SUMDUR:"",
+                SUMRES:"",
+                SUMRGTYP:"",
+                SUMSMI:"",
+                SUMSMA:"",
+                SUMSRA:"",
+                SUMRGSPC:"",
+                SUMCRIT:"",
+                SUMHONP:"",
+                SUMMLIM:"",
+                SUMMEMUS:"",
+                SUMDDSIN:"",
+                SUMDDSIT:"",
+                SUMDDSIP:"",
+                SUMEGRP:"",
+                SUMRTGT:"",
+                SUMRTAT:"",
+                SUMARTW:"",
+                SUMARTA:"",
+                SUMARTT:"",
+                SUMARTQ:"",
+                SUMARTR:"",
+                SUMARTI:"",
+                SUMARTC:""
+            });
+        }
+    }
+    return joinedData;
+}
+
+// Initial check to see if MongoDB monitoring should start
+let shouldStartMonitoring = false;
+try {
+    const initialConfig = getConfig();
+    const lpar_details = initialConfig["dds"] || {};
+    const lpars = Object.keys(lpar_details);
+    
+    for(let i in lpars){
+        var lpar = lpars[i];
+        if (lpar_details[lpar]["useMongo"] === 'true'){
+            shouldStartMonitoring = true;
+            break;
+        }
+    }
+}catch(e){
+    console.error("Error checking initial MongoDB config:", e);
+}
+
+if(shouldStartMonitoring){
+    setInterval(async () => {
+        try {
+            // Get fresh config on each iteration
+            const config = getConfig();
+            const appbaseurl = config.appurl;
+            const appbaseport = config.appport;
+            const httptype = config.zebra_httptype;
+            const dds = config.dds || {};
+            
+            // Dynamically determine which LPARs have MongoDB enabled
+            const lpar_mongo = [];
+            for(const lpar in dds){
+                if (dds[lpar]["useMongo"] === 'true'){
+                    lpar_mongo.push(lpar);
+                }
+            }
+            
+            // Process each LPAR
+            for(let i in lpar_mongo){
+                const lpar_name = lpar_mongo[i];
+
+                const cpuRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/CPC`;
+                const procRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/PROC`;
+                const usageRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/USAGE`;
+                const sysRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/SYSINFO`;
+                const syssumRealtimeURL = `${httptype}://${appbaseurl}:${appbaseport}/v1/${lpar_name}/rmf3/SYSSUM?resource=\",,SYSPLEX\"`;
+        
+                await getdata(lpar_name, cpuRealtimeURL, async function(data){
+                    await fedDatabase(data["lpar"], data["res"], 'CPC', function(c){})
+                });
+        
+                await getdata(lpar_name, procRealtimeURL, async function(data){
+                    await fedDatabase(data["lpar"], data["res"], 'PROC', function(c){})
+                });
+        
+                await getdata(lpar_name, usageRealtimeURL, async function(data){
+                    await fedDatabase(data["lpar"], data["res"], 'USAGE', function(c){})
+                });
+        
+                await getdata(lpar_name, sysRealtimeURL, async function(sysinfoData){
+                    await getdata(sysinfoData["lpar"], syssumRealtimeURL, async function(syssumData) {
+                        await fedDatabase(syssumData["lpar"], {
+                            title: "Workload Activity",
+                            timestart: sysinfoData["res"]["timestart"],
+                            caption: { ...sysinfoData["res"]["caption"], ...syssumData["res"]["caption"] },
+                            classes: { SYSINFO: sysinfoData["res"]["table"], SYSSUM: syssumData["res"]["table"] }, 
+                        }, 'WKL', function(c){});
+                    });
+                });
+            }
+        } catch(e) {
+            console.error("Error in MongoDB monitoring interval:", e);
+        }
+    }, parseInt(getConfig().dbinterval || 100) * 1000);
 }

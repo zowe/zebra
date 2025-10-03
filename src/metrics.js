@@ -6,8 +6,14 @@
 const axios = require('axios');
 const prometheus = require('prom-client');
 
-// Config
-const { appurl, appport, use_cert, dds, rmf3interval } = require('./config/Zconfig.json');
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require('./config/Zconfig.json');
+  } catch(e) {
+    return {};
+  }
+}
 
 // Metrics in memory
 const metrics = require('./metrics.json');
@@ -55,6 +61,12 @@ const metricGauges = {};
 // The main scraping and registration loop
 setInterval(async () => {
     try {
+        const config = getConfig();
+        const dds = config.dds || {};
+        const appurl = config.appurl;
+        const appport = config.appport;
+        const use_cert = config.use_cert;
+        
         const lpars = [];
         for (const lpar in dds) {
             if (dds[lpar].usePrometheus) {
@@ -129,7 +141,7 @@ setInterval(async () => {
     } catch (error)        {
         console.error('[Metrics] A critical error occurred in the scrape cycle:', error);
     }
-}, parseInt(rmf3interval) * 1000);
+}, parseInt(getConfig().rmf3interval || 100) * 1000);
 
 console.log("Prometheus scraping service started.");
 

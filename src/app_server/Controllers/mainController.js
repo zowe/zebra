@@ -3,13 +3,6 @@ const REPORTS = require("../../constants").REPORTS;
 const METRICDESCRIPTIONS = require("../../constants").METRICDESCRIPTIONS;
 const REPORTTYPE = require("../../constants").REPORTTYPE;
 
-let ddsconfig;
-try {
-  ddsconfig = require("../../config/Zconfig.json");
-} catch(e) {
-  console.error("Error loading Zconfig:", e);
-  ddsconfig = {};
-}
 function reloadZconfig() {
   const configPath = path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
   delete require.cache[require.resolve(configPath)];

@@ -1,22 +1,16 @@
 const axios = require('axios');
 var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the RMFMonitor3parser file
-//var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFPPparser file
-try{
-  var Zconfig = require("../../config/Zconfig.json");
-}catch(e){
-  var Zconfig = {};
-}
-let baseurl = Zconfig.ddsbaseurl;
-let baseport = Zconfig.ddsbaseport;
-let rmf3filename = Zconfig.rmf3filename;
-let mvsResource = Zconfig.mvsResource;
-let ddshttp = Zconfig.ddshhttptype;
-let lspr = Zconfig.PCI
-let ddsauth = Zconfig.ddsauth;
-let ddsid = Zconfig.ddsuser;
-let ddspass = Zconfig.ddspwd;
 const url = require('url');
 const debugConfig = require('../../config/debugConfig');
+
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("../../config/Zconfig.json");
+  } catch(e) {
+    return {};
+  }
+}
 
 // IMPORTANT: Set this to false to disable detailed RMF3 logging
 const ENABLE_RMF3_LOGGING = debugConfig.RMF3_DEBUG;

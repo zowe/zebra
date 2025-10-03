@@ -1,16 +1,14 @@
 const axios = require('axios');
 var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFMonitor3parser file
-try{
-  var ddsconfig = require("../../config/Zconfig.json");
-}catch(e){
-  var ddsconfig = {}
+
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("../../config/Zconfig.json");
+  } catch(e) {
+    return {};
+  }
 }
-var apiml_http_type = ddsconfig.apiml_http_type;
-var apiml_IP = ddsconfig.apiml_IP;
-var apiml_port = ddsconfig.apiml_port;
-var username = ddsconfig.apiml_username;
-var password = ddsconfig.apiml_password;
-var apiml_auth = ddsconfig.apiml_auth_type;
 
 /**
  * RMFPPgetRequest is the Function for Sending GET Request to RMF Monitor I (Post-Processor Report).
@@ -85,6 +83,11 @@ async function getAPIMLCookie(req, fn){
 }
 
 async function apimllogin(user, pass, fn){
+  const config = getConfig();
+  const apiml_http_type = config.apiml_http_type || 'https';
+  const apiml_IP = config.apiml_IP;
+  const apiml_port = config.apiml_port;
+  
   axios.post(`${apiml_http_type}://${apiml_IP}:${apiml_port}/api/v1/gateway/auth/login`, {
     "username": user,
     "password": pass
@@ -105,6 +108,11 @@ async function apimllogin(user, pass, fn){
 }
 
 async function apimlverification(req, fn){
+  const config = getConfig();
+  const apiml_auth = config.apiml_auth || 'bypass';
+  const username = config.apiml_username;
+  const password = config.apiml_password;
+  
   if(apiml_auth.toUpperCase() === "ZOWEJWT"){
     await getAPIMLCookie(req, async function(result){
       if(result.toUpperCase() != "NO COOKIE"){
@@ -130,6 +138,7 @@ async function apimlverification(req, fn){
 async function RMFIJSON(req, res, status){
   switch(status){
     case "OK" :
+      const ddsconfig = getConfig();
       var lpar = ddsconfig["dds"][req.params.lpar];
       var urlReportNumber, urlSvcCls, urlWlkd, urlTime, urlDuration, timestart, timeend;
       var urlReport = (req.params.report).toUpperCase(); //variable for report parameter in the User Specified URL

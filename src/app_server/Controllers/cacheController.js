@@ -216,7 +216,7 @@ async function startCache(req, res) {
     let databaseCreated = false;
 
     try {
-        const config = require('../../config/Zconfig.json');
+        const config = global.Zconfig || require('../../config/Zconfig.json');
         // Now use rmfmon1 config instead of hmai config
         const rmfmon1Config = config.dds[lpar].rmfmon1;
         
@@ -316,7 +316,7 @@ function startContinuousMonitoring(lpar, config) {
 
 async function clearDatabase(req, res) {
     const { lpar } = req.body;
-    const config = require('../../config/Zconfig.json');
+    const config = global.Zconfig || require('../../config/Zconfig.json');
     let connection;
 
     try {
@@ -378,7 +378,7 @@ function getRunningProcesses(req, res) {
 
 async function enforceDataRetention(connection, lpar) {
     try {
-        const config = require('../../config/Zconfig.json');
+        const config = global.Zconfig || require('../../config/Zconfig.json');
         const retentionDays = config.dds[lpar].rmfmon1.cache.dataRetention;
 
         if (retentionDays && retentionDays > 0) {

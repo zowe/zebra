@@ -1,13 +1,19 @@
-require('dotenv').config()
-const bcrypt = require('bcryptjs')
-const jwt = require("jsonwebtoken")
-var fs = require('fs'); //importing the fs module
+// Auth.js (Complete, Corrected Code)
 
-var sqlite3 = require('sqlite3');
+require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const sqlite3 = require('sqlite3');
+
+// Ensure the required environment variables are present on startup
+if (!process.env.ACCESS_TOKEN_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+    console.error("FATAL ERROR: ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET must be set in the .env file.");
+    process.exit(1); // Exit if secrets are not configured
+}
 
 const db = new sqlite3.Database('./admin.db');
 
-function updateAll(db,name, pwd, refresh, access) {
+function updateAll(db, name, pwd, refresh, access) {
     db.run("UPDATE adm SET name=$name, password=$pwd, refreshToken = $rtoken, accessToken= $atoken WHERE id = $id", {
         $id: 1,
         $name: name,
@@ -17,7 +23,7 @@ function updateAll(db,name, pwd, refresh, access) {
     });
 }
 
-function updateToken(db,refresh, access) {
+function updateToken(db, refresh, access) {
     db.run("UPDATE adm SET refreshToken = $rtoken, accessToken= $atoken WHERE id = $id", {
         $id: 1,
         $rtoken: refresh,
@@ -29,229 +35,201 @@ function runQueries(db, fn) {
     db.all(`
     select name, password, refreshToken, accessToken from adm 
     where id = ?`, 1, (err, rows) => {
-        if(err){
-            console.log(err)
-        }else{
-            fn(rows[0])
-        }
-   });  
-}
-
-module.exports.token = function(req, res){
-    if(Object.keys(Admin).length != 0){
-        const refreshtok = req.body.token;
-        try{
-            runQueries(db, function(data){
-                if (!(data.refreshToken).includes(refreshtok)) return res.sendStatus(403);
-                jwt.verify(refreshtok, process.env.REFRESH_TOKEN, (err, user) => {
-                    if (err) return res.sendStatus(403);
-                    const accessToken = generateAccessToken({name: user.name});
-                    res.json({accessToken: accessToken})
-                })
-            });
-            
-          }catch(err){
-              res.send("Token Generation Failed");
-          }
-    }
-}
-
-function generateAccessToken(user){
-    return jwt.sign({user:user}, process.env.ACCESS_TOKEN, {expiresIn: "15m"})
-}
-
-module.exports.authenticateToken =function (req,res, next) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
-    if(token == null) return res.status(401).send("")
-
-    jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-        if (err) return res.sendStatus(403).send("")
-        req.user = user
-        next();
-    }) 
-
-}
-
-module.exports.formRefreshToken = function(rtoken, usersname, fn){
-    var ress = {};
-    const refreshtok = rtoken;
-    if (refreshtok == null){
-        fn("null token")
-    } 
-    try{
-        runQueries(db, function(data){
-            if (!(data.refreshToken).includes(refreshtok)){
-                fn("wrong token")
-            } 
-            jwt.verify(refreshtok, process.env.REFRESH_TOKEN, (err, user) => {
-                if (err) {
-                }else{
-                    var username = {name: usersname};
-                    const accessToken = generateAccessToken(username);
-                    ress["Access"] = accessToken;
-                    ress["Refresh"] = rtoken;
-    
-                    fn(ress)
-                }
-                //res.json({accessToken: accessToken})
-            })
-        });
-        
-    }catch(err){
-        fn("Token Generation Failed");
-    }
-}
-
-module.exports.formToken = function(user, fn){
-    var res = {};
-    const username = {name: user};
-    const accessToken = generateAccessToken(username);
-    const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN);
-    updateToken(db, refreshToken, accessToken);
-    res["Access"] = accessToken;
-    res["Refresh"] = refreshToken;
-    //console.log("Adding referesh token saved succesfully from formToken");
-    fn(res);
-}
-
-//Login for UI Form
-module.exports.formLogin  = async function (req, res, next){
-    var accessToken;
-    var refreshToken;
-    runQueries(db, function(data){
-        try{
-            if(data.name == req.body.name && bcrypt.compareSync(req.body.password, data.password)){
-                if (bcrypt.compareSync('Admin', data.password)){
-                    res.render("login", {data: "pwd"})
-                }else{
-                    //Serialise User
-                    const username = {name: data.name};
-                    accessToken = generateAccessToken(username);
-                    refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN);
-                    updateToken(db, refreshToken, accessToken);
-                    req.session.name = req.body.name;
-                    req.session.password = data.password;
-                    //res.cookie(`ZAccToken`,`${accessToken}`);
-                    var redirectionUrl = req.session.redirectUrl;
-                    res.redirect(redirectionUrl);
-                    //next();
-                    //console.log("Adding referesh token saved succesfully from formLogin");
-                }
-            }else{
-                res.render("login", {lgmsg: "Login Failed"})
-            }
-        } catch(err){
-            res.render("login", {lgmsg: "Login Failed"})
-        }
-    });       
-}
-
-function wenv(act, rft, fn){ //write to .env file
-    fs.writeFile(".env", `ACCESS_TOKEN = ${act} \nREFRESH_TOKEN = ${rft}`, 'utf-8', function(err, data) {
-        if (err){
-            fn("error")
+        if (err || !rows || rows.length === 0) {
+            console.error("Error querying database or no admin user found:", err);
+            // Pass the error or null to the callback to handle it
+            fn(null, err); 
         } else {
-            fn("Success")
+            fn(rows[0]);
         }
-    })
-}
-//Update Paasword Form
-module.exports.updatePasswordForm = async function(req, res){
-    runQueries(db, function(data){
-        var user = null;
-        if(req.body.name != "Admin" && data.name == "Admin"){
-            user = {name: "Admin", password: data.password};
-        }
-        if(user == null){
-            user = {name: data.name, password: data.password};
-        }
-        username = req.body.name;
-        oldpassword  = 'Admin';
-        newpassword = req.body.newpassword;
-        cpassword = req.body.cpassword; 
-        try{
-            if ( bcrypt.compareSync(oldpassword, user.password) && newpassword === cpassword){
-                try{
-                    const Salt = bcrypt.genSaltSync()
-                    const hashedpassword = bcrypt.hashSync(newpassword, Salt)
-                    //const user = {name: data.name, password: hashedpassword}
-                    //Update ENV here
-                    wenv(req.body.act, req.body.rft, function(data1){
-                        if(data1 === "Success"){
-                            accessToken = generateAccessToken(username);
-                            refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN);
-                            updateAll(db,req.body.name, hashedpassword,refreshToken, accessToken);
-                            req.session.name = req.body.name;
-                            req.session.password = newpassword;
-                            var redirectionUrl = req.session.redirectUrl;
-                            res.redirect(redirectionUrl);
-                            //console.log("Adding referesh token saved succesfully from updatePassword");
-                        }else{
-                            res.render("login", {data: "pwd", cpmsg: "Failed to save data to .env file"})
-                        }
-                    })
-                }catch(err) {
-                    res.render("login", {data: "pwd", cpmsg: err})
-                }
-            }else{
-                res.render("login", {data: "pwd", cpmsg: "Password mismatch"})
-                //res.send("")
-            }
-        } catch(err){
-            res.render("login", {data: "pwd"})
-        }
-
     });
 }
 
-function tformToken(user, fn){
-    var res = {};
-    const username = {name: user};
+// Generates an access token using the static secret key
+function generateAccessToken(user) {
+    return jwt.sign({ user: user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
+}
+
+// Main token refresh endpoint
+module.exports.token = function(req, res) {
+    const refreshtok = req.body.token;
+    if (!refreshtok) {
+        return res.status(401).send("Refresh token required.");
+    }
+
+    runQueries(db, (data, err) => {
+        if (err || !data) return res.sendStatus(500);
+        if (data.refreshToken !== refreshtok) {
+            return res.status(403).send("Invalid refresh token.");
+        }
+
+        jwt.verify(refreshtok, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+            if (err) return res.status(403).send("Refresh token could not be verified.");
+            
+            const accessToken = generateAccessToken({ name: user.name });
+            res.json({ accessToken: accessToken });
+        });
+    });
+};
+
+// Middleware to authenticate an access token
+module.exports.authenticateToken = function(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
+// Logic to refresh a token from a form/UI action
+module.exports.formRefreshToken = function(rtoken, usersname, fn) {
+    if (rtoken == null) return fn("null token");
+
+    runQueries(db, (data, err) => {
+        if (err || !data) return fn("database error");
+        if (data.refreshToken !== rtoken) return fn("wrong token");
+
+        jwt.verify(rtoken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+            if (err) return fn("token verification failed");
+            
+            const username = { name: usersname };
+            const accessToken = generateAccessToken(username);
+            
+            fn({
+                Access: accessToken,
+                Refresh: rtoken
+            });
+        });
+    });
+};
+
+// Generates new tokens for a user session
+module.exports.formToken = function(user, fn) {
+    const username = { name: user };
     const accessToken = generateAccessToken(username);
-    const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN);
+    const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN_SECRET);
+
+    updateToken(db, refreshToken, accessToken);
+    
+    fn({
+        Access: accessToken,
+        Refresh: refreshToken
+    });
+};
+
+// Login logic for UI Form
+module.exports.formLogin = function(req, res, next) {
+    runQueries(db, (data, err) => {
+        if (err || !data) {
+            return res.status(500).render("login", { lgmsg: "Server error" });
+        }
+        
+        try {
+            if (data.name === req.body.name && bcrypt.compareSync(req.body.password, data.password)) {
+                // Check if user is still using the default password
+                if (bcrypt.compareSync('Admin', data.password)) {
+                    return res.render("login", { data: "pwd" }); // Force password change
+                }
+
+                const username = { name: data.name };
+                const accessToken = generateAccessToken(username);
+                const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN_SECRET);
+                
+                updateToken(db, refreshToken, accessToken);
+
+                req.session.name = req.body.name;
+                req.session.password = data.password; // Note: Storing password in session is not recommended
+
+                const redirectionUrl = req.session.redirectUrl || '/';
+                res.redirect(redirectionUrl);
+            } else {
+                res.render("login", { lgmsg: "Login Failed" });
+            }
+        } catch (e) {
+            console.error("Login process error:", e);
+            res.render("login", { lgmsg: "An unexpected error occurred" });
+        }
+    });
+};
+
+// Update Password logic for UI Form
+module.exports.updatePasswordForm = function(req, res) {
+    runQueries(db, (data, err) => {
+        if (err || !data) {
+            return res.status(500).render("login", { data: "pwd", cpmsg: "Could not retrieve user data" });
+        }
+
+        const oldpassword = 'Admin';
+        const newpassword = req.body.newpassword;
+        const cpassword = req.body.cpassword;
+
+        if (newpassword !== cpassword) {
+            return res.render("login", { data: "pwd", cpmsg: "New passwords do not match" });
+        }
+        
+        if (!bcrypt.compareSync(oldpassword, data.password)) {
+            return res.render("login", { data: "pwd", cpmsg: "Old password is not correct" });
+        }
+
+        try {
+            const salt = bcrypt.genSaltSync();
+            const hashedpassword = bcrypt.hashSync(newpassword, salt);
+            const username = { name: req.body.name };
+            
+            // Generate new tokens upon successful password change
+            const accessToken = generateAccessToken(username);
+            const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN_SECRET);
+
+            updateAll(db, req.body.name, hashedpassword, refreshToken, accessToken);
+
+            req.session.name = req.body.name;
+            req.session.password = hashedpassword; // Again, not ideal to store this
+
+            const redirectionUrl = req.session.redirectUrl || '/';
+            res.redirect(redirectionUrl);
+        } catch (e) {
+            console.error("Password update error:", e);
+            res.render("login", { data: "pwd", cpmsg: "Failed to update password" });
+        }
+    });
+};
+
+// Helper function for authenticating a form token (if needed elsewhere)
+function tformToken(user, fn) {
+    const res = {};
+    const username = { name: user };
+    const accessToken = generateAccessToken(username);
+    const refreshToken = jwt.sign(username, process.env.REFRESH_TOKEN_SECRET);
     updateToken(db, refreshToken, accessToken);
     res["Access"] = accessToken;
     res["Refresh"] = refreshToken;
-    //console.log("Adding referesh token saved succesfully from formToken");
     fn(res);
 }
 
-module.exports.authenticateFormToken =function (req,res, next) {
-    var token;
-    var refreshToken;
-    runQueries(db, function(data){
-        if(data.name == req.session.name && data.password == req.session.password){
-            token = data.accessToken; // get access token
-            refreshToken = data.refreshToken;
-            if(token == null){
-                tformToken(req.session.name, function(data1){
-                    if (data1.Access){
-                        //console.log("New token Created");
-                        next();
-                    }else{
-                        res.send(data1)
-                    }
-                })
-            }
+// Middleware to authenticate a token from a form session
+module.exports.authenticateFormToken = function(req, res, next) {
+    runQueries(db, (data, err) => {
+        if (err || !data) return res.send("Error Validating User");
 
-            jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-                if (err){
-                    tformToken(req.session.name, function(data2){
-                        if (data2.Access){
-                            //console.log("Forbidden. New token Created");
-                            next()
-                        }else{
-                            res.send(data2)
-                        }
-                    })
-                }else{
-                    //console.log("Token Active");
-                    next()
+        if (data.name === req.session.name) {
+            const token = data.accessToken;
+            if (!token) return res.sendStatus(401);
+
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+                if (err) {
+                    // This could be where you use the refresh token to get a new access token
+                    // For now, we'll just treat it as an expired session.
+                    return res.redirect('/log_in');
                 }
-            }) 
-        }else{
+                req.user = user;
+                next();
+            });
+        } else {
             res.send("Error Validating User");
         }
-    })
-}
+    });
+};

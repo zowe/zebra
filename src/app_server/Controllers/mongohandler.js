@@ -4,24 +4,31 @@ let procdoc = require("../Models/procdocSchema")
 let usagedoc = require("../Models/usagedocSchema")
 let wkldoc = require("../Models/workloaddocSchema")
 var MongoClient = require('mongodb').MongoClient;
-//var mongoose = require( 'mongoose' );
-//var url = "mongodb://localhost:27017/";
-try{
-    var Zconfig = require("../../config/Zconfig.json");
-}catch(e){
-    var Zconfig = {};
-}
-var mongourl = Zconfig['mongourl'] ;
-var mongoport = Zconfig['mongoport'] ;
-var dbname = Zconfig['dbname'];
-var dbauth = Zconfig['useDbAuth'];
-var dbuser = Zconfig['dbUser'];
-var dbpwd = Zconfig['dbPassword'];
-var dbinterval = Zconfig['dbinterval'];
-var authSource = Zconfig['authSource'];
 
-var dbURI = `mongodb://${mongourl}:${mongoport}/${dbname}`; //MongoDB URI with no authentication
-var dbURIAuth = `mongodb://${dbuser}:${dbpwd}@${mongourl}:${mongoport}/${dbname}?authMechanism=DEFAULT&authSource=${authSource}`; //MongoDB URI with authentication
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("../../config/Zconfig.json");
+  } catch(e) {
+    return {};
+  }
+}
+
+// Helper function to get database URIs
+function getDBURIs() {
+  const Zconfig = getConfig();
+  const mongourl = Zconfig['mongourl'];
+  const mongoport = Zconfig['mongoport'];
+  const dbname = Zconfig['dbname'];
+  const dbuser = Zconfig['dbUser'];
+  const dbpwd = Zconfig['dbPassword'];
+  const authSource = Zconfig['authSource'];
+  
+  return {
+    dbURI: `mongodb://${mongourl}:${mongoport}/${dbname}`,
+    dbURIAuth: `mongodb://${dbuser}:${dbpwd}@${mongourl}:${mongoport}/${dbname}?authMechanism=DEFAULT&authSource=${authSource}`
+  };
+}
 
 /**
  * mongoReport handles the presentation of MongoDB data in Zebra UI
@@ -76,6 +83,11 @@ module.exports.mongoReport = function(req, res) {
  * @param {Object} fn - returns the data stored in cpcactivities
  */
 function getDoc(collection, filter, fn){
+    const Zconfig = getConfig();
+    const dbauth = Zconfig['useDbAuth'];
+    const dbname = Zconfig['dbname'];
+    const { dbURI, dbURIAuth } = getDBURIs();
+    
     if (dbauth === 'true'){ // if user has specified database authentication
         MongoClient.connect(dbURIAuth, function(err, db) {
             var dbo = db.db(dbname); // use dbname from Zconfig file
@@ -147,6 +159,9 @@ function getDurationFilter(date, duration){
  * @param {String} time - the time of the report to return
  */
 function getTimeFilter(date, time){
+    const Zconfig = getConfig();
+    const dbinterval = Zconfig['dbinterval'];
+    
     var filterSplit = date.split("/") //split the filterdate using "/"
     var month =  ("0" + filterSplit[0]).slice(-2); //Month in the filterdate 
     var day = ("0" + filterSplit[1]).slice(-2); //Day in the filterdate 

@@ -1,14 +1,39 @@
 // app_server/Controllers/config.js
 /* GET Homepage*/
-var fs = require('fs'); //importing the fs module
-try{
-    var Zconfig = require("../../config/Zconfig");
-}catch(e){
-    var Zconfig = {};
+const fs = require('fs').promises; // Use promises version for async/await
+const fsSync = require('fs'); // Keep sync version for checks
+const path = require('path');
+const Auth = require('../../Auth');
+
+// Load initial Zconfig
+let Zconfig;
+try {
+  Zconfig = require("../../config/Zconfig");
+} catch(e) {
+  Zconfig = {};
 }
 
-var path = require("path");
-var  Auth = require('../../Auth');
+// Helper function to get config path
+function getConfigPath() {
+  return path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
+}
+
+// Helper function to reload Zconfig after changes
+function reloadZconfigModule() {
+  const configPath = getConfigPath();
+  try {
+    delete require.cache[require.resolve(configPath)];
+    Zconfig = require(configPath);
+    global.Zconfig = Zconfig;
+    if (global.reloadZconfig) {
+      global.Zconfig = global.reloadZconfig();
+    }
+    return Zconfig;
+  } catch (error) {
+    console.error("Error reloading Zconfig:", error);
+    return Zconfig;
+  }
+}
 
 module.exports.createZconfig = async function(req, res){
   var conf = {
@@ -98,44 +123,42 @@ module.exports.createZconfig = async function(req, res){
     "apiml_username": "username",
     "apiml_port": "10010",
     "apiml_auth_type": "bypass"
-  }
-  const configDir = path.join(__dirname, '..', '..', 'config');
-  const configPath = path.join(configDir, 'Zconfig.json');
+  };
   
-  // First, ensure the directory exists
-  fs.mkdir(configDir, { recursive: true }, (err) => {
-    if (err && err.code !== 'EEXIST') {
-      console.error("Error creating config directory:", err);
-      return res.status(500).json({ success: false, message: `Config directory creation failed: ${err.message}` });
+  const configDir = path.join(__dirname, '..', '..', 'config');
+  const configPath = getConfigPath();
+  
+  try {
+    // Ensure the directory exists
+    if (!fsSync.existsSync(configDir)) {
+      await fs.mkdir(configDir, { recursive: true });
     }
     
-    // Now, write the file
-    fs.writeFile(configPath, JSON.stringify(conf, null, '\t'), 'utf-8', (err) => {
-      if (err) {
-        console.error("Error creating Zconfig file:", err);
-        return res.status(500).json({ success: false, message: `Zconfig file Creation Failed: ${err.message}` });
-      }
-      
-      // Update the global Zconfig variable
-      global.Zconfig = conf;
-      delete require.cache[require.resolve('../../config/Zconfig.json')];
-      res.json({ success: true, message: `Zconfig file Created Successfully` });
-    });
-  });
+    // Write the file
+    await fs.writeFile(configPath, JSON.stringify(conf, null, '\t'), 'utf-8');
+    
+    // Update the global Zconfig variable
+    Zconfig = conf;
+    reloadZconfigModule();
+    
+    res.json({ success: true, message: `Zconfig file Created Successfully` });
+  } catch (err) {
+    console.error("Error creating Zconfig file:", err);
+    res.status(500).json({ success: false, message: `Zconfig file Creation Failed: ${err.message}` });
+  }
 };
-
-// try{
-//   fs.writeFile("./config/Zconfig.json", JSON.stringify(conf, null, '\t'), 'utf-8', function(err, data) {}); // Save all new/modified settings to Zconfig file
-//   res.send(`Zconfig file Created Successfully`); // Express returns JSON of the App settings from Zconfig.json file
-// }catch(e){
-//   res.send(`Zconfig file Creation Failed`);
-// }
 
 module.exports.updatedds = async function(req, res){ 
   try {
+    if (!Zconfig.dds) {
+      Zconfig.dds = {};
+    }
+    
     if (!Zconfig.dds[req.body.sysid]) {
       Zconfig.dds[req.body.sysid] = {};
     }
+    
+    // Merge the update into existing config
     Object.assign(Zconfig.dds[req.body.sysid], req.body.update);
     
     // Handle HMAI configuration update
@@ -152,6 +175,7 @@ module.exports.updatedds = async function(req, res){
         }
         Object.assign(Zconfig.dds[req.body.sysid].hmai.dataRetention, req.body.update.hmai.dataRetention);
       }
+      
       // Handle RMF MON I retention configuration
       if (req.body.update.hmai.rmfmon1Retention) {
         if (!Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention) {
@@ -167,14 +191,26 @@ module.exports.updatedds = async function(req, res){
         Zconfig.dds[req.body.sysid].hmre = {};
       }
       if (req.body.update.hmre.ftp) {
-        Zconfig.dds[req.body.sysid].hmre.ftp = req.body.update.hmre.ftp;
+        if (!Zconfig.dds[req.body.sysid].hmre.ftp) {
+          Zconfig.dds[req.body.sysid].hmre.ftp = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].hmre.ftp, req.body.update.hmre.ftp);
       }
       if (req.body.update.hmre.mysql) {
-        Zconfig.dds[req.body.sysid].hmre.mysql = req.body.update.hmre.mysql;
+        if (!Zconfig.dds[req.body.sysid].hmre.mysql) {
+          Zconfig.dds[req.body.sysid].hmre.mysql = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].hmre.mysql, req.body.update.hmre.mysql);
       }
-      Zconfig.dds[req.body.sysid].hmre.checkInterval = req.body.update.hmre.checkInterval;
-      Zconfig.dds[req.body.sysid].hmre.defaultStartDate = req.body.update.hmre.defaultStartDate;
-      Zconfig.dds[req.body.sysid].hmre.continuousMonitoring = req.body.update.hmre.continuousMonitoring;
+      if (req.body.update.hmre.checkInterval !== undefined) {
+        Zconfig.dds[req.body.sysid].hmre.checkInterval = req.body.update.hmre.checkInterval;
+      }
+      if (req.body.update.hmre.defaultStartDate !== undefined) {
+        Zconfig.dds[req.body.sysid].hmre.defaultStartDate = req.body.update.hmre.defaultStartDate;
+      }
+      if (req.body.update.hmre.continuousMonitoring !== undefined) {
+        Zconfig.dds[req.body.sysid].hmre.continuousMonitoring = req.body.update.hmre.continuousMonitoring;
+      }
       
       // Handle data retention configuration
       if (req.body.update.hmre.dataRetention) {
@@ -191,14 +227,26 @@ module.exports.updatedds = async function(req, res){
         Zconfig.dds[req.body.sysid].dcol = {};
       }
       if (req.body.update.dcol.ftp) {
-        Zconfig.dds[req.body.sysid].dcol.ftp = req.body.update.dcol.ftp;
+        if (!Zconfig.dds[req.body.sysid].dcol.ftp) {
+          Zconfig.dds[req.body.sysid].dcol.ftp = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].dcol.ftp, req.body.update.dcol.ftp);
       }
       if (req.body.update.dcol.mysql) {
-        Zconfig.dds[req.body.sysid].dcol.mysql = req.body.update.dcol.mysql;
+        if (!Zconfig.dds[req.body.sysid].dcol.mysql) {
+          Zconfig.dds[req.body.sysid].dcol.mysql = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].dcol.mysql, req.body.update.dcol.mysql);
       }
-      Zconfig.dds[req.body.sysid].dcol.checkInterval = req.body.update.dcol.checkInterval;
-      Zconfig.dds[req.body.sysid].dcol.defaultStartDate = req.body.update.dcol.defaultStartDate;
-      Zconfig.dds[req.body.sysid].dcol.continuousMonitoring = req.body.update.dcol.continuousMonitoring;
+      if (req.body.update.dcol.checkInterval !== undefined) {
+        Zconfig.dds[req.body.sysid].dcol.checkInterval = req.body.update.dcol.checkInterval;
+      }
+      if (req.body.update.dcol.defaultStartDate !== undefined) {
+        Zconfig.dds[req.body.sysid].dcol.defaultStartDate = req.body.update.dcol.defaultStartDate;
+      }
+      if (req.body.update.dcol.continuousMonitoring !== undefined) {
+        Zconfig.dds[req.body.sysid].dcol.continuousMonitoring = req.body.update.dcol.continuousMonitoring;
+      }
       
       // Handle data retention configuration
       if (req.body.update.dcol.dataRetention) {
@@ -216,26 +264,25 @@ module.exports.updatedds = async function(req, res){
       }
       // Handle Cache configuration
       if (req.body.update.rmfmon1.cache) {
-        if (!Zconfig.dds[req.body.sysid].rmfmon1.cache) {
-          Zconfig.dds[req.body.sysid].rmfmon1.cache = {};
-        }
         Zconfig.dds[req.body.sysid].rmfmon1.cache = req.body.update.rmfmon1.cache;
       }
       // Handle Device configuration
       if (req.body.update.rmfmon1.device) {
-        if (!Zconfig.dds[req.body.sysid].rmfmon1.device) {
-          Zconfig.dds[req.body.sysid].rmfmon1.device = {};
-        }
         Zconfig.dds[req.body.sysid].rmfmon1.device = req.body.update.rmfmon1.device;
       }
       // Handle MySQL config
       if (req.body.update.rmfmon1.mysql) {
-        Zconfig.dds[req.body.sysid].rmfmon1.mysql = req.body.update.rmfmon1.mysql;
+        if (!Zconfig.dds[req.body.sysid].rmfmon1.mysql) {
+          Zconfig.dds[req.body.sysid].rmfmon1.mysql = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].rmfmon1.mysql, req.body.update.rmfmon1.mysql);
       }
     }
     
-    await fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8');
-    global.Zconfig = global.reloadZconfig();
+    const configPath = getConfigPath();
+    await fs.writeFile(configPath, JSON.stringify(Zconfig, null, '\t'), 'utf-8');
+    reloadZconfigModule();
+    
     res.send(`${req.body.sysid} Details Updated Successfully`);
   } catch(e) {
     console.error(`Error updating ${req.body.sysid} Details:`, e);
@@ -245,85 +292,112 @@ module.exports.updatedds = async function(req, res){
 
 module.exports.savedds = async function(req, res) {
   try {
-    if (!global.Zconfig.dds) {
-      global.Zconfig.dds = {};
+    if (!Zconfig.dds) {
+      Zconfig.dds = {};
     }
-    global.Zconfig.dds[req.body.sysid] = req.body.update;
+    
+    // Replace the entire DDS entry with the new update
+    Zconfig.dds[req.body.sysid] = req.body.update;
     
     // Handle HMAI configuration
     if (req.body.update.hmai) {
-      if (!global.Zconfig.dds[req.body.sysid].hmai) {
-        global.Zconfig.dds[req.body.sysid].hmai = {};
+      if (!Zconfig.dds[req.body.sysid].hmai) {
+        Zconfig.dds[req.body.sysid].hmai = {};
       }
-      Object.assign(global.Zconfig.dds[req.body.sysid].hmai, req.body.update.hmai);
+      Object.assign(Zconfig.dds[req.body.sysid].hmai, req.body.update.hmai);
       
       // Handle data retention configuration
       if (req.body.update.hmai.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmai.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].hmai.dataRetention = {};
+        if (!Zconfig.dds[req.body.sysid].hmai.dataRetention) {
+          Zconfig.dds[req.body.sysid].hmai.dataRetention = {};
         }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmai.dataRetention, req.body.update.hmai.dataRetention);
+        Object.assign(Zconfig.dds[req.body.sysid].hmai.dataRetention, req.body.update.hmai.dataRetention);
       }
+      
       // Handle RMF MON I retention configuration
       if (req.body.update.hmai.rmfmon1Retention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention) {
-          global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention = {};
+        if (!Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention) {
+          Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention = {};
         }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention, req.body.update.hmai.rmfmon1Retention);
+        Object.assign(Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention, req.body.update.hmai.rmfmon1Retention);
       }
     }
 
     // Handle HMRE configuration
     if (req.body.update.hmre) {
-      if (!global.Zconfig.dds[req.body.sysid].hmre) {
-        global.Zconfig.dds[req.body.sysid].hmre = {};
+      if (!Zconfig.dds[req.body.sysid].hmre) {
+        Zconfig.dds[req.body.sysid].hmre = {};
       }
       if (req.body.update.hmre.ftp) {
-        global.Zconfig.dds[req.body.sysid].hmre.ftp = req.body.update.hmre.ftp;
+        if (!Zconfig.dds[req.body.sysid].hmre.ftp) {
+          Zconfig.dds[req.body.sysid].hmre.ftp = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].hmre.ftp, req.body.update.hmre.ftp);
       }
       if (req.body.update.hmre.mysql) {
-        global.Zconfig.dds[req.body.sysid].hmre.mysql = req.body.update.hmre.mysql;
+        if (!Zconfig.dds[req.body.sysid].hmre.mysql) {
+          Zconfig.dds[req.body.sysid].hmre.mysql = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].hmre.mysql, req.body.update.hmre.mysql);
       }
-      global.Zconfig.dds[req.body.sysid].hmre.checkInterval = req.body.update.hmre.checkInterval;
-      global.Zconfig.dds[req.body.sysid].hmre.defaultStartDate = req.body.update.hmre.defaultStartDate;
-      global.Zconfig.dds[req.body.sysid].hmre.continuousMonitoring = req.body.update.hmre.continuousMonitoring;
+      if (req.body.update.hmre.checkInterval !== undefined) {
+        Zconfig.dds[req.body.sysid].hmre.checkInterval = req.body.update.hmre.checkInterval;
+      }
+      if (req.body.update.hmre.defaultStartDate !== undefined) {
+        Zconfig.dds[req.body.sysid].hmre.defaultStartDate = req.body.update.hmre.defaultStartDate;
+      }
+      if (req.body.update.hmre.continuousMonitoring !== undefined) {
+        Zconfig.dds[req.body.sysid].hmre.continuousMonitoring = req.body.update.hmre.continuousMonitoring;
+      }
       
       // Handle data retention configuration
       if (req.body.update.hmre.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmre.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].hmre.dataRetention = {};
+        if (!Zconfig.dds[req.body.sysid].hmre.dataRetention) {
+          Zconfig.dds[req.body.sysid].hmre.dataRetention = {};
         }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmre.dataRetention, req.body.update.hmre.dataRetention);
+        Object.assign(Zconfig.dds[req.body.sysid].hmre.dataRetention, req.body.update.hmre.dataRetention);
       }
     }
 
     // Handle DCOL configuration
     if (req.body.update.dcol) {
-      if (!global.Zconfig.dds[req.body.sysid].dcol) {
-        global.Zconfig.dds[req.body.sysid].dcol = {};
+      if (!Zconfig.dds[req.body.sysid].dcol) {
+        Zconfig.dds[req.body.sysid].dcol = {};
       }
       if (req.body.update.dcol.ftp) {
-        global.Zconfig.dds[req.body.sysid].dcol.ftp = req.body.update.dcol.ftp;
+        if (!Zconfig.dds[req.body.sysid].dcol.ftp) {
+          Zconfig.dds[req.body.sysid].dcol.ftp = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].dcol.ftp, req.body.update.dcol.ftp);
       }
       if (req.body.update.dcol.mysql) {
-        global.Zconfig.dds[req.body.sysid].dcol.mysql = req.body.update.dcol.mysql;
+        if (!Zconfig.dds[req.body.sysid].dcol.mysql) {
+          Zconfig.dds[req.body.sysid].dcol.mysql = {};
+        }
+        Object.assign(Zconfig.dds[req.body.sysid].dcol.mysql, req.body.update.dcol.mysql);
       }
-      global.Zconfig.dds[req.body.sysid].dcol.checkInterval = req.body.update.dcol.checkInterval;
-      global.Zconfig.dds[req.body.sysid].dcol.defaultStartDate = req.body.update.dcol.defaultStartDate;
-      global.Zconfig.dds[req.body.sysid].dcol.continuousMonitoring = req.body.update.dcol.continuousMonitoring;
+      if (req.body.update.dcol.checkInterval !== undefined) {
+        Zconfig.dds[req.body.sysid].dcol.checkInterval = req.body.update.dcol.checkInterval;
+      }
+      if (req.body.update.dcol.defaultStartDate !== undefined) {
+        Zconfig.dds[req.body.sysid].dcol.defaultStartDate = req.body.update.dcol.defaultStartDate;
+      }
+      if (req.body.update.dcol.continuousMonitoring !== undefined) {
+        Zconfig.dds[req.body.sysid].dcol.continuousMonitoring = req.body.update.dcol.continuousMonitoring;
+      }
       
       // Handle data retention configuration
       if (req.body.update.dcol.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].dcol.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].dcol.dataRetention = {};
+        if (!Zconfig.dds[req.body.sysid].dcol.dataRetention) {
+          Zconfig.dds[req.body.sysid].dcol.dataRetention = {};
         }
-        Object.assign(global.Zconfig.dds[req.body.sysid].dcol.dataRetention, req.body.update.dcol.dataRetention);
+        Object.assign(Zconfig.dds[req.body.sysid].dcol.dataRetention, req.body.update.dcol.dataRetention);
       }
     }
     
-    const configPath = path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
-    await fs.writeFile(configPath, JSON.stringify(global.Zconfig, null, '\t'), 'utf-8');
-    global.Zconfig = global.reloadZconfig();
+    const configPath = getConfigPath();
+    await fs.writeFile(configPath, JSON.stringify(Zconfig, null, '\t'), 'utf-8');
+    reloadZconfigModule();
     
     res.send(`${req.body.sysid} Details Saved Successfully`);
   } catch(e) {
@@ -333,14 +407,18 @@ module.exports.savedds = async function(req, res) {
 };
 
 module.exports.deletedds = async function(req, res){ 
-    try{
-        delete Zconfig.dds[`${req.body.sysid}`];
-        fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {}); // Save all new/modified settings to Zconfig file
-        res.send(`${req.body.sysid} Details Deleted Successfully`); // Express returns JSON of the App settings from Zconfig.json file
-    }catch(e){
-        res.send(`${req.body.sysid} Details Deletion Failed`);
-    }
-
+  try {
+    delete Zconfig.dds[`${req.body.sysid}`];
+    
+    const configPath = getConfigPath();
+    await fs.writeFile(configPath, JSON.stringify(Zconfig, null, '\t'), 'utf-8');
+    reloadZconfigModule();
+    
+    res.send(`${req.body.sysid} Details Deleted Successfully`);
+  } catch(e) {
+    console.error(`Error deleting ${req.body.sysid} Details:`, e);
+    res.status(500).send(`${req.body.sysid} Details Deletion Failed`);
+  }
 };
 
 /**  
@@ -349,19 +427,25 @@ module.exports.deletedds = async function(req, res){
  * Example: /addSettings?appurl=salisuali.com&appport=3009                                     
  * Endpoint can take multiple parameters recognised by the addSettings Function                
  */
-module.exports.updateconfig = function(req, res) {
+module.exports.updateconfig = async function(req, res) {
   try {
     var queryParameterKeys = Object.keys(req.body);
+    
     for (var i in queryParameterKeys) {
       var parameterKey = queryParameterKeys[i];
+      
       if (parameterKey === 'dds') {
         Object.keys(req.body.dds).forEach(lpar => {
+          // Ensure lpar exists in Zconfig
+          if (!Zconfig.dds) {
+            Zconfig.dds = {};
+          }
+          if (!Zconfig.dds[lpar]) {
+            Zconfig.dds[lpar] = {};
+          }
+          
           // Handle HMAI configuration
           if (req.body.dds[lpar] && req.body.dds[lpar].hmai) {
-            // Handle HMAI configuration
-            if (!Zconfig.dds[lpar]) {
-              Zconfig.dds[lpar] = {};
-            }
             if (!Zconfig.dds[lpar].hmai) {
               Zconfig.dds[lpar].hmai = {};
             }
@@ -379,26 +463,30 @@ module.exports.updateconfig = function(req, res) {
               Zconfig.dds[lpar].hmai.mysql.user = req.body.dds[lpar].hmai.mysql.user || Zconfig.dds[lpar].hmai.mysql.user;
               Zconfig.dds[lpar].hmai.mysql.password = req.body.dds[lpar].hmai.mysql.password || Zconfig.dds[lpar].hmai.mysql.password;
             }
+            
+            // Update data retention
             if (req.body.dds[lpar].hmai.dataRetention) {
               Zconfig.dds[lpar].hmai.dataRetention = Zconfig.dds[lpar].hmai.dataRetention || {};
-              Zconfig.dds[lpar].hmai.dataRetention.clpr = req.body.dds[lpar].hmai.dataRetention.clpr || Zconfig.dds[lpar].hmai.dataRetention.clpr;
-              Zconfig.dds[lpar].hmai.dataRetention.ldev = req.body.dds[lpar].hmai.dataRetention.ldev || Zconfig.dds[lpar].hmai.dataRetention.ldev;
-              Zconfig.dds[lpar].hmai.dataRetention.mpb = req.body.dds[lpar].hmai.dataRetention.mpb || Zconfig.dds[lpar].hmai.dataRetention.mpb;
-              Zconfig.dds[lpar].hmai.dataRetention.mprank20 = req.body.dds[lpar].hmai.dataRetention.mprank20 || Zconfig.dds[lpar].hmai.dataRetention.mprank20;
-              Zconfig.dds[lpar].hmai.dataRetention.pgrp = req.body.dds[lpar].hmai.dataRetention.pgrp || Zconfig.dds[lpar].hmai.dataRetention.pgrp;
-              Zconfig.dds[lpar].hmai.dataRetention.port = req.body.dds[lpar].hmai.dataRetention.port || Zconfig.dds[lpar].hmai.dataRetention.port;
+              Object.assign(Zconfig.dds[lpar].hmai.dataRetention, req.body.dds[lpar].hmai.dataRetention);
             }
             
             // Update other HMAI fields
-            Zconfig.dds[lpar].hmai.checkInterval = req.body.dds[lpar].hmai.checkInterval || Zconfig.dds[lpar].hmai.checkInterval;
-            Zconfig.dds[lpar].hmai.defaultStartDate = req.body.dds[lpar].hmai.defaultStartDate || Zconfig.dds[lpar].hmai.defaultStartDate;
-            Zconfig.dds[lpar].hmai.continuousMonitoring = req.body.dds[lpar].hmai.continuousMonitoring !== undefined ? req.body.dds[lpar].hmai.continuousMonitoring : Zconfig.dds[lpar].hmai.continuousMonitoring;
+            if (req.body.dds[lpar].hmai.checkInterval !== undefined) {
+              Zconfig.dds[lpar].hmai.checkInterval = req.body.dds[lpar].hmai.checkInterval;
+            }
+            if (req.body.dds[lpar].hmai.defaultStartDate !== undefined) {
+              Zconfig.dds[lpar].hmai.defaultStartDate = req.body.dds[lpar].hmai.defaultStartDate;
+            }
+            if (req.body.dds[lpar].hmai.continuousMonitoring !== undefined) {
+              Zconfig.dds[lpar].hmai.continuousMonitoring = req.body.dds[lpar].hmai.continuousMonitoring;
+            }
           }
 
           // Handle HMRE configuration
           if (req.body.dds[lpar] && req.body.dds[lpar].hmre) {
-            if (!Zconfig.dds[lpar]) Zconfig.dds[lpar] = {};
-            if (!Zconfig.dds[lpar].hmre) Zconfig.dds[lpar].hmre = {};
+            if (!Zconfig.dds[lpar].hmre) {
+              Zconfig.dds[lpar].hmre = {};
+            }
 
             // Update FTP directory
             if (req.body.dds[lpar].hmre.ftp && req.body.dds[lpar].hmre.ftp.directory) {
@@ -413,15 +501,22 @@ module.exports.updateconfig = function(req, res) {
             }
 
             // Update other HMRE fields
-            Zconfig.dds[lpar].hmre.checkInterval = req.body.dds[lpar].hmre.checkInterval || Zconfig.dds[lpar].hmre.checkInterval;
-            Zconfig.dds[lpar].hmre.defaultStartDate = req.body.dds[lpar].hmre.defaultStartDate || Zconfig.dds[lpar].hmre.defaultStartDate;
-            Zconfig.dds[lpar].hmre.continuousMonitoring = req.body.dds[lpar].hmre.continuousMonitoring !== undefined ? req.body.dds[lpar].hmre.continuousMonitoring : Zconfig.dds[lpar].hmre.continuousMonitoring;
+            if (req.body.dds[lpar].hmre.checkInterval !== undefined) {
+              Zconfig.dds[lpar].hmre.checkInterval = req.body.dds[lpar].hmre.checkInterval;
+            }
+            if (req.body.dds[lpar].hmre.defaultStartDate !== undefined) {
+              Zconfig.dds[lpar].hmre.defaultStartDate = req.body.dds[lpar].hmre.defaultStartDate;
+            }
+            if (req.body.dds[lpar].hmre.continuousMonitoring !== undefined) {
+              Zconfig.dds[lpar].hmre.continuousMonitoring = req.body.dds[lpar].hmre.continuousMonitoring;
+            }
           }
 
           // Handle DCOL configuration
           if (req.body.dds[lpar] && req.body.dds[lpar].dcol) {
-            if (!Zconfig.dds[lpar]) Zconfig.dds[lpar] = {};
-            if (!Zconfig.dds[lpar].dcol) Zconfig.dds[lpar].dcol = {};
+            if (!Zconfig.dds[lpar].dcol) {
+              Zconfig.dds[lpar].dcol = {};
+            }
 
             // Update FTP directory
             if (req.body.dds[lpar].dcol.ftp && req.body.dds[lpar].dcol.ftp.directory) {
@@ -436,13 +531,19 @@ module.exports.updateconfig = function(req, res) {
             }
 
             // Update other DCOL fields
-            Zconfig.dds[lpar].dcol.checkInterval = req.body.dds[lpar].dcol.checkInterval || Zconfig.dds[lpar].dcol.checkInterval;
-            Zconfig.dds[lpar].dcol.defaultStartDate = req.body.dds[lpar].dcol.defaultStartDate || Zconfig.dds[lpar].dcol.defaultStartDate;
-            Zconfig.dds[lpar].dcol.continuousMonitoring = req.body.dds[lpar].dcol.continuousMonitoring !== undefined ? req.body.dds[lpar].dcol.continuousMonitoring : Zconfig.dds[lpar].dcol.continuousMonitoring;
+            if (req.body.dds[lpar].dcol.checkInterval !== undefined) {
+              Zconfig.dds[lpar].dcol.checkInterval = req.body.dds[lpar].dcol.checkInterval;
+            }
+            if (req.body.dds[lpar].dcol.defaultStartDate !== undefined) {
+              Zconfig.dds[lpar].dcol.defaultStartDate = req.body.dds[lpar].dcol.defaultStartDate;
+            }
+            if (req.body.dds[lpar].dcol.continuousMonitoring !== undefined) {
+              Zconfig.dds[lpar].dcol.continuousMonitoring = req.body.dds[lpar].dcol.continuousMonitoring;
+            }
           }
         });
-      }else {
-        // Handle other configuration fields as before
+      } else {
+        // Handle other configuration fields
         switch(parameterKey) {
           case "apimlpwd":
             Zconfig['apiml_password'] = req.body.apimlpwd;
@@ -450,662 +551,82 @@ module.exports.updateconfig = function(req, res) {
           case "mongourl":
             Zconfig['mongourl'] = req.body.mongourl;
             break;
-        case "mongoport": //if user specify a value for mongoport parameter in the URL
-        Zconfig['mongoport'] = req.body.mongoport; // Change/add mongoport key to Zconfig file, with the value specified by user for mongoport 
-        break;
-      case "dbname": //if user specify a value for dbname parameter in the URL
-        Zconfig['dbname'] = req.body.dbname; // Change/add dbname key to Zconfig file, with the value specified by user for dbname
-        break;
-      case "dbinterval": //if user specify a value for dbinterval parameter in the URL
-        Zconfig['dbinterval'] = req.body.dbinterval; // Change/add dbinterval key to Zconfig file, with the value specified by user for dbinterval 
-        break;
-      case "appurl": //if user specify a value for appurl parameter in the URL
-        Zconfig['appurl'] = req.body.appurl; // Change/add appurl key to Zconfig file, with the value specified by user for appurl 
-        break;
-      case "appport": //if user specify a value for appport parameter in the URL
-        Zconfig['appport'] = req.body.appport; // Change/add appport key to Zconfig file, with the value specified by user for appport 
-        break;
-      case "apimluser": //if user specify a value for rmf3filename parameter in the URL
-        Zconfig['apiml_username'] = req.body.apimluser; // Change/add rmf3filename key to Zconfig file, with the value specified by user for dbinterval 
-        break;
-      case "usecert": //if user specify a value for rmfppfilename parameter in the URL
-        Zconfig['use_cert'] = req.body.usecert; // Change/add rmfppfilename key to Zconfig file, with the value specified by user for rmfppfilename 
-        break;
-      case "grafanahttp": //if user specify a value for mvsResource parameter in the URL
-        Zconfig['grafanahttptype'] = req.body.grafanahttp; // Change/add mvsResource key to Zconfig file, with the value specified by user for mvsResource
-        break;
-      case "rmf3interval": //if user specify a value for rmf3interval parameter in the URL
-        Zconfig['rmf3interval'] = req.body.rmf3interval; // Change/add rmf3interval key to Zconfig file, with the value specified by user for rmf3interval 
-        break;
-      case "ppminutesInterval": //if user specify a value for ppminutesInterval parameter in the URL
-      Zconfig['ppminutesInterval'] = req.body.ppminutesInterval; // Change/add ppminutesInterval key to Zconfig file, with the value specified by user for ppminutesInterval 
-        break;
-      case "httptype": //if user specify a value for httptype parameter in the URL
-      Zconfig['zebra_httptype'] = req.body.httptype; // Change/add httptype key to Zconfig file, with the value specified by user for httptype 
-        break;
-      case "useDbAuth": //if user specify a value for useDbAuth parameter in the URL
-      Zconfig['useDbAuth'] = req.body.useDbAuth; // Change/add useDbAuth key to Zconfig file, with the value specified by user for useDbAuth 
-        break;
-      case "dbUser": //if user specify a value for dbUser parameter in the URL
-        Zconfig['dbUser'] = req.body.dbUser; // Change/add dbUser key to Zconfig file, with the value specified by user for dbUser
-        break;
-      case "dbPassword": //if user specify a value for dbPassword parameter in the URL
-        Zconfig['dbPassword'] = req.body.dbPassword; // Change/add dbPassword key to Zconfig file, with the value specified by user for dbPassword 
-        break;
-      case "authSource": //if user specify a value for authSource parameter in the URL
-        Zconfig['authSource'] = req.body.authSource; // Change/add authSource key to Zconfig file, with the value specified by user for authSource
-        break;
-      case "apimlhttp": //if user specify a value for useMongo parameter in the URL
-        Zconfig['apiml_http_type'] = req.body.apimlhttp; // Change/add useMongo key to Zconfig file, with the value specified by user for useMongo 
-        break;
-      case "apimlIP": //if user specify a value for usePrometheus parameter in the URL
-      Zconfig['apiml_IP'] = req.body.apimlIP; // Change/add usePrometheus key to Zconfig file, with the value specified by user for usePrometheus
-        break;
-      case "grafanaurl": //if user specify a value for grafanaurl parameter in the URL
-      Zconfig['grafanaurl'] = req.body.grafanaurl; // Change/add grafanaurl key to Zconfig file, with the value specified by user for grafanaurl
-        break;
-      case "grafanaport": //if user specify a value for grafanaport parameter in the URL
-      Zconfig['grafanaport'] = req.body.grafanaport; // Change/add grafanaport key to Zconfig file, with the value specified by user for grafanaport
-        break;
-      case "apimlport": //if user specify a value for grafanaurl parameter in the URL
-        Zconfig['apiml_port'] = req.body.apimlport; // Change/add grafanaurl key to Zconfig file, with the value specified by user for grafanaurl
-          break;
-      case "apimlauth": //if user specify a value for grafanaport parameter in the URL
-        Zconfig['apiml_auth_type'] = req.body.apimlauth; // Change/add grafanaport key to Zconfig file, with the value specified by user for grafanaport
-          break;
+          case "mongoport":
+            Zconfig['mongoport'] = req.body.mongoport;
+            break;
+          case "dbname":
+            Zconfig['dbname'] = req.body.dbname;
+            break;
+          case "dbinterval":
+            Zconfig['dbinterval'] = req.body.dbinterval;
+            break;
+          case "appurl":
+            Zconfig['appurl'] = req.body.appurl;
+            break;
+          case "appport":
+            Zconfig['appport'] = req.body.appport;
+            break;
+          case "apimluser":
+            Zconfig['apiml_username'] = req.body.apimluser;
+            break;
+          case "usecert":
+            Zconfig['use_cert'] = req.body.usecert;
+            break;
+          case "grafanahttp":
+            Zconfig['grafanahttptype'] = req.body.grafanahttp;
+            break;
+          case "rmf3interval":
+            Zconfig['rmf3interval'] = req.body.rmf3interval;
+            break;
+          case "ppminutesInterval":
+            Zconfig['ppminutesInterval'] = req.body.ppminutesInterval;
+            break;
+          case "httptype":
+            Zconfig['zebra_httptype'] = req.body.httptype;
+            break;
+          case "useDbAuth":
+            Zconfig['useDbAuth'] = req.body.useDbAuth;
+            break;
+          case "dbUser":
+            Zconfig['dbUser'] = req.body.dbUser;
+            break;
+          case "dbPassword":
+            Zconfig['dbPassword'] = req.body.dbPassword;
+            break;
+          case "authSource":
+            Zconfig['authSource'] = req.body.authSource;
+            break;
+          case "apimlhttp":
+            Zconfig['apiml_http_type'] = req.body.apimlhttp;
+            break;
+          case "apimlIP":
+            Zconfig['apiml_IP'] = req.body.apimlIP;
+            break;
+          case "grafanaurl":
+            Zconfig['grafanaurl'] = req.body.grafanaurl;
+            break;
+          case "grafanaport":
+            Zconfig['grafanaport'] = req.body.grafanaport;
+            break;
+          case "apimlport":
+            Zconfig['apiml_port'] = req.body.apimlport;
+            break;
+          case "apimlauth":
+            Zconfig['apiml_auth_type'] = req.body.apimlauth;
+            break;
         }
       }
     }
     
-    fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {
-      if (err) {
-        console.error("Error writing to Zconfig.json:", err);
-        res.status(500).send("Error updating Zconfig");
-      } else {
-        global.Zconfig = global.reloadZconfig(); 
-        res.send("Zconfig Updated!");
-      }
-    });
+    const configPath = getConfigPath();
+    await fs.writeFile(configPath, JSON.stringify(Zconfig, null, '\t'), 'utf-8');
+    reloadZconfigModule();
+    
+    res.send("Zconfig Updated!");
   } catch (error) {
     console.error("Error in updateconfig:", error);
     res.status(500).send("Error updating configuration");
   }
 };
 
-module.exports.savedds = async function(req, res) {
-  try {
-    if (!global.Zconfig.dds) {
-      global.Zconfig.dds = {};
-    }
-    global.Zconfig.dds[req.body.sysid] = req.body.update;
-    
-    // Handle HMAI configuration
-    if (req.body.update.hmai) {
-      if (!global.Zconfig.dds[req.body.sysid].hmai) {
-        global.Zconfig.dds[req.body.sysid].hmai = {};
-      }
-      Object.assign(global.Zconfig.dds[req.body.sysid].hmai, req.body.update.hmai);
-      
-      // Handle data retention configuration
-      if (req.body.update.hmai.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmai.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].hmai.dataRetention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmai.dataRetention, req.body.update.hmai.dataRetention);
-      }
-      // Handle RMF MON I retention configuration
-      if (req.body.update.hmai.rmfmon1Retention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention) {
-          global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention, req.body.update.hmai.rmfmon1Retention);
-      }
-    }
 
-    // Handle HMRE configuration
-    if (req.body.update.hmre) {
-      if (!global.Zconfig.dds[req.body.sysid].hmre) {
-        global.Zconfig.dds[req.body.sysid].hmre = {};
-      }
-      if (req.body.update.hmre.ftp) {
-        global.Zconfig.dds[req.body.sysid].hmre.ftp = req.body.update.hmre.ftp;
-      }
-      if (req.body.update.hmre.mysql) {
-        global.Zconfig.dds[req.body.sysid].hmre.mysql = req.body.update.hmre.mysql;
-      }
-      global.Zconfig.dds[req.body.sysid].hmre.checkInterval = req.body.update.hmre.checkInterval;
-      global.Zconfig.dds[req.body.sysid].hmre.defaultStartDate = req.body.update.hmre.defaultStartDate;
-      global.Zconfig.dds[req.body.sysid].hmre.continuousMonitoring = req.body.update.hmre.continuousMonitoring;
-      
-      // Handle data retention configuration
-      if (req.body.update.hmre.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmre.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].hmre.dataRetention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmre.dataRetention, req.body.update.hmre.dataRetention);
-      }
-    }
-
-    // Handle DCOL configuration
-    if (req.body.update.dcol) {
-      if (!global.Zconfig.dds[req.body.sysid].dcol) {
-        global.Zconfig.dds[req.body.sysid].dcol = {};
-      }
-      if (req.body.update.dcol.ftp) {
-        global.Zconfig.dds[req.body.sysid].dcol.ftp = req.body.update.dcol.ftp;
-      }
-      if (req.body.update.dcol.mysql) {
-        global.Zconfig.dds[req.body.sysid].dcol.mysql = req.body.update.dcol.mysql;
-      }
-      global.Zconfig.dds[req.body.sysid].dcol.checkInterval = req.body.update.dcol.checkInterval;
-      global.Zconfig.dds[req.body.sysid].dcol.defaultStartDate = req.body.update.dcol.defaultStartDate;
-      global.Zconfig.dds[req.body.sysid].dcol.continuousMonitoring = req.body.update.dcol.continuousMonitoring;
-      
-      // Handle data retention configuration
-      if (req.body.update.dcol.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].dcol.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].dcol.dataRetention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].dcol.dataRetention, req.body.update.dcol.dataRetention);
-      }
-    }
-    
-    const configPath = path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
-    await fs.writeFile(configPath, JSON.stringify(global.Zconfig, null, '\t'), 'utf-8');
-    global.Zconfig = global.reloadZconfig();
-    
-    res.send(`${req.body.sysid} Details Saved Successfully`);
-  } catch(e) {
-    console.error(`Error saving ${req.body.sysid} Details:`, e);
-    res.status(500).send(`Saving ${req.body.sysid} Details Failed`);
-  }
-};
-
-module.exports.deletedds = async function(req, res){ 
-    try{
-        delete Zconfig.dds[`${req.body.sysid}`];
-        fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {}); // Save all new/modified settings to Zconfig file
-        res.send(`${req.body.sysid} Details Deleted Successfully`); // Express returns JSON of the App settings from Zconfig.json file
-    }catch(e){
-        res.send(`${req.body.sysid} Details Deletion Failed`);
-    }
-
-};
-
-/**  
- * addSetting Function controls adding/modifying settings used by the app in Zconfig.json file 
- * Endpoint: /addSettings                                                                      
- * Example: /addSettings?appurl=salisuali.com&appport=3009                                     
- * Endpoint can take multiple parameters recognised by the addSettings Function                
- */
-module.exports.updateconfig = function(req, res) {
-  try {
-    var queryParameterKeys = Object.keys(req.body);
-    for (var i in queryParameterKeys) {
-      var parameterKey = queryParameterKeys[i];
-      if (parameterKey === 'dds') {
-        Object.keys(req.body.dds).forEach(lpar => {
-          // Handle HMAI configuration
-          if (req.body.dds[lpar] && req.body.dds[lpar].hmai) {
-            // Handle HMAI configuration
-            if (!Zconfig.dds[lpar]) {
-              Zconfig.dds[lpar] = {};
-            }
-            if (!Zconfig.dds[lpar].hmai) {
-              Zconfig.dds[lpar].hmai = {};
-            }
-            
-            // Update FTP directory
-            if (req.body.dds[lpar].hmai.ftp && req.body.dds[lpar].hmai.ftp.directory) {
-              Zconfig.dds[lpar].hmai.ftp = Zconfig.dds[lpar].hmai.ftp || {};
-              Zconfig.dds[lpar].hmai.ftp.directory = req.body.dds[lpar].hmai.ftp.directory;
-            }
-            
-            // Update MySQL configuration
-            if (req.body.dds[lpar].hmai.mysql) {
-              Zconfig.dds[lpar].hmai.mysql = Zconfig.dds[lpar].hmai.mysql || {};
-              Zconfig.dds[lpar].hmai.mysql.host = req.body.dds[lpar].hmai.mysql.host || Zconfig.dds[lpar].hmai.mysql.host;
-              Zconfig.dds[lpar].hmai.mysql.user = req.body.dds[lpar].hmai.mysql.user || Zconfig.dds[lpar].hmai.mysql.user;
-              Zconfig.dds[lpar].hmai.mysql.password = req.body.dds[lpar].hmai.mysql.password || Zconfig.dds[lpar].hmai.mysql.password;
-            }
-            if (req.body.dds[lpar].hmai.dataRetention) {
-              Zconfig.dds[lpar].hmai.dataRetention = Zconfig.dds[lpar].hmai.dataRetention || {};
-              Zconfig.dds[lpar].hmai.dataRetention.clpr = req.body.dds[lpar].hmai.dataRetention.clpr || Zconfig.dds[lpar].hmai.dataRetention.clpr;
-              Zconfig.dds[lpar].hmai.dataRetention.ldev = req.body.dds[lpar].hmai.dataRetention.ldev || Zconfig.dds[lpar].hmai.dataRetention.ldev;
-              Zconfig.dds[lpar].hmai.dataRetention.mpb = req.body.dds[lpar].hmai.dataRetention.mpb || Zconfig.dds[lpar].hmai.dataRetention.mpb;
-              Zconfig.dds[lpar].hmai.dataRetention.mprank20 = req.body.dds[lpar].hmai.dataRetention.mprank20 || Zconfig.dds[lpar].hmai.dataRetention.mprank20;
-              Zconfig.dds[lpar].hmai.dataRetention.pgrp = req.body.dds[lpar].hmai.dataRetention.pgrp || Zconfig.dds[lpar].hmai.dataRetention.pgrp;
-              Zconfig.dds[lpar].hmai.dataRetention.port = req.body.dds[lpar].hmai.dataRetention.port || Zconfig.dds[lpar].hmai.dataRetention.port;
-            }
-            
-            // Update other HMAI fields
-            Zconfig.dds[lpar].hmai.checkInterval = req.body.dds[lpar].hmai.checkInterval || Zconfig.dds[lpar].hmai.checkInterval;
-            Zconfig.dds[lpar].hmai.defaultStartDate = req.body.dds[lpar].hmai.defaultStartDate || Zconfig.dds[lpar].hmai.defaultStartDate;
-            Zconfig.dds[lpar].hmai.continuousMonitoring = req.body.dds[lpar].hmai.continuousMonitoring !== undefined ? req.body.dds[lpar].hmai.continuousMonitoring : Zconfig.dds[lpar].hmai.continuousMonitoring;
-          }
-
-          // Handle HMRE configuration
-          if (req.body.dds[lpar] && req.body.dds[lpar].hmre) {
-            if (!Zconfig.dds[lpar]) Zconfig.dds[lpar] = {};
-            if (!Zconfig.dds[lpar].hmre) Zconfig.dds[lpar].hmre = {};
-
-            // Update FTP directory
-            if (req.body.dds[lpar].hmre.ftp && req.body.dds[lpar].hmre.ftp.directory) {
-              Zconfig.dds[lpar].hmre.ftp = Zconfig.dds[lpar].hmre.ftp || {};
-              Zconfig.dds[lpar].hmre.ftp.directory = req.body.dds[lpar].hmre.ftp.directory;
-            }
-
-            // Update MySQL configuration
-            if (req.body.dds[lpar].hmre.mysql) {
-              Zconfig.dds[lpar].hmre.mysql = Zconfig.dds[lpar].hmre.mysql || {};
-              Object.assign(Zconfig.dds[lpar].hmre.mysql, req.body.dds[lpar].hmre.mysql);
-            }
-
-            // Update other HMRE fields
-            Zconfig.dds[lpar].hmre.checkInterval = req.body.dds[lpar].hmre.checkInterval || Zconfig.dds[lpar].hmre.checkInterval;
-            Zconfig.dds[lpar].hmre.defaultStartDate = req.body.dds[lpar].hmre.defaultStartDate || Zconfig.dds[lpar].hmre.defaultStartDate;
-            Zconfig.dds[lpar].hmre.continuousMonitoring = req.body.dds[lpar].hmre.continuousMonitoring !== undefined ? req.body.dds[lpar].hmre.continuousMonitoring : Zconfig.dds[lpar].hmre.continuousMonitoring;
-          }
-
-          // Handle DCOL configuration
-          if (req.body.dds[lpar] && req.body.dds[lpar].dcol) {
-            if (!Zconfig.dds[lpar]) Zconfig.dds[lpar] = {};
-            if (!Zconfig.dds[lpar].dcol) Zconfig.dds[lpar].dcol = {};
-
-            // Update FTP directory
-            if (req.body.dds[lpar].dcol.ftp && req.body.dds[lpar].dcol.ftp.directory) {
-              Zconfig.dds[lpar].dcol.ftp = Zconfig.dds[lpar].dcol.ftp || {};
-              Zconfig.dds[lpar].dcol.ftp.directory = req.body.dds[lpar].dcol.ftp.directory;
-            }
-
-            // Update MySQL configuration
-            if (req.body.dds[lpar].dcol.mysql) {
-              Zconfig.dds[lpar].dcol.mysql = Zconfig.dds[lpar].dcol.mysql || {};
-              Object.assign(Zconfig.dds[lpar].dcol.mysql, req.body.dds[lpar].dcol.mysql);
-            }
-
-            // Update other DCOL fields
-            Zconfig.dds[lpar].dcol.checkInterval = req.body.dds[lpar].dcol.checkInterval || Zconfig.dds[lpar].dcol.checkInterval;
-            Zconfig.dds[lpar].dcol.defaultStartDate = req.body.dds[lpar].dcol.defaultStartDate || Zconfig.dds[lpar].dcol.defaultStartDate;
-            Zconfig.dds[lpar].dcol.continuousMonitoring = req.body.dds[lpar].dcol.continuousMonitoring !== undefined ? req.body.dds[lpar].dcol.continuousMonitoring : Zconfig.dds[lpar].dcol.continuousMonitoring;
-          }
-        });
-      }else {
-        // Handle other configuration fields as before
-        switch(parameterKey) {
-          case "apimlpwd":
-            Zconfig['apiml_password'] = req.body.apimlpwd;
-            break;
-          case "mongourl":
-            Zconfig['mongourl'] = req.body.mongourl;
-            break;
-        case "mongoport": //if user specify a value for mongoport parameter in the URL
-        Zconfig['mongoport'] = req.body.mongoport; // Change/add mongoport key to Zconfig file, with the value specified by user for mongoport 
-        break;
-      case "dbname": //if user specify a value for dbname parameter in the URL
-        Zconfig['dbname'] = req.body.dbname; // Change/add dbname key to Zconfig file, with the value specified by user for dbname
-        break;
-      case "dbinterval": //if user specify a value for dbinterval parameter in the URL
-        Zconfig['dbinterval'] = req.body.dbinterval; // Change/add dbinterval key to Zconfig file, with the value specified by user for dbinterval 
-        break;
-      case "appurl": //if user specify a value for appurl parameter in the URL
-        Zconfig['appurl'] = req.body.appurl; // Change/add appurl key to Zconfig file, with the value specified by user for appurl 
-        break;
-      case "appport": //if user specify a value for appport parameter in the URL
-        Zconfig['appport'] = req.body.appport; // Change/add appport key to Zconfig file, with the value specified by user for appport 
-        break;
-      case "apimluser": //if user specify a value for rmf3filename parameter in the URL
-        Zconfig['apiml_username'] = req.body.apimluser; // Change/add rmf3filename key to Zconfig file, with the value specified by user for dbinterval 
-        break;
-      case "usecert": //if user specify a value for rmfppfilename parameter in the URL
-        Zconfig['use_cert'] = req.body.usecert; // Change/add rmfppfilename key to Zconfig file, with the value specified by user for rmfppfilename 
-        break;
-      case "grafanahttp": //if user specify a value for mvsResource parameter in the URL
-        Zconfig['grafanahttptype'] = req.body.grafanahttp; // Change/add mvsResource key to Zconfig file, with the value specified by user for mvsResource
-        break;
-      case "rmf3interval": //if user specify a value for rmf3interval parameter in the URL
-        Zconfig['rmf3interval'] = req.body.rmf3interval; // Change/add rmf3interval key to Zconfig file, with the value specified by user for rmf3interval 
-        break;
-      case "ppminutesInterval": //if user specify a value for ppminutesInterval parameter in the URL
-      Zconfig['ppminutesInterval'] = req.body.ppminutesInterval; // Change/add ppminutesInterval key to Zconfig file, with the value specified by user for ppminutesInterval 
-        break;
-      case "httptype": //if user specify a value for httptype parameter in the URL
-      Zconfig['zebra_httptype'] = req.body.httptype; // Change/add httptype key to Zconfig file, with the value specified by user for httptype 
-        break;
-      case "useDbAuth": //if user specify a value for useDbAuth parameter in the URL
-      Zconfig['useDbAuth'] = req.body.useDbAuth; // Change/add useDbAuth key to Zconfig file, with the value specified by user for useDbAuth 
-        break;
-      case "dbUser": //if user specify a value for dbUser parameter in the URL
-        Zconfig['dbUser'] = req.body.dbUser; // Change/add dbUser key to Zconfig file, with the value specified by user for dbUser
-        break;
-      case "dbPassword": //if user specify a value for dbPassword parameter in the URL
-        Zconfig['dbPassword'] = req.body.dbPassword; // Change/add dbPassword key to Zconfig file, with the value specified by user for dbPassword 
-        break;
-      case "authSource": //if user specify a value for authSource parameter in the URL
-        Zconfig['authSource'] = req.body.authSource; // Change/add authSource key to Zconfig file, with the value specified by user for authSource
-        break;
-      case "apimlhttp": //if user specify a value for useMongo parameter in the URL
-        Zconfig['apiml_http_type'] = req.body.apimlhttp; // Change/add useMongo key to Zconfig file, with the value specified by user for useMongo 
-        break;
-      case "apimlIP": //if user specify a value for usePrometheus parameter in the URL
-      Zconfig['apiml_IP'] = req.body.apimlIP; // Change/add usePrometheus key to Zconfig file, with the value specified by user for usePrometheus
-        break;
-      case "grafanaurl": //if user specify a value for grafanaurl parameter in the URL
-      Zconfig['grafanaurl'] = req.body.grafanaurl; // Change/add grafanaurl key to Zconfig file, with the value specified by user for grafanaurl
-        break;
-      case "grafanaport": //if user specify a value for grafanaport parameter in the URL
-      Zconfig['grafanaport'] = req.body.grafanaport; // Change/add grafanaport key to Zconfig file, with the value specified by user for grafanaport
-        break;
-      case "apimlport": //if user specify a value for grafanaurl parameter in the URL
-        Zconfig['apiml_port'] = req.body.apimlport; // Change/add grafanaurl key to Zconfig file, with the value specified by user for grafanaurl
-          break;
-      case "apimlauth": //if user specify a value for grafanaport parameter in the URL
-        Zconfig['apiml_auth_type'] = req.body.apimlauth; // Change/add grafanaport key to Zconfig file, with the value specified by user for grafanaport
-          break;
-        }
-      }
-    }
-    
-    fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {
-      if (err) {
-        console.error("Error writing to Zconfig.json:", err);
-        res.status(500).send("Error updating Zconfig");
-      } else {
-        global.Zconfig = global.reloadZconfig(); 
-        res.send("Zconfig Updated!");
-      }
-    });
-  } catch (error) {
-    console.error("Error in updateconfig:", error);
-    res.status(500).send("Error updating configuration");
-  }
-};
-
-module.exports.savedds = async function(req, res) {
-  try {
-    if (!global.Zconfig.dds) {
-      global.Zconfig.dds = {};
-    }
-    global.Zconfig.dds[req.body.sysid] = req.body.update;
-    
-    // Handle HMAI configuration
-    if (req.body.update.hmai) {
-      if (!global.Zconfig.dds[req.body.sysid].hmai) {
-        global.Zconfig.dds[req.body.sysid].hmai = {};
-      }
-      Object.assign(global.Zconfig.dds[req.body.sysid].hmai, req.body.update.hmai);
-      
-      // Handle data retention configuration
-      if (req.body.update.hmai.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmai.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].hmai.dataRetention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmai.dataRetention, req.body.update.hmai.dataRetention);
-      }
-      // Handle RMF MON I retention configuration
-      if (req.body.update.hmai.rmfmon1Retention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention) {
-          global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmai.rmfmon1Retention, req.body.update.hmai.rmfmon1Retention);
-      }
-    }
-
-    // Handle HMRE configuration
-    if (req.body.update.hmre) {
-      if (!global.Zconfig.dds[req.body.sysid].hmre) {
-        global.Zconfig.dds[req.body.sysid].hmre = {};
-      }
-      if (req.body.update.hmre.ftp) {
-        global.Zconfig.dds[req.body.sysid].hmre.ftp = req.body.update.hmre.ftp;
-      }
-      if (req.body.update.hmre.mysql) {
-        global.Zconfig.dds[req.body.sysid].hmre.mysql = req.body.update.hmre.mysql;
-      }
-      global.Zconfig.dds[req.body.sysid].hmre.checkInterval = req.body.update.hmre.checkInterval;
-      global.Zconfig.dds[req.body.sysid].hmre.defaultStartDate = req.body.update.hmre.defaultStartDate;
-      global.Zconfig.dds[req.body.sysid].hmre.continuousMonitoring = req.body.update.hmre.continuousMonitoring;
-      
-      // Handle data retention configuration
-      if (req.body.update.hmre.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].hmre.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].hmre.dataRetention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].hmre.dataRetention, req.body.update.hmre.dataRetention);
-      }
-    }
-
-    // Handle DCOL configuration
-    if (req.body.update.dcol) {
-      if (!global.Zconfig.dds[req.body.sysid].dcol) {
-        global.Zconfig.dds[req.body.sysid].dcol = {};
-      }
-      if (req.body.update.dcol.ftp) {
-        global.Zconfig.dds[req.body.sysid].dcol.ftp = req.body.update.dcol.ftp;
-      }
-      if (req.body.update.dcol.mysql) {
-        global.Zconfig.dds[req.body.sysid].dcol.mysql = req.body.update.dcol.mysql;
-      }
-      global.Zconfig.dds[req.body.sysid].dcol.checkInterval = req.body.update.dcol.checkInterval;
-      global.Zconfig.dds[req.body.sysid].dcol.defaultStartDate = req.body.update.dcol.defaultStartDate;
-      global.Zconfig.dds[req.body.sysid].dcol.continuousMonitoring = req.body.update.dcol.continuousMonitoring;
-      
-      // Handle data retention configuration
-      if (req.body.update.dcol.dataRetention) {
-        if (!global.Zconfig.dds[req.body.sysid].dcol.dataRetention) {
-          global.Zconfig.dds[req.body.sysid].dcol.dataRetention = {};
-        }
-        Object.assign(global.Zconfig.dds[req.body.sysid].dcol.dataRetention, req.body.update.dcol.dataRetention);
-      }
-    }
-    
-    const configPath = path.join(__dirname, '..', '..', 'config', 'Zconfig.json');
-    await fs.writeFile(configPath, JSON.stringify(global.Zconfig, null, '\t'), 'utf-8');
-    global.Zconfig = global.reloadZconfig();
-    
-    res.send(`${req.body.sysid} Details Saved Successfully`);
-  } catch(e) {
-    console.error(`Error saving ${req.body.sysid} Details:`, e);
-    res.status(500).send(`Saving ${req.body.sysid} Details Failed`);
-  }
-};
-
-module.exports.deletedds = async function(req, res){ 
-    try{
-        delete Zconfig.dds[`${req.body.sysid}`];
-        fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {}); // Save all new/modified settings to Zconfig file
-        res.send(`${req.body.sysid} Details Deleted Successfully`); // Express returns JSON of the App settings from Zconfig.json file
-    }catch(e){
-        res.send(`${req.body.sysid} Details Deletion Failed`);
-    }
-
-};
-
-/**  
- * addSetting Function controls adding/modifying settings used by the app in Zconfig.json file 
- * Endpoint: /addSettings                                                                      
- * Example: /addSettings?appurl=salisuali.com&appport=3009                                     
- * Endpoint can take multiple parameters recognised by the addSettings Function                
- */
-module.exports.updateconfig = function(req, res) {
-  try {
-    var queryParameterKeys = Object.keys(req.body);
-    for (var i in queryParameterKeys) {
-      var parameterKey = queryParameterKeys[i];
-      if (parameterKey === 'dds') {
-        Object.keys(req.body.dds).forEach(lpar => {
-          // Handle HMAI configuration
-          if (req.body.dds[lpar] && req.body.dds[lpar].hmai) {
-            // Handle HMAI configuration
-            if (!Zconfig.dds[lpar]) {
-              Zconfig.dds[lpar] = {};
-            }
-            if (!Zconfig.dds[lpar].hmai) {
-              Zconfig.dds[lpar].hmai = {};
-            }
-            
-            // Update FTP directory
-            if (req.body.dds[lpar].hmai.ftp && req.body.dds[lpar].hmai.ftp.directory) {
-              Zconfig.dds[lpar].hmai.ftp = Zconfig.dds[lpar].hmai.ftp || {};
-              Zconfig.dds[lpar].hmai.ftp.directory = req.body.dds[lpar].hmai.ftp.directory;
-            }
-            
-            // Update MySQL configuration
-            if (req.body.dds[lpar].hmai.mysql) {
-              Zconfig.dds[lpar].hmai.mysql = Zconfig.dds[lpar].hmai.mysql || {};
-              Zconfig.dds[lpar].hmai.mysql.host = req.body.dds[lpar].hmai.mysql.host || Zconfig.dds[lpar].hmai.mysql.host;
-              Zconfig.dds[lpar].hmai.mysql.user = req.body.dds[lpar].hmai.mysql.user || Zconfig.dds[lpar].hmai.mysql.user;
-              Zconfig.dds[lpar].hmai.mysql.password = req.body.dds[lpar].hmai.mysql.password || Zconfig.dds[lpar].hmai.mysql.password;
-            }
-            if (req.body.dds[lpar].hmai.dataRetention) {
-              Zconfig.dds[lpar].hmai.dataRetention = Zconfig.dds[lpar].hmai.dataRetention || {};
-              Zconfig.dds[lpar].hmai.dataRetention.clpr = req.body.dds[lpar].hmai.dataRetention.clpr || Zconfig.dds[lpar].hmai.dataRetention.clpr;
-              Zconfig.dds[lpar].hmai.dataRetention.ldev = req.body.dds[lpar].hmai.dataRetention.ldev || Zconfig.dds[lpar].hmai.dataRetention.ldev;
-              Zconfig.dds[lpar].hmai.dataRetention.mpb = req.body.dds[lpar].hmai.dataRetention.mpb || Zconfig.dds[lpar].hmai.dataRetention.mpb;
-              Zconfig.dds[lpar].hmai.dataRetention.mprank20 = req.body.dds[lpar].hmai.dataRetention.mprank20 || Zconfig.dds[lpar].hmai.dataRetention.mprank20;
-              Zconfig.dds[lpar].hmai.dataRetention.pgrp = req.body.dds[lpar].hmai.dataRetention.pgrp || Zconfig.dds[lpar].hmai.dataRetention.pgrp;
-              Zconfig.dds[lpar].hmai.dataRetention.port = req.body.dds[lpar].hmai.dataRetention.port || Zconfig.dds[lpar].hmai.dataRetention.port;
-            }
-            
-            // Update other HMAI fields
-            Zconfig.dds[lpar].hmai.checkInterval = req.body.dds[lpar].hmai.checkInterval || Zconfig.dds[lpar].hmai.checkInterval;
-            Zconfig.dds[lpar].hmai.defaultStartDate = req.body.dds[lpar].hmai.defaultStartDate || Zconfig.dds[lpar].hmai.defaultStartDate;
-            Zconfig.dds[lpar].hmai.continuousMonitoring = req.body.dds[lpar].hmai.continuousMonitoring !== undefined ? req.body.dds[lpar].hmai.continuousMonitoring : Zconfig.dds[lpar].hmai.continuousMonitoring;
-          }
-
-          // Handle HMRE configuration
-          if (req.body.dds[lpar] && req.body.dds[lpar].hmre) {
-            if (!Zconfig.dds[lpar]) Zconfig.dds[lpar] = {};
-            if (!Zconfig.dds[lpar].hmre) Zconfig.dds[lpar].hmre = {};
-
-            // Update FTP directory
-            if (req.body.dds[lpar].hmre.ftp && req.body.dds[lpar].hmre.ftp.directory) {
-              Zconfig.dds[lpar].hmre.ftp = Zconfig.dds[lpar].hmre.ftp || {};
-              Zconfig.dds[lpar].hmre.ftp.directory = req.body.dds[lpar].hmre.ftp.directory;
-            }
-
-            // Update MySQL configuration
-            if (req.body.dds[lpar].hmre.mysql) {
-              Zconfig.dds[lpar].hmre.mysql = Zconfig.dds[lpar].hmre.mysql || {};
-              Object.assign(Zconfig.dds[lpar].hmre.mysql, req.body.dds[lpar].hmre.mysql);
-            }
-
-            // Update other HMRE fields
-            Zconfig.dds[lpar].hmre.checkInterval = req.body.dds[lpar].hmre.checkInterval || Zconfig.dds[lpar].hmre.checkInterval;
-            Zconfig.dds[lpar].hmre.defaultStartDate = req.body.dds[lpar].hmre.defaultStartDate || Zconfig.dds[lpar].hmre.defaultStartDate;
-            Zconfig.dds[lpar].hmre.continuousMonitoring = req.body.dds[lpar].hmre.continuousMonitoring !== undefined ? req.body.dds[lpar].hmre.continuousMonitoring : Zconfig.dds[lpar].hmre.continuousMonitoring;
-          }
-
-          // Handle DCOL configuration
-          if (req.body.dds[lpar] && req.body.dds[lpar].dcol) {
-            if (!Zconfig.dds[lpar]) Zconfig.dds[lpar] = {};
-            if (!Zconfig.dds[lpar].dcol) Zconfig.dds[lpar].dcol = {};
-
-            // Update FTP directory
-            if (req.body.dds[lpar].dcol.ftp && req.body.dds[lpar].dcol.ftp.directory) {
-              Zconfig.dds[lpar].dcol.ftp = Zconfig.dds[lpar].dcol.ftp || {};
-              Zconfig.dds[lpar].dcol.ftp.directory = req.body.dds[lpar].dcol.ftp.directory;
-            }
-
-            // Update MySQL configuration
-            if (req.body.dds[lpar].dcol.mysql) {
-              Zconfig.dds[lpar].dcol.mysql = Zconfig.dds[lpar].dcol.mysql || {};
-              Object.assign(Zconfig.dds[lpar].dcol.mysql, req.body.dds[lpar].dcol.mysql);
-            }
-
-            // Update other DCOL fields
-            Zconfig.dds[lpar].dcol.checkInterval = req.body.dds[lpar].dcol.checkInterval || Zconfig.dds[lpar].dcol.checkInterval;
-            Zconfig.dds[lpar].dcol.defaultStartDate = req.body.dds[lpar].dcol.defaultStartDate || Zconfig.dds[lpar].dcol.defaultStartDate;
-            Zconfig.dds[lpar].dcol.continuousMonitoring = req.body.dds[lpar].dcol.continuousMonitoring !== undefined ? req.body.dds[lpar].dcol.continuousMonitoring : Zconfig.dds[lpar].dcol.continuousMonitoring;
-          }
-        });
-      }else {
-        // Handle other configuration fields as before
-        switch(parameterKey) {
-          case "apimlpwd":
-            Zconfig['apiml_password'] = req.body.apimlpwd;
-            break;
-          case "mongourl":
-            Zconfig['mongourl'] = req.body.mongourl;
-            break;
-        case "mongoport": //if user specify a value for mongoport parameter in the URL
-        Zconfig['mongoport'] = req.body.mongoport; // Change/add mongoport key to Zconfig file, with the value specified by user for mongoport 
-        break;
-      case "dbname": //if user specify a value for dbname parameter in the URL
-        Zconfig['dbname'] = req.body.dbname; // Change/add dbname key to Zconfig file, with the value specified by user for dbname
-        break;
-      case "dbinterval": //if user specify a value for dbinterval parameter in the URL
-        Zconfig['dbinterval'] = req.body.dbinterval; // Change/add dbinterval key to Zconfig file, with the value specified by user for dbinterval 
-        break;
-      case "appurl": //if user specify a value for appurl parameter in the URL
-        Zconfig['appurl'] = req.body.appurl; // Change/add appurl key to Zconfig file, with the value specified by user for appurl 
-        break;
-      case "appport": //if user specify a value for appport parameter in the URL
-        Zconfig['appport'] = req.body.appport; // Change/add appport key to Zconfig file, with the value specified by user for appport 
-        break;
-      case "apimluser": //if user specify a value for rmf3filename parameter in the URL
-        Zconfig['apiml_username'] = req.body.apimluser; // Change/add rmf3filename key to Zconfig file, with the value specified by user for dbinterval 
-        break;
-      case "usecert": //if user specify a value for rmfppfilename parameter in the URL
-        Zconfig['use_cert'] = req.body.usecert; // Change/add rmfppfilename key to Zconfig file, with the value specified by user for rmfppfilename 
-        break;
-      case "grafanahttp": //if user specify a value for mvsResource parameter in the URL
-        Zconfig['grafanahttptype'] = req.body.grafanahttp; // Change/add mvsResource key to Zconfig file, with the value specified by user for mvsResource
-        break;
-      case "rmf3interval": //if user specify a value for rmf3interval parameter in the URL
-        Zconfig['rmf3interval'] = req.body.rmf3interval; // Change/add rmf3interval key to Zconfig file, with the value specified by user for rmf3interval 
-        break;
-      case "ppminutesInterval": //if user specify a value for ppminutesInterval parameter in the URL
-      Zconfig['ppminutesInterval'] = req.body.ppminutesInterval; // Change/add ppminutesInterval key to Zconfig file, with the value specified by user for ppminutesInterval 
-        break;
-      case "httptype": //if user specify a value for httptype parameter in the URL
-      Zconfig['zebra_httptype'] = req.body.httptype; // Change/add httptype key to Zconfig file, with the value specified by user for httptype 
-        break;
-      case "useDbAuth": //if user specify a value for useDbAuth parameter in the URL
-      Zconfig['useDbAuth'] = req.body.useDbAuth; // Change/add useDbAuth key to Zconfig file, with the value specified by user for useDbAuth 
-        break;
-      case "dbUser": //if user specify a value for dbUser parameter in the URL
-        Zconfig['dbUser'] = req.body.dbUser; // Change/add dbUser key to Zconfig file, with the value specified by user for dbUser
-        break;
-      case "dbPassword": //if user specify a value for dbPassword parameter in the URL
-        Zconfig['dbPassword'] = req.body.dbPassword; // Change/add dbPassword key to Zconfig file, with the value specified by user for dbPassword 
-        break;
-      case "authSource": //if user specify a value for authSource parameter in the URL
-        Zconfig['authSource'] = req.body.authSource; // Change/add authSource key to Zconfig file, with the value specified by user for authSource
-        break;
-      case "apimlhttp": //if user specify a value for useMongo parameter in the URL
-        Zconfig['apiml_http_type'] = req.body.apimlhttp; // Change/add useMongo key to Zconfig file, with the value specified by user for useMongo 
-        break;
-      case "apimlIP": //if user specify a value for usePrometheus parameter in the URL
-      Zconfig['apiml_IP'] = req.body.apimlIP; // Change/add usePrometheus key to Zconfig file, with the value specified by user for usePrometheus
-        break;
-      case "grafanaurl": //if user specify a value for grafanaurl parameter in the URL
-      Zconfig['grafanaurl'] = req.body.grafanaurl; // Change/add grafanaurl key to Zconfig file, with the value specified by user for grafanaurl
-        break;
-      case "grafanaport": //if user specify a value for grafanaport parameter in the URL
-      Zconfig['grafanaport'] = req.body.grafanaport; // Change/add grafanaport key to Zconfig file, with the value specified by user for grafanaport
-        break;
-      case "apimlport": //if user specify a value for grafanaurl parameter in the URL
-        Zconfig['apiml_port'] = req.body.apimlport; // Change/add grafanaurl key to Zconfig file, with the value specified by user for grafanaurl
-          break;
-      case "apimlauth": //if user specify a value for grafanaport parameter in the URL
-        Zconfig['apiml_auth_type'] = req.body.apimlauth; // Change/add grafanaport key to Zconfig file, with the value specified by user for grafanaport
-          break;
-        }
-      }
-    }
-    
-    fs.writeFile("./config/Zconfig.json", JSON.stringify(Zconfig, null, '\t'), 'utf-8', function(err, data) {
-      if (err) {
-        console.error("Error writing to Zconfig.json:", err);
-        res.status(500).send("Error updating Zconfig");
-      } else {
-        global.Zconfig = global.reloadZconfig(); 
-        res.send("Zconfig Updated!");
-      }
-    });
-  } catch (error) {
-    console.error("Error in updateconfig:", error);
-    res.status(500).send("Error updating configuration");
-  }
-};

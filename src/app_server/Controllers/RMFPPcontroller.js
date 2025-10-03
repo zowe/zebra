@@ -1,18 +1,14 @@
 const axios = require('axios');
 var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFPPparser file
-try{
-  var Zconfig = require("../../config/Zconfig.json");
-}catch(e){
-  var Zconfig = {}
+
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("../../config/Zconfig.json");
+  } catch(e) {
+    return {};
+  }
 }
-let baseurl = Zconfig.ddsbaseurl;
-let baseport = Zconfig.ddsbaseport;
-let rmfppfilename = Zconfig.rmfppfilename;
-var minutesInterval = Zconfig.ppminutesInterval;
-var ddshttp = Zconfig.ddshhttptype;
-let ddsauth = Zconfig.ddsauth;
-let ddsid = Zconfig.ddsuser;
-let ddspass = Zconfig.ddspwd;
 
 /**
  * RMFPPgetRequest is the Function for Sending GET Request to RMF Monitor I (Post-Processor Report).

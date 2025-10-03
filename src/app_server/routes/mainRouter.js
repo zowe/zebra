@@ -17,21 +17,8 @@ var Auth = require('../../Auth');
 const path = require('path');
 const fs = require('fs');
 
-//var Zconfig;
-try{
-  var Zconfig = require("../../config/Zconfig.json");
-}catch(e){
-  var Zconfig = {};
-}
-let grafanabaseurl = Zconfig.grafanaurl;
-let grafanabaseport = Zconfig.grafanaport;
-let grafanahttptype = Zconfig.grafanahttptype;
-let zhttp = Zconfig.zebra_httptype;
-let appurl = Zconfig.appurl;
-let appport = Zconfig.appport;
 const axios = require('axios');
 const { send } = require('process');
-const grafanaServer = `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`
 
 // Initialize constants
 const REPORTS = require("../../constants").REPORTS;
@@ -41,6 +28,7 @@ const { keys } = require('lodash');
 
 
 function parameters(fn){
+  const Zconfig = loadZconfig();
   parms = {
     ddsbaseurl: Zconfig.ddsbaseurl,
     ddsbaseport: Zconfig.ddsbaseport,
@@ -71,14 +59,13 @@ function parameters(fn){
 // ... (keep existing imports)
 
 router.get('/hmai', function(req, res, next) {
-  const Zconfig = require('../../config/Zconfig.json');
-  const lpars = Object.keys(Zconfig.dds);
+  loadZconfig();
+  const lpars = Object.keys(global.Zconfig.dds || {});
   console.log("Rendering HMAI report with lpars:", lpars);
-  // console.log("LPAR config:", Zconfig.dds);
   res.render('hmaiReport', { 
     title: 'HMAI Report', 
     lpars: lpars,
-    lparConfig: Zconfig.dds
+    lparConfig: global.Zconfig.dds || {}
   });
 });
 
@@ -92,13 +79,13 @@ router.post('/hmai/start-all', ctrlHmai.startHMAIForAllLpars);
 
 // Add this route handler after the hmai route
 router.get('/dcol', function(req, res, next) {
-  const Zconfig = require('../../config/Zconfig.json');
-  const lpars = Object.keys(Zconfig.dds);
+  loadZconfig();
+  const lpars = Object.keys(global.Zconfig.dds || {});
   console.log("Rendering DCOL report with lpars:", lpars);
   res.render('dcolReport', { 
     title: 'DCOL Report', 
     lpars: lpars,
-    lparConfig: Zconfig.dds
+    lparConfig: global.Zconfig.dds || {}
   });
 });
 
@@ -110,13 +97,13 @@ router.get('/dcol/running-processes', dcolController.getRunningProcesses);
 
 // Add this route handler for HMRE
 router.get('/hmre', function(req, res, next) {
-  const Zconfig = require('../../config/Zconfig.json');
-  const lpars = Object.keys(Zconfig.dds);
+  loadZconfig();
+  const lpars = Object.keys(global.Zconfig.dds || {});
   console.log("Rendering HMRE report with lpars:", lpars);
   res.render('hmreReport', { 
     title: 'HMRE Report', 
     lpars: lpars,
-    lparConfig: Zconfig.dds
+    lparConfig: global.Zconfig.dds || {}
   });
 });
 
@@ -380,6 +367,7 @@ router.get('/metrics', sessionChecker, (req, res) => {
 
 
 function ddsparm(fn){
+  const Zconfig = loadZconfig();
   fn(Zconfig.dds); //return the parameters
 }
 
@@ -415,6 +403,16 @@ function loadZconfig() {
     console.error('Error loading Zconfig:', error);
     global.Zconfig = {};
   }
+  return global.Zconfig;
+}
+
+// Helper function to get Grafana server URL
+function getGrafanaServer() {
+  const config = loadZconfig();
+  const grafanabaseurl = config.grafanaurl;
+  const grafanabaseport = config.grafanaport;
+  const grafanahttptype = config.grafanahttptype;
+  return `${grafanahttptype}://${grafanabaseurl}:${grafanabaseport}`;
 }
 
 router.get('/config/settings', sessionChecker, (req, res) => {
@@ -432,7 +430,8 @@ router.get('/ddsconfig', (req, res) => {
 });
 
 router.get('/otherconfig', (req, res) => {
-  res.render("otherconfig", {fparms:Zconfig});
+  loadZconfig();
+  res.render("otherconfig", {fparms:global.Zconfig});
 })
 
 /*
@@ -522,7 +521,7 @@ router.use('/apis', swaggerUi.serve, swaggerUi.setup(swaggerdoc));
 
 // redirect to grafana server
 router.get('/grafana',  function(req, res, next){
-  res.redirect(grafanaServer);
+  res.redirect(getGrafanaServer());
 })
 
 // render files from /upload directory
@@ -628,33 +627,17 @@ router.get("/logout", Auth.authenticateToken, (req,res) => {
   });
 })
 
-// Add this route handler after the hmai route
-router.get('/dcol', function(req, res, next) {
-  const Zconfig = require('../../config/Zconfig.json');
-  const lpars = Object.keys(Zconfig.dds);
-  console.log("Rendering DCOL report with lpars:", lpars);
-  res.render('dcolReport', { 
-    title: 'DCOL Report', 
-    lpars: lpars,
-    lparConfig: Zconfig.dds
-  });
-});
-
-// Add these routes after the hmai routes
-router.post('/dcol/start', dcolController.startDCOL);
-router.post('/dcol/clear-db', dcolController.clearDatabase);
-router.post('/dcol/stop-monitoring', dcolController.stopContinuousMonitoring);
-router.get('/dcol/running-processes', dcolController.getRunningProcesses);
+// Duplicate dcol routes removed - already defined above
 
 // Add this route handler
 router.get('/rmf1', function(req, res, next) {
-  const Zconfig = require('../../config/Zconfig.json');
-  const lpars = Object.keys(Zconfig.dds);
+  loadZconfig();
+  const lpars = Object.keys(global.Zconfig.dds || {});
   console.log("Rendering RMF1 report with lpars:", lpars);
   res.render('RMF1Report', { 
     title: 'RMF1 Report', 
     lpars: lpars,
-    lparConfig: Zconfig.dds
+    lparConfig: global.Zconfig.dds || {}
   });
 });
 

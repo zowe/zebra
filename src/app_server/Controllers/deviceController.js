@@ -299,7 +299,7 @@ async function startDevice(req, res) {
     let databaseCreated = false;
 
     try {
-        const config = require('../../config/Zconfig.json');
+        const config = global.Zconfig || require('../../config/Zconfig.json');
         const rmfmon1Config = config.dds[lpar].rmfmon1;
         
         mysqlConnection = await mysql.createConnection({
@@ -397,7 +397,7 @@ function startContinuousMonitoring(lpar, config) {
 
 async function clearDatabase(req, res) {
     const { lpar } = req.body;
-    const config = require('../../config/Zconfig.json');
+    const config = global.Zconfig || require('../../config/Zconfig.json');
     let connection;
 
     try {
@@ -462,7 +462,7 @@ function getRunningProcesses(req, res) {
 
 async function enforceDataRetention(connection, lpar) {
     try {
-        const config = require('../../config/Zconfig.json');
+        const config = global.Zconfig || require('../../config/Zconfig.json');
         const retentionDays = config.dds[lpar].rmfmon1.device.dataRetention;
 
         if (retentionDays && retentionDays > 0) {

@@ -2,11 +2,16 @@
 const FTP = require('ftp');
 const mysql = require('mysql2/promise');
 const path = require('path');
-try{
-    var config = require("../../config/Zconfig.json");
-  }catch(e){
-    var config = {};
+
+// Helper function to get current config
+function getConfig() {
+  try {
+    return global.Zconfig || require("../../config/Zconfig.json");
+  } catch(e) {
+    return {};
   }
+}
+
 var hmaiJSONcontroller = require('./hmaiJSONcontroller');
 const stream = require('stream');
 const monitoringIntervals = {};
@@ -57,7 +62,7 @@ async function checkForNewFiles(ftpClient, mysqlConnection, startDate, endDate, 
             });
         });
         
-        await promisifyFtpCommand(ftpClient, 'cwd', config.dds[lpar].hmai.ftp.directory);
+        await promisifyFtpCommand(ftpClient, 'cwd', getConfig().dds[lpar].hmai.ftp.directory);
         const list = await promisifyFtpCommand(ftpClient, 'list');
 
         const startDateTime = new Date(startDate);
@@ -81,7 +86,7 @@ async function checkForNewFiles(ftpClient, mysqlConnection, startDate, endDate, 
         console.log(`Found ${newDirs.length} directories to process for ${lpar}`);
 
         for (const dir of newDirs) {
-            const fullPath = path.join(config.dds[lpar].hmai.ftp.directory, dir.name);
+            const fullPath = path.join(getConfig().dds[lpar].hmai.ftp.directory, dir.name);
             try {
                 // Get existing processed metrics for this directory
                 const existingDirInfo = visitedDirs[dir.name] || {};
@@ -189,9 +194,9 @@ async function startHMAI(req, res) {
     try {
         // Create MySQL connection
         mysqlConnection = await mysql.createConnection({
-            host: config.dds[lpar].hmai.mysql.host,
-            user: config.dds[lpar].hmai.mysql.user,
-            password: config.dds[lpar].hmai.mysql.password,
+            host: getConfig().dds[lpar].hmai.mysql.host,
+            user: getConfig().dds[lpar].hmai.mysql.user,
+            password: getConfig().dds[lpar].hmai.mysql.password,
             multipleStatements: true
         });
         console.log('MySQL connection established');
@@ -224,9 +229,9 @@ async function startHMAI(req, res) {
             });
             ftpClient.on('error', reject);
             ftpClient.connect({
-                host: config.dds[lpar].ddsbaseurl,
-                user: config.dds[lpar].ddsuser,
-                password: config.dds[lpar].ddspwd,
+                host: getConfig().dds[lpar].ddsbaseurl,
+                user: getConfig().dds[lpar].ddsuser,
+                password: getConfig().dds[lpar].ddspwd,
             });
         });
 
@@ -247,7 +252,7 @@ async function startHMAI(req, res) {
             success: true, 
             message: continuousMonitoring ? 'HMAI process started and running continuously' : 'HMAI process completed successfully',
             databaseCreated: databaseCreated,
-            checkInterval: config.dds[lpar].hmai.checkInterval,
+            checkInterval: getConfig().dds[lpar].hmai.checkInterval,
             continuousMonitoring: continuousMonitoring
         });
     } catch (error) {
@@ -303,7 +308,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
         console.error(`Error processing directory ${dirPath}:`, error);
     } finally {
         try {
-            await promisifyFtpCommand(ftpClient, 'cwd', config.dds[lpar].hmai.ftp.directory);
+            await promisifyFtpCommand(ftpClient, 'cwd', getConfig().dds[lpar].hmai.ftp.directory);
         } catch (error) {
             console.error(`Error changing back to base directory:`, error);
         }
@@ -551,7 +556,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
     async function clearDatabase(req, res) {
         const { lpar } = req.body;
         const mysqlConfig = {
-            ...config.dds[lpar].hmai.mysql,
+            ...getConfig().dds[lpar].hmai.mysql,
             database: lpar,
         };
     
@@ -588,7 +593,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
 async function getCSVData(req, res) {
     const { startDate, endDate, lpar } = req.body;
     console.log(`getCSVData called with params:`, { startDate, endDate, lpar });
-    const ddsConfig = config.dds[lpar];
+    const ddsConfig = getConfig().dds[lpar];
     const hmaiConfig = ddsConfig.hmai;
     let ftpClient;
     let mysqlConnection;
@@ -713,8 +718,8 @@ async function processDirectorygetcsv(ftpClient, mysqlConnection, dirPath, lpar)
         console.error(`Error processing directory ${dirPath}:`, error);
     } finally {
         try {
-            if (config.dds && config.dds[lpar] && config.dds[lpar].hmai && config.dds[lpar].hmai.ftp && config.dds[lpar].hmai.ftp.directory) {
-                await promisifyFtpCommand(ftpClient, 'cwd', config.dds[lpar].hmai.ftp.directory);
+            if (getConfig().dds && getConfig().dds[lpar] && getConfig().dds[lpar].hmai && getConfig().dds[lpar].hmai.ftp && getConfig().dds[lpar].hmai.ftp.directory) {
+                await promisifyFtpCommand(ftpClient, 'cwd', getConfig().dds[lpar].hmai.ftp.directory);
             } else {
                 console.error(`Invalid or missing HMAI FTP directory configuration for LPAR ${lpar}`);
             }
@@ -973,7 +978,7 @@ async function downloadCSV(req, res) {
     const { startDate, endDate, lpar, metric } = req.body;
     console.log(`downloadCSV called with params:`, { startDate, endDate, lpar, metric });
 
-    const ddsConfig = config.dds[lpar];
+    const ddsConfig = getConfig().dds[lpar];
     const hmaiConfig = ddsConfig.hmai;
     let mysqlConnection;
 
@@ -1034,7 +1039,7 @@ async function downloadCSV(req, res) {
     }
 }
 function startContinuousMonitoring(lpar, metrics) {
-    const checkInterval = parseInt(config.dds[lpar].hmai.checkInterval);
+    const checkInterval = parseInt(getConfig().dds[lpar].hmai.checkInterval);
 
     monitoringIntervals[lpar] = setInterval(async () => {
         let mysqlConnection;
@@ -1043,9 +1048,9 @@ function startContinuousMonitoring(lpar, metrics) {
         try {
             // Create MySQL connection
             mysqlConnection = await mysql.createConnection({
-                host: config.dds[lpar].hmai.mysql.host,
-                user: config.dds[lpar].hmai.mysql.user,
-                password: config.dds[lpar].hmai.mysql.password,
+                host: getConfig().dds[lpar].hmai.mysql.host,
+                user: getConfig().dds[lpar].hmai.mysql.user,
+                password: getConfig().dds[lpar].hmai.mysql.password,
                 database: lpar,
                 multipleStatements: true
             });
@@ -1056,9 +1061,9 @@ function startContinuousMonitoring(lpar, metrics) {
                 ftpClient.on('ready', resolve);
                 ftpClient.on('error', reject);
                 ftpClient.connect({
-                    host: config.dds[lpar].ddsbaseurl,
-                    user: config.dds[lpar].ddsuser,
-                    password: config.dds[lpar].ddspwd,
+                    host: getConfig().dds[lpar].ddsbaseurl,
+                    user: getConfig().dds[lpar].ddsuser,
+                    password: getConfig().dds[lpar].ddspwd,
                 });
             });
 
@@ -1123,9 +1128,9 @@ async function checkNewData(req, res) {
     const { lpar } = req.body;
     try {
         const mysqlConnection = await mysql.createConnection({
-            host: config.dds[lpar].hmai.mysql.host,
-            user: config.dds[lpar].hmai.mysql.user,
-            password: config.dds[lpar].hmai.mysql.password,
+            host: getConfig().dds[lpar].hmai.mysql.host,
+            user: getConfig().dds[lpar].hmai.mysql.user,
+            password: getConfig().dds[lpar].hmai.mysql.password,
             multipleStatements: true
         });
 
@@ -1134,9 +1139,9 @@ async function checkNewData(req, res) {
             ftpClient.on('ready', resolve);
             ftpClient.on('error', reject);
             ftpClient.connect({
-                host: config.dds[lpar].ddsbaseurl,
-                user: config.dds[lpar].ddsuser,
-                password: config.dds[lpar].ddspwd,
+                host: getConfig().dds[lpar].ddsbaseurl,
+                user: getConfig().dds[lpar].ddsuser,
+                password: getConfig().dds[lpar].ddspwd,
             });
         });
 
@@ -1206,19 +1211,19 @@ async function saveHMAIConfig(req, res) {
     const { lpar, defaultStartDate, continuousMonitoring } = req.body;
     
     try {
-        if (!config.dds[lpar]) {
+        if (!getConfig().dds[lpar]) {
             console.log("Invalid LPAR:", lpar);
             return res.status(400).json({ success: false, message: 'Invalid LPAR' });
         }
 
-        if (!config.dds[lpar].hmai) {
-            config.dds[lpar].hmai = {};
+        if (!getConfig().dds[lpar].hmai) {
+            getConfig().dds[lpar].hmai = {};
         }
 
-        config.dds[lpar].hmai.defaultStartDate = defaultStartDate;
-        config.dds[lpar].hmai.continuousMonitoring = continuousMonitoring;
+        getConfig().dds[lpar].hmai.defaultStartDate = defaultStartDate;
+        getConfig().dds[lpar].hmai.continuousMonitoring = continuousMonitoring;
 
-        console.log("Updated config for LPAR:", config.dds[lpar]);
+        console.log("Updated config for LPAR:", getConfig().dds[lpar]);
 
         await fs.promises.writeFile("./config/Zconfig.json", JSON.stringify(config, null, '\t'), 'utf-8');
         
@@ -1252,13 +1257,13 @@ const startHMAIForAllLpars = async (req, res) => {
     const alreadyRunningLpars = [];
     const allMetrics = ['clpr', 'ldev', 'mpb', 'mprank20', 'pgrp', 'port'];
 
-    for (const lpar in config.dds) {
+    for (const lpar in getConfig().dds) {
         if (runningProcesses[lpar] && runningProcesses[lpar].isRunning) {
             alreadyRunningLpars.push(lpar);
             continue;
         }
 
-        if (isLparConfiguredForHMAI(config.dds[lpar])) {
+        if (isLparConfiguredForHMAI(getConfig().dds[lpar])) {
             try {
                 await startHMAIForLpar(lpar, allMetrics, true);
                 startedLpars.push(lpar);
@@ -1303,7 +1308,7 @@ async function startHMAIForLpar(lpar, metrics, continuousMonitoring, userSpecifi
     if (userSpecifiedStartDate) {
         startDate = new Date(userSpecifiedStartDate);
     } else if (Object.keys(visitedDirs).length === 0) {
-        startDate = new Date(config.dds[lpar].hmai.defaultStartDate);
+        startDate = new Date(getConfig().dds[lpar].hmai.defaultStartDate);
     } else {
         startDate = new Date(Math.max(...Object.keys(visitedDirs).map(dirName => parseDirName(dirName))));
     }
@@ -1324,9 +1329,9 @@ async function startHMAIForLpar(lpar, metrics, continuousMonitoring, userSpecifi
     try {
         // Create MySQL connection
         mysqlConnection = await mysql.createConnection({
-            host: config.dds[lpar].hmai.mysql.host,
-            user: config.dds[lpar].hmai.mysql.user,
-            password: config.dds[lpar].hmai.mysql.password,
+            host: getConfig().dds[lpar].hmai.mysql.host,
+            user: getConfig().dds[lpar].hmai.mysql.user,
+            password: getConfig().dds[lpar].hmai.mysql.password,
             multipleStatements: true
         });
         console.log(`MySQL connection established for ${lpar}`);
@@ -1359,9 +1364,9 @@ async function startHMAIForLpar(lpar, metrics, continuousMonitoring, userSpecifi
             });
             ftpClient.on('error', reject);
             ftpClient.connect({
-                host: config.dds[lpar].ddsbaseurl,
-                user: config.dds[lpar].ddsuser,
-                password: config.dds[lpar].ddspwd,
+                host: getConfig().dds[lpar].ddsbaseurl,
+                user: getConfig().dds[lpar].ddsuser,
+                password: getConfig().dds[lpar].ddspwd,
             });
         });
 
@@ -1420,7 +1425,7 @@ function isLparConfiguredForHMAI(lparConfig) {
 async function enforceDataRetention(mysqlConnection, lpar, metrics) {
     try {
         // const zconfig = await readZconfig();
-        const retentionConfig = config.dds[lpar].hmai.dataRetention;
+        const retentionConfig = getConfig().dds[lpar].hmai.dataRetention;
 
         for (const metric of metrics) {
             const retentionDays = retentionConfig[metric];

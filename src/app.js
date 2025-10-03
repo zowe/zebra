@@ -61,18 +61,12 @@ function loadZconfig() {
 
 global.Zconfig = loadZconfig();
 global.reloadZconfig = loadZconfig;
-try{
-  
-  let ddsconfig;
-try {
-  ddsconfig = require("./config/Zconfig.json");
-  console.log("Zconfig loaded successfully");
-} catch(e) {
-  console.error("Error loading Zconfig:", e);
-  ddsconfig = {};
-}
 
-// ... rest of your app.js code ...
+try{
+  // Use the already loaded global.Zconfig instead of requiring again
+  const ddsconfig = global.Zconfig;
+  console.log("Zconfig loaded successfully");
+  
   var lpar_details = ddsconfig["dds"];
   var lpars = Object.keys(lpar_details);
 

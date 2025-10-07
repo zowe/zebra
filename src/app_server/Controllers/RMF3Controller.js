@@ -3,6 +3,29 @@ var RMFMonitor3parser = require('../parser/RMFMonitor3parser') //importing the R
 const url = require('url');
 const debugConfig = require('../../config/debugConfig');
 
+// Helper function to sanitize and validate error codes
+function getSafeErrorCode(error) {
+    // Whitelist of allowed error codes
+    const allowedErrors = ['DE', 'NE', 'UA', 'EOUT', 'Err'];
+    
+    if (typeof error === 'string') {
+        // If it's one of our known error codes, return it
+        if (allowedErrors.includes(error)) {
+            return error;
+        }
+        
+        // For other errors, encode them safely
+        return encodeURIComponent(error.substring(0, 100)); // Limit length
+    }
+    
+    // If it's an object with an error property
+    if (error && typeof error === 'object' && error.error) {
+        return encodeURIComponent(String(error.error).substring(0, 100));
+    }
+    
+    return 'Err'; // Default error code
+}
+
 // Helper function to get current config
 function getConfig() {
   try {
@@ -248,13 +271,13 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         try {
           RMFMonitor3parser.RMF3fieldParser(data, function (result) {
             if(result["msg"]){
-              res.redirect(`/rmfm3/error?emsg=${result["error"]}`);
+              res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(result["error"])}`);
           }else{
             res.json(result);
           }
         });
         } catch (err) {
-          res.redirect(`/rmfm3/error?emsg=${err}`);
+          res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(err)}`);
         }
       }
     });
@@ -273,13 +296,13 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         try {
           RMFMonitor3parser.RMF3idListParser(data, function (result) {
             if(result["msg"]){
-              res.redirect(`/rmfm3/error?emsg=${result["error"]}`);
+              res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(result["error"])}`);
           }else{
             res.json(result);
           }
         });
         } catch (err) {
-          res.redirect(`/rmfm3/error?emsg=${err}`);
+          res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(err)}`);
         }
       }
     });
@@ -339,13 +362,13 @@ module.exports.rmfIII = async function (req, res) { //Controller Function for Re
         try {
           RMFMonitor3parser.RMF3bodyParser(data, function (result) { //send returned XML to Monitor III parser.
             if(result["msg"]){
-              res.redirect(`/rmfm3/error?emsg=${result["error"]}`);
+              res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(result["error"])}`);
             }else{
               res.json(result); //Express displays the JSON returned by the parser
             }
           });
         } catch (err) {
-          res.redirect(`/rmfm3/error?emsg=${err}`);
+          res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(err)}`);
         }
         }
       });

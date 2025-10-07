@@ -4,6 +4,29 @@ const debugConfig = require('../../config/debugConfig');
 const fs = require('fs');
 const yaml = require('js-yaml');
 
+// Helper function to sanitize and validate error codes
+function getSafeErrorCode(error) {
+    const allowedErrors = ['DE', 'NE', 'UA', 'EOUT', 'Err'];
+    
+    if (typeof error === 'string') {
+        if (allowedErrors.includes(error)) {
+            return error;
+        }
+        return encodeURIComponent(error.substring(0, 100));
+    }
+    
+    if (error && typeof error === 'object') {
+        if (error.data) {
+            return encodeURIComponent(String(error.data).substring(0, 100));
+        }
+        if (error.error) {
+            return encodeURIComponent(String(error.error).substring(0, 100));
+        }
+    }
+    
+    return 'Err';
+}
+
 // Helper function to get current config
 function getConfig() {
   try {
@@ -176,7 +199,7 @@ module.exports.RMFIIImetrics = async function (req, res) {
           RMFMonitor3parser.RMF3fieldParser(data, function (result){
             if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
               var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
+              res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(data)}`);
             }else{
               res.json(result);
             }
@@ -193,7 +216,7 @@ module.exports.RMFIIImetrics = async function (req, res) {
           RMFMonitor3parser.RMF3idListParser(data, function (result){
             if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives 
               var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
+              res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(data)}`);
             }else{
               res.json(result);
             }
@@ -314,7 +337,7 @@ async function RMFIIIJSON(req, res, status){
             res.redirect('/rmfm3/error?emsg=' + string);
           }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
             var data = result["data"];
-            res.redirect(`/rmfm3/error?emsg=${data}`);
+            res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(data)}`);
           }else{
             res.json(result); //Express respond with the result returned from displayCPC function
           }
@@ -326,7 +349,7 @@ async function RMFIIIJSON(req, res, status){
             res.redirect('/rmfm3/error?emsg=' + string);
           }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
             var data = result["data"];
-            res.redirect(`/rmfm3/error?emsg=${data}`);
+            res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(data)}`);
           }else{
             res.json(result); //Express respond with the result returned from displayPROC function
           }
@@ -339,7 +362,7 @@ async function RMFIIIJSON(req, res, status){
             res.redirect('/rmfm3/error?emsg=' + string);
           }else if(result["msg"]){ //Data Error from parser, when parser cannor parse the XML file it receives
             var data = result["data"];
-            res.redirect(`/rmfm3/error?emsg=${data}`);
+            res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(data)}`);
           }else{
             res.json(result); //Express respond with the result returned from displayUSAGE function
           }
@@ -367,7 +390,7 @@ async function RMFIIIJSON(req, res, status){
           RMFMonitor3parser.RMF3bodyParser(data, function (result) {
             if(result["msg"]){
               var data = result["data"];
-              res.redirect(`/rmfm3/error?emsg=${data}`);
+              res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(data)}`);
             }else{
               res.json(result);
             }
@@ -617,7 +640,7 @@ function handleResponse(data, reportType, params, res) {
     else {
         RMFMonitor3parser.RMF3bodyParser(data, function(result) {
             if(result["msg"]) {
-                res.redirect(`/rmfm3/error?emsg=${result["data"]}`);
+                res.redirect(`/rmfm3/error?emsg=${getSafeErrorCode(result["data"])}`);
             } else {
                 switch(reportType) {
                     case 'CPC':

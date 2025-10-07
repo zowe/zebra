@@ -14,6 +14,39 @@ function getConfig() {
   }
 }
 
+// Helper function to sanitize data before rendering
+function sanitizeForRender(data) {
+  if (!data) return data;
+  
+  if (Array.isArray(data)) {
+    return data.map(item => sanitizeForRender(item));
+  }
+  
+  if (typeof data === 'object') {
+    const sanitized = {};
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const value = data[key];
+        if (typeof value === 'string') {
+          // Escape HTML special characters
+          sanitized[key] = value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;');
+        } else {
+          sanitized[key] = sanitizeForRender(value);
+        }
+      }
+    }
+    return sanitized;
+  }
+  
+  return data;
+}
+
 // Helper function to get database URIs
 function getDBURIs() {
   const Zconfig = getConfig();
@@ -56,19 +89,19 @@ module.exports.mongoReport = function(req, res) {
 
     if (type=== 'CPC'){ // if the value for type is CPC
         getDoc("cpcactivities", filter, function(data){ //function makes a connection to cpcactivities collection in MongoDB and return the data
-            res.render("mongot", {cpcdata: data}) // Express renders the CPC data on the UI
+            res.render("mongot", {cpcdata: sanitizeForRender(data)}) // Express renders the CPC data on the UI
         });
     }else if(type=== 'PROC') { //if the value for type is PROC
         getDoc("procactivities", filter, function(data){ //function makes a connection to procactivities collection in MongoDB and return the data
-            res.render("mongot", {procdata: data}) // Express renders the PROC data on the UI
+            res.render("mongot", {procdata: sanitizeForRender(data)}) // Express renders the PROC data on the UI
         });
     }else if(type === 'USAGE'){ //if the value for type is USAGE
         getDoc("usageactivities", filter, function(data){ //function makes a connection to usageactivities collection in MongoDB and return the data
-            res.render("mongot", {usagedata: data}) // Express renders the usage data on the UI
+            res.render("mongot", {usagedata: sanitizeForRender(data)}) // Express renders the usage data on the UI
         });
     }else if(type === 'Workload'){ //if the value for type is Workload
         getDoc("workloadactivities", filter, function(data){ //function makes a connection to workloadactivities collection in MongoDB and return the data
-            res.render("mongot", {wlkdata: data}) // Express renders the Workload data on the UI
+            res.render("mongot", {wlkdata: sanitizeForRender(data)}) // Express renders the Workload data on the UI
         });
     }else{ //if a user did not specify type
         res.render("mongot", {nodata: {}}) //Express return no data

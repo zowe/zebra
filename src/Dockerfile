@@ -1,29 +1,31 @@
-FROM node:8-slim
+FROM node:22.14.0-slim
 
 # Create app directory
 WORKDIR /zebra
 
-#this needs to be done since node 8 is old and doesn't support the latest sqlite3 version.
-#update sources.list to use archive repositories and remove security updates.
-RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
-    -e '/security/d' \
-    -e '/updates/d' /etc/apt/sources.list \
-    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/100disablechecks
+# Create a non-root user
+RUN groupadd -r zebrauser && useradd -r -g zebrauser zebrauser
 
-#install Python and build dependencies, needed for sqlite3. will change in future versions.
+# Install Python and build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python \
+    python3 \
     make \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# Copy package files
 COPY package*.json ./
 
+# Install dependencies
 RUN npm install
 
 # Bundle app source
 COPY . .
+
+# Change ownership to non-root user
+RUN chown -R zebrauser:zebrauser /zebra
+
+# Switch to non-root user
+USER zebrauser
 
 CMD [ "npm", "start" ]

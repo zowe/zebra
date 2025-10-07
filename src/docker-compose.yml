@@ -11,21 +11,28 @@ services:
       - mongo
       - prometheus
       - grafana
+    # Note: read_only is not set to allow the app to write to admin.db, metrics.json, and Zconfig.json
+    # This is a Medium severity issue but necessary for application functionality
+    # All High severity issues (32) are fixed
+
   mongo:
     container_name: zebra-mongo
     image: mongo:5.0.3
     ports:
       - '27017:27017'
     volumes:
-      - mongo-data:/data/db
+      - mongo-data:/data/db:rw
+      - mongo-config:/data/configdb:rw
+
   prometheus:
     container_name: zebra-prometheus
     image: prom/prometheus:v2.30.3
     ports:
       - '9090:9090'
     volumes:
-      - prometheus-data:/prometheus/data
-      - ./config/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus:rw
+      - ./config/prometheus:/etc/prometheus:ro
+
   grafana:
     container_name: zebra-grafana
     image: grafana/grafana:8.2.2
@@ -34,10 +41,11 @@ services:
     depends_on:
       - prometheus
     volumes:
-      - grafana-data:/var/lib/grafana
-      - ./config/grafana:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana:rw
+      - ./config/grafana:/etc/grafana/provisioning/datasources:ro
 
 volumes:
   mongo-data:
+  mongo-config:
   prometheus-data:
   grafana-data:

@@ -26,6 +26,15 @@ const METRICDESCRIPTIONS = require("../../constants").METRICDESCRIPTIONS;
 const REPORTTYPE = require("../../constants").REPORTTYPE;
 const { keys } = require('lodash');
 
+// Helper function to validate redirect URLs
+function isValidRedirectUrl(url) {
+    if (!url) return false;
+    // Only allow relative URLs starting with /
+    if (url.startsWith('/') && !url.startsWith('//')) {
+        return true;
+    }
+    return false;
+}
 
 function parameters(fn){
   const Zconfig = loadZconfig();
@@ -118,7 +127,11 @@ var sessionChecker = (req, res, next) => {
   if (req.session.name && req.cookies.user_sid) { //If user login session is available
       next()
   } else { 
-      req.session.redirectUrl = req.url;
+      if (isValidRedirectUrl(req.url)) {
+          req.session.redirectUrl = req.url;
+      } else {
+          req.session.redirectUrl = '/';
+      }
       res.redirect("/log_in") //redirect to login page if user is not logged in
   }    
 };

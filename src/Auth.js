@@ -45,6 +45,26 @@ function runQueries(db, fn) {
     });
 }
 
+// Helper function to validate redirect URLs
+function isValidRedirectUrl(url) {
+    if (!url) return false;
+    
+    // Only allow relative URLs starting with /
+    if (url.startsWith('/') && !url.startsWith('//')) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Helper function to get safe redirect URL
+function getSafeRedirectUrl(url, defaultUrl = '/') {
+    if (isValidRedirectUrl(url)) {
+        return url;
+    }
+    return defaultUrl;
+}
+
 // Generates an access token using the static secret key
 function generateAccessToken(user) {
     return jwt.sign({ user: user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
@@ -144,7 +164,7 @@ module.exports.formLogin = function(req, res, next) {
                 req.session.name = req.body.name;
                 req.session.password = data.password; // Note: Storing password in session is not recommended
 
-                const redirectionUrl = req.session.redirectUrl || '/';
+                const redirectionUrl = getSafeRedirectUrl(req.session.redirectUrl);
                 res.redirect(redirectionUrl);
             } else {
                 res.render("login", { lgmsg: "Login Failed" });
@@ -189,7 +209,7 @@ module.exports.updatePasswordForm = function(req, res) {
             req.session.name = req.body.name;
             req.session.password = hashedpassword; // Again, not ideal to store this
 
-            const redirectionUrl = req.session.redirectUrl || '/';
+            const redirectionUrl = getSafeRedirectUrl(req.session.redirectUrl);
             res.redirect(redirectionUrl);
         } catch (e) {
             console.error("Password update error:", e);

@@ -1,6 +1,24 @@
 const axios = require('axios');
 var RMFPPparser = require('../parser/RMFPPparser') //importing the RMFMonitor3parser file
 
+// Helper function to sanitize and validate error codes
+function getSafeErrorCode(error) {
+    const allowedErrors = ['DE', 'NE', 'UA', 'EOUT', 'Err'];
+    
+    if (typeof error === 'string') {
+        if (allowedErrors.includes(error)) {
+            return error;
+        }
+        return encodeURIComponent(error.substring(0, 100));
+    }
+    
+    if (error && typeof error === 'object' && error.data) {
+        return encodeURIComponent(String(error.data).substring(0, 100));
+    }
+    
+    return 'Err';
+}
+
 // Helper function to get current config
 function getConfig() {
   try {
@@ -191,7 +209,8 @@ async function RMFIJSON(req, res, status){
               RMFPPparser.parse(data, function (result) { //data returned by the getRequestpp callback function is passed to bodyParserforRmfPP function
                 if (result["msg"]) { //Data Error from parser, when parser cannor parse the XML file it receives 
                   var data = result["data"];
-                  res.redirect(`/rmfpp/error?emsg=${data}`);
+                  const safeError = getSafeErrorCode(data);
+                  res.redirect(`/rmfpp/error?emsg=${safeError}`);
                 } else{
                   res.json(result); //Express display all the result returned by the call back function
                 }

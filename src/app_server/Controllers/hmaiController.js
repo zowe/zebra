@@ -215,10 +215,9 @@ async function startHMAI(req, res) {
         await mysqlConnection.query(`USE ${lpar}`);
         console.log(`Using database ${lpar}`);
 
-        if (databaseCreated) {
-            await createTables(mysqlConnection);
-            console.log('Tables created');
-        }
+        // Always ensure tables exist (create if missing)
+        await createTables(mysqlConnection, metrics);
+        console.log('Tables verified/created');
 
         // Start FTP connection
         ftpClient = new FTP();
@@ -316,10 +315,10 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
     
     return processedMetrics;
 }
-    async function createTables(connection) {
-        // Create tables
-        const createTableQueries = [
-            `CREATE TABLE clpr (
+    async function createTables(connection, metrics = null) {
+        // Map of all table creation queries with IF NOT EXISTS
+        const tableQueries = {
+            clpr: `CREATE TABLE IF NOT EXISTS clpr (
                 clpr_id INT NOT NULL AUTO_INCREMENT,
                 TIMESTAMP DATETIME DEFAULT NULL,
                 SMFRSDTE VARCHAR(25) DEFAULT NULL,
@@ -362,7 +361,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                 KEY TIMESTAMP_index (TIMESTAMP),
                 KEY SMFRSSN_index (SMFRSSN)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`,
-            `CREATE TABLE port (
+            port: `CREATE TABLE IF NOT EXISTS port (
                 port_id INT NOT NULL AUTO_INCREMENT,
                 TIMESTAMP DATETIME DEFAULT NULL,
                 SMFRSDTE VARCHAR(25) DEFAULT NULL,
@@ -400,7 +399,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                 KEY TIMESTAMP_index (TIMESTAMP),
                 KEY SMFRSSN_index (SMFRSSN)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`,
-            `CREATE TABLE ldev (
+            ldev: `CREATE TABLE IF NOT EXISTS ldev (
                 ldev_id INT NOT NULL AUTO_INCREMENT,
                 TIMESTAMP DATETIME DEFAULT NULL,
                 SMFRSDTE VARCHAR(25) DEFAULT NULL,
@@ -454,7 +453,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                 KEY TIMESTAMP_index (TIMESTAMP),
                 KEY SMFRSSN_index (SMFRSSN)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`,
-            `CREATE TABLE mpb (
+            mpb: `CREATE TABLE IF NOT EXISTS mpb (
                 mpb_id INT NOT NULL AUTO_INCREMENT,
                 TIMESTAMP DATETIME DEFAULT NULL,
                 SMFRSDTE VARCHAR(25) DEFAULT NULL,
@@ -483,7 +482,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                 KEY TIMESTAMP_index (TIMESTAMP),
                 KEY SMFRSSN_index (SMFRSSN)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`,
-            `CREATE TABLE mprank20 (
+            mprank20: `CREATE TABLE IF NOT EXISTS mprank20 (
                 mprank20_id INT NOT NULL AUTO_INCREMENT,
                 TIMESTAMP DATETIME DEFAULT NULL,
                 SMFRSDTE VARCHAR(25) DEFAULT NULL,
@@ -508,7 +507,7 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                 KEY TIMESTAMP_index (TIMESTAMP),
                 KEY SMFRSSN_index (SMFRSSN)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`,
-            `CREATE TABLE pgrp (
+            pgrp: `CREATE TABLE IF NOT EXISTS pgrp (
                 pgrp_id INT NOT NULL AUTO_INCREMENT,
                 TIMESTAMP DATETIME DEFAULT NULL,
                 SMFRSDTE VARCHAR(25) DEFAULT NULL,
@@ -542,10 +541,17 @@ async function processDirectory(ftpClient, mysqlConnection, dirPath, lpar, metri
                 KEY TIMESTAMP_index (TIMESTAMP),
                 KEY SMFRSSN_index (SMFRSSN)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`
-        ];
+        };
     
-        for (const query of createTableQueries) {
-            await connection.query(query);
+        // If metrics specified, only create those tables. Otherwise, create all.
+        const tablesToCreate = metrics || Object.keys(tableQueries);
+        
+        for (const tableName of tablesToCreate) {
+            if (tableQueries[tableName]) {
+                console.log(`Ensuring table ${tableName} exists...`);
+                await connection.query(tableQueries[tableName]);
+                console.log(`Table ${tableName} verified/created`);
+            }
         }
     }
 

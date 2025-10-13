@@ -979,10 +979,29 @@ async function createGetCSVTables(mysqlConnection) {
 const fastcsv = require('fast-csv');
 
 
+function sanitizeCSVValue(value) {
+    if (typeof value === 'string' && value.length > 0) {
+        const firstChar = value.charAt(0);
+        // Check if value starts with dangerous characters that could trigger formula execution
+        if (firstChar === '=' || firstChar === '+' || firstChar === '-' || 
+            firstChar === '@' || firstChar === '\t' || firstChar === '\r') {
+            // Prefix with single quote to treat as text in Excel/LibreOffice
+            // The quote is not displayed but prevents formula execution
+            return "'" + value;
+        }
+    }
+    return value;
+}
 
 async function downloadCSV(req, res) {
     const { startDate, endDate, lpar, metric } = req.body;
     console.log(`downloadCSV called with params:`, { startDate, endDate, lpar, metric });
+
+    // Whitelist of allowed metric names to prevent header injection
+    const allowedMetrics = ['clpr', 'ldev', 'mpb', 'mprank20', 'pgrp', 'port'];
+    if (!allowedMetrics.includes(metric.toLowerCase())) {
+        return res.status(400).send('Invalid metric name');
+    }
 
     const ddsConfig = getConfig().dds[lpar];
     const hmaiConfig = ddsConfig.hmai;
@@ -1003,7 +1022,17 @@ async function downloadCSV(req, res) {
         const [fields] = await mysqlConnection.query(`DESCRIBE ${metric}`);
         const headers = fields.map(field => field.Field);
 
-        const csvStream = fastcsv.format({ headers: true });
+        // Configure CSV stream with transform to sanitize values and prevent formula injection
+        const csvStream = fastcsv.format({ 
+            headers: true,
+            transform: (row) => {
+                const sanitizedRow = {};
+                for (const key in row) {
+                    sanitizedRow[key] = sanitizeCSVValue(row[key]);
+                }
+                return sanitizedRow;
+            }
+        });
         csvStream.pipe(res);
 
         let offset = 0;
@@ -1463,4 +1492,3 @@ module.exports = {
     updateRunningProcess,
     startHMAIForAllLpars,
 };
-
